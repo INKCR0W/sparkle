@@ -135,31 +135,22 @@ export async function checkElevateTask(): Promise<boolean> {
 }
 
 export function resetAppConfig(): void {
+  const data = dataDir()
+  const exe = exePath()
   if (process.platform === 'win32') {
-    spawn(
-      'cmd',
-      [
-        '/C',
-        `"timeout /t 2 /nobreak >nul && rmdir /s /q "${dataDir()}" && start "" "${exePath()}""`
-      ],
-      {
-        shell: true,
-        detached: true
-      }
-    ).unref()
-  } else {
-    const script = `while kill -0 ${process.pid} 2>/dev/null; do
-  sleep 0.1
-done
-  rm -rf '${dataDir()}'
-  ${process.argv.join(' ')} & disown
-exit
-`
-    spawn('sh', ['-c', `"${script}"`], {
+    spawn('cmd', ['/C', 'timeout', '/t', '2', '/nobreak', '>nul', '&&', 'rmdir', '/s', '/q', data, '&&', 'start', '""', exe], {
       shell: true,
       detached: true,
+      windowsVerbatimArguments: true
+    }).unref()
+  } else {
+    const escapedData = data.replace(/'/g, "'\\''")
+    const escapedArgv = process.argv.map((arg) => `'${arg.replace(/'/g, "'\\''")}'`).join(' ')
+    const script = `while kill -0 ${process.pid} 2>/dev/null; do sleep 0.1; done; rm -rf '${escapedData}'; ${escapedArgv} & disown; exit`
+    spawn('sh', ['-c', script], {
+      detached: true,
       stdio: 'ignore'
-    })
+    }).unref()
   }
   app.quit()
 }

@@ -1,6 +1,7 @@
 import { getAppConfig } from '../config'
 import dayjs from 'dayjs'
 import AdmZip from 'adm-zip'
+import path from 'path'
 import {
   appConfigPath,
   controledMihomoConfigPath,
@@ -12,6 +13,12 @@ import {
   subStoreDir,
   themesDir
 } from '../utils/dirs'
+
+function isPathSafe(targetDir: string, filePath: string): boolean {
+  const resolvedTarget = path.resolve(targetDir)
+  const resolvedFile = path.resolve(targetDir, filePath)
+  return resolvedFile.startsWith(resolvedTarget + path.sep) || resolvedFile === resolvedTarget
+}
 
 export async function webdavBackup(): Promise<boolean> {
   const { createClient } = await import('webdav/dist/node/index.js')
@@ -62,7 +69,13 @@ export async function webdavRestore(filename: string): Promise<void> {
   })
   const zipData = await client.getFileContents(`${webdavDir}/${filename}`)
   const zip = new AdmZip(zipData as Buffer)
-  zip.extractAllTo(dataDir(), true)
+  const targetDir = dataDir()
+  for (const entry of zip.getEntries()) {
+    if (!isPathSafe(targetDir, entry.entryName)) {
+      throw new Error(`Invalid path in archive: ${entry.entryName}`)
+    }
+  }
+  zip.extractAllTo(targetDir, true)
 }
 
 export async function listWebdavBackups(): Promise<string[]> {

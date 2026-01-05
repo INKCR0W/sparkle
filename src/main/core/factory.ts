@@ -325,6 +325,8 @@ async function overrideProfile(
   return profile
 }
 
+const SCRIPT_TIMEOUT = 10000
+
 async function runOverrideScript(
   profile: MihomoConfig,
   script: string,
@@ -347,29 +349,33 @@ async function runOverrideScript(
         error: (...args: unknown[]) => log('error', args.map(format).join(' ')),
         debug: (...args: unknown[]) => log('debug', args.map(format).join(' '))
       }),
-      fetch,
-      yaml: { parse: parseYaml, stringify: stringifyYaml },
+      yaml: Object.freeze({ parse: parseYaml, stringify: stringifyYaml }),
       b64d,
-      b64e,
-      Buffer
+      b64e
     }
     vm.createContext(ctx)
     log('info', '开始执行脚本', 'w')
-    vm.runInContext(script, ctx)
+    vm.runInContext(script, ctx, { timeout: SCRIPT_TIMEOUT })
     const promise = vm.runInContext(
       `(async () => {
         const result = main(${JSON.stringify(profile)})
         if (result instanceof Promise) return await result
         return result
       })()`,
-      ctx
+      ctx,
+      { timeout: SCRIPT_TIMEOUT }
     )
-    const newProfile = await promise
+    const newProfile = await Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('脚本执行超时')), SCRIPT_TIMEOUT)
+      )
+    ])
     if (typeof newProfile !== 'object') {
       throw new Error('脚本返回值必须是对象')
     }
     log('info', '脚本执行成功')
-    return newProfile
+    return newProfile as MihomoConfig
   } catch (e) {
     log('exception', `脚本执行失败：${e}`)
     return profile

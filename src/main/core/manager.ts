@@ -72,6 +72,8 @@ let networkDownHandled = false
 
 let child: ChildProcess
 let retry = 10
+let isRestarting = false
+const RESTART_DELAY = 5000
 
 export async function startCore(detached = false): Promise<Promise<void>[]> {
   const {
@@ -162,11 +164,20 @@ export async function startCore(detached = false): Promise<Promise<void>[]> {
     await writeFile(logPath(), `[Manager]: Core closed, code: ${code}, signal: ${signal}\n`, {
       flag: 'a'
     })
-    if (retry) {
-      await writeFile(logPath(), `[Manager]: Try Restart Core\n`, { flag: 'a' })
+    if (retry && !isRestarting) {
+      isRestarting = true
+      await writeFile(logPath(), `[Manager]: Try Restart Core in ${RESTART_DELAY}ms\n`, {
+        flag: 'a'
+      })
       retry--
-      await restartCore()
-    } else {
+      setTimeout(async () => {
+        try {
+          await restartCore()
+        } finally {
+          isRestarting = false
+        }
+      }, RESTART_DELAY)
+    } else if (!retry) {
       await stopCore()
     }
   })

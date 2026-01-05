@@ -11,6 +11,11 @@ import { floatingWindow } from './floatingWindow'
 let insertedCSSKeyMain: string | undefined = undefined
 let insertedCSSKeyFloating: string | undefined = undefined
 
+function isValidThemeName(theme: string): boolean {
+  const normalized = path.normalize(theme)
+  return !normalized.includes('..') && !path.isAbsolute(normalized) && normalized === theme
+}
+
 export async function resolveThemes(): Promise<{ key: string; label: string }[]> {
   const files = await readdir(themesDir())
   const themes = await Promise.all(
@@ -47,7 +52,14 @@ export async function fetchThemes(): Promise<void> {
     })
   })
   const zip = new AdmZip(zipData.data as Buffer)
-  zip.extractAllTo(themesDir(), true)
+  const targetDir = themesDir()
+  for (const entry of zip.getEntries()) {
+    const normalized = path.normalize(entry.entryName)
+    if (normalized.includes('..') || path.isAbsolute(normalized)) {
+      throw new Error(`Invalid path in archive: ${entry.entryName}`)
+    }
+  }
+  zip.extractAllTo(targetDir, true)
 }
 
 export async function importThemes(files: string[]): Promise<void> {
@@ -61,11 +73,15 @@ export async function importThemes(files: string[]): Promise<void> {
 }
 
 export async function readTheme(theme: string): Promise<string> {
+  if (!isValidThemeName(theme)) return ''
   if (!existsSync(path.join(themesDir(), theme))) return ''
   return await readFile(path.join(themesDir(), theme), 'utf-8')
 }
 
 export async function writeTheme(theme: string, css: string): Promise<void> {
+  if (!isValidThemeName(theme)) {
+    throw new Error('Invalid theme name')
+  }
   await writeFile(path.join(themesDir(), theme), css)
 }
 

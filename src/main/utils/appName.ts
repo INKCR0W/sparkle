@@ -41,10 +41,11 @@ export async function getAppName(appPath: string): Promise<string> {
 }
 
 function getLocalizedAppName(appPath: string): string {
+  const escapedPath = appPath.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
   const jxa = `
   ObjC.import('Foundation');
   const fm = $.NSFileManager.defaultManager;
-  const name = fm.displayNameAtPath('${appPath}');
+  const name = fm.displayNameAtPath('${escapedPath}');
   name.js;
 `
   const res = spawnSync('osascript', ['-l', 'JavaScript'], {
