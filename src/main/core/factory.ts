@@ -31,8 +31,14 @@ let runtimeConfigStr: string,
 export async function generateProfile(): Promise<void> {
   const { current } = await getProfileConfig()
   const { diffWorkDir = false, controlDns = true, controlSniff = true } = await getAppConfig()
-  const currentProfileConfig = await getProfile(current)
-  rawProfileStr = await getProfileStr(current)
+  let currentProfileConfig: MihomoConfig
+  try {
+    currentProfileConfig = await getProfile(current)
+    rawProfileStr = await getProfileStr(current)
+  } catch {
+    currentProfileConfig = {} as MihomoConfig
+    rawProfileStr = ''
+  }
   currentProfileStr = stringifyYaml(currentProfileConfig)
   const currentProfile = await overrideProfile(current, currentProfileConfig)
   overrideProfileStr = stringifyYaml(currentProfile)
@@ -287,8 +293,12 @@ async function prepareProfileWorkDir(current: string | undefined): Promise<void>
   const copy = async (file: string): Promise<void> => {
     const targetPath = path.join(mihomoProfileWorkDir(current), file)
     const sourcePath = path.join(mihomoWorkDir(), file)
-    if (!existsSync(targetPath) && existsSync(sourcePath)) {
-      await copyFile(sourcePath, targetPath)
+    try {
+      if (!existsSync(targetPath) && existsSync(sourcePath)) {
+        await copyFile(sourcePath, targetPath)
+      }
+    } catch {
+      // ignore
     }
   }
   await Promise.all([
@@ -308,18 +318,22 @@ async function overrideProfile(
   const globalOverride = items.filter((item) => item.global).map((item) => item.id)
   const { override = [] } = (await getProfileItem(current)) || {}
   for (const ov of new Set(globalOverride.concat(override))) {
-    const item = await getOverrideItem(ov)
-    const content = await getOverride(ov, item?.ext || 'js')
-    switch (item?.ext) {
-      case 'js':
-        profile = await runOverrideScript(profile, content, item)
-        break
-      case 'yaml': {
-        let patch = parseYaml<Partial<MihomoConfig>>(content)
-        if (typeof patch !== 'object') patch = {}
-        profile = deepMerge(profile, patch, true)
-        break
+    try {
+      const item = await getOverrideItem(ov)
+      const content = await getOverride(ov, item?.ext || 'js')
+      switch (item?.ext) {
+        case 'js':
+          profile = await runOverrideScript(profile, content, item)
+          break
+        case 'yaml': {
+          let patch = parseYaml<Partial<MihomoConfig>>(content)
+          if (typeof patch !== 'object') patch = {}
+          profile = deepMerge(profile, patch, true)
+          break
+        }
       }
+    } catch {
+      // ignore
     }
   }
   return profile

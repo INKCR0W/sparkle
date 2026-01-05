@@ -554,6 +554,9 @@ export async function revokeCorePermission(cores?: ('mihomo' | 'mihomo-alpha')[]
 }
 
 export async function getDefaultDevice(): Promise<string> {
+  if (process.platform !== 'darwin') {
+    throw new Error('getDefaultDevice is only supported on macOS')
+  }
   const execFilePromise = promisify(execFile)
   const { stdout: deviceOut } = await execFilePromise('route', ['-n', 'get', 'default'])
   let device = deviceOut.split('\n').find((s) => s.includes('interface:'))
@@ -563,6 +566,9 @@ export async function getDefaultDevice(): Promise<string> {
 }
 
 async function getDefaultService(): Promise<string> {
+  if (process.platform !== 'darwin') {
+    throw new Error('getDefaultService is only supported on macOS')
+  }
   const execFilePromise = promisify(execFile)
   const device = await getDefaultDevice()
   const { stdout: order } = await execFilePromise('networksetup', ['-listnetworkserviceorder'])
@@ -601,15 +607,24 @@ async function setDNS(dns: string, mode: 'none' | 'exec' | 'service'): Promise<v
   }
 }
 
+const DNS_RETRY_MAX = 10
+let dnsRetryCount = 0
+
 async function setPublicDNS(): Promise<void> {
   if (process.platform !== 'darwin') return
   if (net.isOnline()) {
+    dnsRetryCount = 0
     const { originDNS, autoSetDNSMode = 'none' } = await getAppConfig()
     if (!originDNS) {
       await getOriginDNS()
       await setDNS('223.5.5.5', autoSetDNSMode)
     }
   } else {
+    if (dnsRetryCount >= DNS_RETRY_MAX) {
+      dnsRetryCount = 0
+      return
+    }
+    dnsRetryCount++
     if (setPublicDNSTimer) clearTimeout(setPublicDNSTimer)
     setPublicDNSTimer = setTimeout(() => setPublicDNS(), 5000)
   }
@@ -618,12 +633,18 @@ async function setPublicDNS(): Promise<void> {
 async function recoverDNS(): Promise<void> {
   if (process.platform !== 'darwin') return
   if (net.isOnline()) {
+    dnsRetryCount = 0
     const { originDNS, autoSetDNSMode = 'none' } = await getAppConfig()
     if (originDNS) {
       await setDNS(originDNS, autoSetDNSMode)
       await patchAppConfig({ originDNS: undefined })
     }
   } else {
+    if (dnsRetryCount >= DNS_RETRY_MAX) {
+      dnsRetryCount = 0
+      return
+    }
+    dnsRetryCount++
     if (recoverDNSTimer) clearTimeout(recoverDNSTimer)
     recoverDNSTimer = setTimeout(() => recoverDNS(), 5000)
   }
@@ -646,19 +667,23 @@ export async function startNetworkDetection(): Promise<void> {
   )
 
   networkDetectionTimer = setInterval(async () => {
-    if (isAnyNetworkInterfaceUp(extendedBypass) && net.isOnline()) {
-      if ((networkDownHandled && !child) || (child && child.killed)) {
-        const promises = await startCore()
-        await Promise.all(promises)
-        if (sysProxy.enable) triggerSysProxy(true, onlyActiveDevice)
-        networkDownHandled = false
+    try {
+      if (isAnyNetworkInterfaceUp(extendedBypass) && net.isOnline()) {
+        if ((networkDownHandled && !child) || (child && child.killed)) {
+          const promises = await startCore()
+          await Promise.all(promises)
+          if (sysProxy.enable) triggerSysProxy(true, onlyActiveDevice)
+          networkDownHandled = false
+        }
+      } else {
+        if (!networkDownHandled) {
+          if (sysProxy.enable) disableSysProxy(onlyActiveDevice)
+          await stopCore()
+          networkDownHandled = true
+        }
       }
-    } else {
-      if (!networkDownHandled) {
-        if (sysProxy.enable) disableSysProxy(onlyActiveDevice)
-        await stopCore()
-        networkDownHandled = true
-      }
+    } catch {
+      // ignore
     }
   }, networkDetectionInterval * 1000)
 }

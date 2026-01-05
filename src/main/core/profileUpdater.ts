@@ -19,92 +19,75 @@ function calculateUpdateDelay(item: ProfileItem): number {
   return intervalMs - timeSinceLastUpdate
 }
 
+function scheduleProfileUpdate(item: ProfileItem, initialDelay: number): void {
+  if (intervalPool[item.id]) {
+    clearTimeout(intervalPool[item.id])
+  }
+
+  const intervalMs = item.interval! * 60 * 1000
+
+  const doUpdate = async (): Promise<void> => {
+    try {
+      await addProfileItem(item)
+    } catch {
+      // ignore
+    }
+    intervalPool[item.id] = setTimeout(doUpdate, intervalMs)
+  }
+
+  intervalPool[item.id] = setTimeout(doUpdate, initialDelay)
+}
+
 export async function initProfileUpdater(): Promise<void> {
   const { items, current } = await getProfileConfig()
-  const currentItem = await getCurrentProfileItem()
   for (const item of items.filter((i) => i.id !== current)) {
     if (item.type === 'remote' && item.interval && item.autoUpdate !== false) {
       const delay = calculateUpdateDelay(item)
-
-      if (delay === -1) {
-        continue
-      }
+      if (delay === -1) continue
 
       if (delay === 0) {
         try {
           await addProfileItem(item)
-        } catch (e) {
+        } catch {
           // ignore
         }
       }
 
-      intervalPool[item.id] = setTimeout(
-        async () => {
-          try {
-            await addProfileItem(item)
-          } catch (e) {
-            // ignore
-          }
-        },
-        delay === 0 ? item.interval * 60 * 1000 : delay
-      )
+      scheduleProfileUpdate(item, delay === 0 ? item.interval * 60 * 1000 : delay)
     }
   }
 
+  const currentItem = await getCurrentProfileItem()
   if (currentItem?.type === 'remote' && currentItem.interval && currentItem.autoUpdate !== false) {
     const delay = calculateUpdateDelay(currentItem)
 
     if (delay === 0) {
       try {
         await addProfileItem(currentItem)
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
 
-    intervalPool[currentItem.id] = setTimeout(
-      async () => {
-        try {
-          await addProfileItem(currentItem)
-        } catch (e) {
-          // ignore
-        }
-      },
-      (delay === 0 ? currentItem.interval * 60 * 1000 : delay) + 10000 // +10s
-    )
+    const actualDelay = (delay === 0 ? currentItem.interval * 60 * 1000 : delay) + 10000
+    scheduleProfileUpdate(currentItem, actualDelay)
   }
 }
 
 export async function addProfileUpdater(item: ProfileItem): Promise<void> {
   if (item.type === 'remote' && item.interval && item.autoUpdate !== false) {
-    if (intervalPool[item.id]) {
-      clearTimeout(intervalPool[item.id])
-    }
-
     const delay = calculateUpdateDelay(item)
-
-    if (delay === -1) {
-      return
-    }
+    if (delay === -1) return
 
     if (delay === 0) {
       try {
         await addProfileItem(item)
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
 
-    intervalPool[item.id] = setTimeout(
-      async () => {
-        try {
-          await addProfileItem(item)
-        } catch (e) {
-          // ignore
-        }
-      },
-      delay === 0 ? item.interval * 60 * 1000 : delay
-    )
+    scheduleProfileUpdate(item, delay === 0 ? item.interval * 60 * 1000 : delay)
   }
 }
 
