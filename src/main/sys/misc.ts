@@ -138,7 +138,7 @@ export function resetAppConfig(): void {
   const data = dataDir()
   const exe = exePath()
   if (process.platform === 'win32') {
-    spawn('cmd', ['/C', 'timeout', '/t', '2', '/nobreak', '>nul', '&&', 'rmdir', '/s', '/q', data, '&&', 'start', '""', exe], {
+    spawn('cmd', ['/C', 'timeout', '/t', '2', '/nobreak', '>nul', '&&', 'rmdir', '/s', '/q', `"${data}"`, '&&', 'start', '""', `"${exe}"`], {
       shell: true,
       detached: true,
       windowsVerbatimArguments: true

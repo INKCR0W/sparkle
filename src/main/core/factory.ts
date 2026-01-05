@@ -332,8 +332,8 @@ async function overrideProfile(
           break
         }
       }
-    } catch {
-      // ignore
+    } catch (e) {
+      console.warn(`[Override] Failed to apply override ${ov}:`, e)
     }
   }
   return profile

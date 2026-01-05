@@ -608,23 +608,24 @@ async function setDNS(dns: string, mode: 'none' | 'exec' | 'service'): Promise<v
 }
 
 const DNS_RETRY_MAX = 10
-let dnsRetryCount = 0
+let setPublicDNSRetryCount = 0
+let recoverDNSRetryCount = 0
 
 async function setPublicDNS(): Promise<void> {
   if (process.platform !== 'darwin') return
   if (net.isOnline()) {
-    dnsRetryCount = 0
+    setPublicDNSRetryCount = 0
     const { originDNS, autoSetDNSMode = 'none' } = await getAppConfig()
     if (!originDNS) {
       await getOriginDNS()
       await setDNS('223.5.5.5', autoSetDNSMode)
     }
   } else {
-    if (dnsRetryCount >= DNS_RETRY_MAX) {
-      dnsRetryCount = 0
+    if (setPublicDNSRetryCount >= DNS_RETRY_MAX) {
+      setPublicDNSRetryCount = 0
       return
     }
-    dnsRetryCount++
+    setPublicDNSRetryCount++
     if (setPublicDNSTimer) clearTimeout(setPublicDNSTimer)
     setPublicDNSTimer = setTimeout(() => setPublicDNS(), 5000)
   }
@@ -633,18 +634,18 @@ async function setPublicDNS(): Promise<void> {
 async function recoverDNS(): Promise<void> {
   if (process.platform !== 'darwin') return
   if (net.isOnline()) {
-    dnsRetryCount = 0
+    recoverDNSRetryCount = 0
     const { originDNS, autoSetDNSMode = 'none' } = await getAppConfig()
     if (originDNS) {
       await setDNS(originDNS, autoSetDNSMode)
       await patchAppConfig({ originDNS: undefined })
     }
   } else {
-    if (dnsRetryCount >= DNS_RETRY_MAX) {
-      dnsRetryCount = 0
+    if (recoverDNSRetryCount >= DNS_RETRY_MAX) {
+      recoverDNSRetryCount = 0
       return
     }
-    dnsRetryCount++
+    recoverDNSRetryCount++
     if (recoverDNSTimer) clearTimeout(recoverDNSTimer)
     recoverDNSTimer = setTimeout(() => recoverDNS(), 5000)
   }
@@ -682,8 +683,8 @@ export async function startNetworkDetection(): Promise<void> {
           networkDownHandled = true
         }
       }
-    } catch {
-      // ignore
+    } catch (e) {
+      await writeFile(logPath(), `[Manager]: Network detection error: ${e}\n`, { flag: 'a' })
     }
   }, networkDetectionInterval * 1000)
 }
