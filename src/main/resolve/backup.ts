@@ -16,7 +16,14 @@ import {
 
 function isValidFilename(filename: string): boolean {
   const normalized = path.normalize(filename)
-  return !normalized.includes('..') && !path.isAbsolute(normalized) && !filename.includes('/')
+  // 确保规范化后路径与原始输入一致，防止任何形式的路径遍历
+  return (
+    !normalized.includes('..') &&
+    !path.isAbsolute(normalized) &&
+    normalized === filename &&
+    !filename.includes('/') &&
+    !filename.includes('\\')
+  )
 }
 
 function isValidWebdavUrl(url: string): boolean {

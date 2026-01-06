@@ -9,7 +9,8 @@ interface GistInfo {
 }
 
 function isValidGistId(id: string): boolean {
-  return /^[a-f0-9]+$/i.test(id)
+  // GitHub gist ID 是 32 个字符的十六进制字符串
+  return /^[a-f0-9]{32}$/i.test(id)
 }
 
 async function listGists(token: string): Promise<GistInfo[]> {
@@ -58,6 +59,33 @@ async function createGist(token: string, content: string): Promise<void> {
   )
 }
 
+async function createGistAndReturn(token: string, content: string): Promise<GistInfo> {
+  const { 'mixed-port': port = 7890 } = await getControledMihomoConfig()
+  const res = await axios.post(
+    'https://api.github.com/gists',
+    {
+      description: 'Auto Synced Sparkle Runtime Config',
+      public: false,
+      files: { 'sparkle.yaml': { content } }
+    },
+    {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      ...(port != 0 && {
+        proxy: {
+          protocol: 'http',
+          host: '127.0.0.1',
+          port
+        }
+      })
+    }
+  )
+  return res.data as GistInfo
+}
+
 async function updateGist(token: string, id: string, content: string): Promise<void> {
   if (!isValidGistId(id)) {
     throw new Error('Invalid gist id')
@@ -95,13 +123,12 @@ export async function getGistUrl(): Promise<string> {
     if (gist) {
       return gist.html_url
     } else {
-      await uploadRuntimeConfig()
-      const gists = await listGists(githubToken)
-      const gist = gists.find((gist) => gist.description === 'Auto Synced Sparkle Runtime Config')
-      if (!gist) throw new Error('Gist not found')
-      return gist.html_url
+      // 直接创建新 gist 并返回 URL，避免二次查询
+      const newGist = await createGistAndReturn(githubToken, await getRuntimeConfigStr())
+      return newGist.html_url
     }
-  } catch {
+  } catch (e) {
+    console.warn('Failed to get gist URL:', e instanceof Error ? e.message : e)
     return ''
   }
 }
@@ -118,7 +145,7 @@ export async function uploadRuntimeConfig(): Promise<void> {
     } else {
       await createGist(githubToken, config)
     }
-  } catch {
-    // ignore
+  } catch (e) {
+    console.warn('Failed to upload runtime config:', e instanceof Error ? e.message : e)
   }
 }
