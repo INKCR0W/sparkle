@@ -10,7 +10,8 @@ let child: ChildProcess | null = null
 export async function startMonitor(detached = false): Promise<void> {
   if (process.platform !== 'win32') return
   if (existsSync(path.join(dataDir(), 'monitor.pid'))) {
-    const pid = parseInt(await readFile(path.join(dataDir(), 'monitor.pid'), 'utf-8'))
+    const pidStr = await readFile(path.join(dataDir(), 'monitor.pid'), 'utf-8')
+    const pid = parseInt(pidStr.trim())
     if (!isNaN(pid)) {
       try {
         process.kill(pid, 'SIGINT')
@@ -29,7 +30,7 @@ export async function startMonitor(detached = false): Promise<void> {
     stdio: detached ? 'ignore' : undefined
   })
   child.on('error', () => {
-    // ignore
+    // ignore spawn errors
   })
   if (detached) {
     if (child && child.pid) {

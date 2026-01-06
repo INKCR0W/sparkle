@@ -69,6 +69,7 @@ export async function stopPacServer(): Promise<void> {
   if (pacServer) {
     pacServer.close()
     pacServer = null
+    pacPort = undefined as unknown as number
   }
 }
 
@@ -90,6 +91,7 @@ export async function stopSubStoreFrontendServer(): Promise<void> {
   if (subStoreFrontendServer) {
     subStoreFrontendServer.close()
     subStoreFrontendServer = null
+    subStoreFrontendPort = undefined as unknown as number
   }
 }
 
@@ -149,6 +151,7 @@ export async function stopSubStoreBackendServer(): Promise<void> {
   if (subStoreBackendWorker) {
     subStoreBackendWorker.terminate()
     subStoreBackendWorker = null
+    subStorePort = undefined as unknown as number
   }
 }
 
