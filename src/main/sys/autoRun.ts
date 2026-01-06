@@ -56,18 +56,27 @@ export async function checkAutoRun(): Promise<boolean> {
     try {
       const { stdout } = await execFilePromise('schtasks.exe', ['/query', '/tn', `${appName}`])
       return stdout.includes(appName)
-    } catch (e) {
+    } catch {
       return false
     }
   }
 
   if (process.platform === 'darwin') {
-    const execFilePromise = promisify(execFile)
-    const { stdout } = await execFilePromise('osascript', [
-      '-e',
-      `tell application "System Events" to get the name of every login item`
-    ])
-    return stdout.includes(exePath().split('.app')[0].replace('/Applications/', ''))
+    try {
+      const execFilePromise = promisify(execFile)
+      const { stdout } = await execFilePromise('osascript', [
+        '-e',
+        `tell application "System Events" to get the name of every login item`
+      ])
+      const appPath = exePath()
+      const appMatch = appPath.match(/\/([^/]+)\.app/)
+      if (appMatch) {
+        return stdout.includes(appMatch[1])
+      }
+      return false
+    } catch {
+      return false
+    }
   }
 
   if (process.platform === 'linux') {
@@ -91,10 +100,14 @@ export async function enableAutoRun(): Promise<void> {
   }
   if (process.platform === 'darwin') {
     const execFilePromise = promisify(execFile)
-    await execFilePromise('osascript', [
-      '-e',
-      `tell application "System Events" to make login item at end with properties {path:"${exePath().split('.app')[0]}.app", hidden:false}`
-    ])
+    const appPath = exePath()
+    const appMatch = appPath.match(/^(.*\/[^/]+\.app)/)
+    if (appMatch) {
+      await execFilePromise('osascript', [
+        '-e',
+        `tell application "System Events" to make login item at end with properties {path:"${appMatch[1]}", hidden:false}`
+      ])
+    }
   }
   if (process.platform === 'linux') {
     let desktop = `
@@ -127,13 +140,19 @@ export async function disableAutoRun(): Promise<void> {
   }
   if (process.platform === 'darwin') {
     const execFilePromise = promisify(execFile)
-    await execFilePromise('osascript', [
-      '-e',
-      `tell application "System Events" to delete login item "${exePath().split('.app')[0].replace('/Applications/', '')}"`
-    ])
+    const appPath = exePath()
+    const appMatch = appPath.match(/\/([^/]+)\.app/)
+    if (appMatch) {
+      await execFilePromise('osascript', [
+        '-e',
+        `tell application "System Events" to delete login item "${appMatch[1]}"`
+      ])
+    }
   }
   if (process.platform === 'linux') {
     const desktopFilePath = path.join(homeDir, '.config', 'autostart', `${appName}.desktop`)
-    await rm(desktopFilePath)
+    if (existsSync(desktopFilePath)) {
+      await rm(desktopFilePath)
+    }
   }
 }

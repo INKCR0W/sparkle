@@ -14,6 +14,7 @@ import {
 import { addOverrideItem, addProfileItem, getAppConfig, patchControledMihomoConfig } from './config'
 import { quitWithoutCore, startCore, stopCore } from './core/manager'
 import { triggerSysProxy } from './sys/sysproxy'
+import { stopSSIDCheck } from './sys/ssid'
 import icon from '../../resources/icon.png?asset'
 import { createTray } from './resolve/tray'
 import { createApplicationMenu } from './resolve/menu'
@@ -219,6 +220,7 @@ app.on('before-quit', async (e) => {
         clearTimeout(quitTimeout)
         quitTimeout = null
       }
+      stopSSIDCheck()
       triggerSysProxy(false, false)
       await stopCore()
       app.exit()
@@ -234,6 +236,7 @@ app.on('before-quit', async (e) => {
         clearTimeout(quitTimeout)
         quitTimeout = null
       }
+      stopSSIDCheck()
       triggerSysProxy(false, false)
       await stopCore()
       app.exit()
@@ -244,6 +247,7 @@ app.on('before-quit', async (e) => {
       clearTimeout(quitTimeout)
       quitTimeout = null
     }
+    stopSSIDCheck()
     triggerSysProxy(false, false)
     await stopCore()
     app.exit()
@@ -255,6 +259,7 @@ powerMonitor.on('shutdown', async () => {
     clearTimeout(quitTimeout)
     quitTimeout = null
   }
+  stopSSIDCheck()
   triggerSysProxy(false, false)
   await stopCore()
   app.exit()

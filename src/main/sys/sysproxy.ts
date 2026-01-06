@@ -8,15 +8,23 @@ import { disableProxy, setPac, setProxy } from '../service/api'
 
 let defaultBypass: string[]
 let triggerSysProxyTimer: NodeJS.Timeout | null = null
+const SYSPROXY_RETRY_MAX = 10
+let sysProxyRetryCount = 0
 
 export async function triggerSysProxy(enable: boolean, onlyActiveDevice: boolean): Promise<void> {
   if (net.isOnline()) {
+    sysProxyRetryCount = 0
     if (enable) {
       await setSysProxy(onlyActiveDevice)
     } else {
       await disableSysProxy(onlyActiveDevice)
     }
   } else {
+    if (sysProxyRetryCount >= SYSPROXY_RETRY_MAX) {
+      sysProxyRetryCount = 0
+      return
+    }
+    sysProxyRetryCount++
     if (triggerSysProxyTimer) clearTimeout(triggerSysProxyTimer)
     triggerSysProxyTimer = setTimeout(() => triggerSysProxy(enable, onlyActiveDevice), 5000)
   }

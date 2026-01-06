@@ -52,10 +52,13 @@ export async function setupFirewall(): Promise<void> {
     }
   }
   `
+  const mihomoPath = mihomoCorePath('mihomo').replace(/'/g, "''")
+  const mihomoAlphaPath = mihomoCorePath('mihomo-alpha').replace(/'/g, "''")
+  const sparklePath = exePath().replace(/'/g, "''")
   const createCommand = `
-  New-NetFirewallRule -DisplayName "mihomo" -Direction Inbound -Action Allow -Program "${mihomoCorePath('mihomo')}" -Enabled True -Profile Any -ErrorAction SilentlyContinue
-  New-NetFirewallRule -DisplayName "mihomo-alpha" -Direction Inbound -Action Allow -Program "${mihomoCorePath('mihomo-alpha')}" -Enabled True -Profile Any -ErrorAction SilentlyContinue
-  New-NetFirewallRule -DisplayName "Sparkle" -Direction Inbound -Action Allow -Program "${exePath()}" -Enabled True -Profile Any -ErrorAction SilentlyContinue
+  New-NetFirewallRule -DisplayName "mihomo" -Direction Inbound -Action Allow -Program '${mihomoPath}' -Enabled True -Profile Any -ErrorAction SilentlyContinue
+  New-NetFirewallRule -DisplayName "mihomo-alpha" -Direction Inbound -Action Allow -Program '${mihomoAlphaPath}' -Enabled True -Profile Any -ErrorAction SilentlyContinue
+  New-NetFirewallRule -DisplayName "Sparkle" -Direction Inbound -Action Allow -Program '${sparklePath}' -Enabled True -Profile Any -ErrorAction SilentlyContinue
   `
 
   if (process.platform === 'win32') {
