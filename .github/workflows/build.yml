@@ -247,7 +247,17 @@ jobs:
           API_URL: ${{ secrets.API_URL }}
           API_KEY: ${{ secrets.API_KEY }}
         run: |
-          TEXT=$(git log $(jq -r .version package.json)..HEAD --pretty=format:%s | grep -v '[0-9]\+\.[0-9]\+\.[0-9]\+$' | sed ':a;N;$!ba;s/\n/\\n/g')
+          CURRENT_VERSION=$(jq -r .version package.json)
+          if git rev-parse "$CURRENT_VERSION" >/dev/null 2>&1; then
+            TEXT=$(git log ${CURRENT_VERSION}..HEAD --pretty=format:%s | grep -v '[0-9]\+\.[0-9]\+\.[0-9]\+$' | sed ':a;N;$!ba;s/\n/\\n/g' || echo "")
+          else
+            TEXT=$(git log -20 --pretty=format:%s | grep -v '[0-9]\+\.[0-9]\+\.[0-9]\+$' | sed ':a;N;$!ba;s/\n/\\n/g' || echo "")
+          fi
+          if [ -z "$TEXT" ]; then
+            echo '# 更新日志' > changelog.md
+            echo ' - Bug fixes and improvements' >> changelog.md
+            exit 0
+          fi
           QUESTION="Translate into Chinese:\n"""\n$TEXT\n""""
           PAYLOAD=$(cat <<EOF
           {
