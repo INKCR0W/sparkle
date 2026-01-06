@@ -5,19 +5,20 @@ import path from 'path'
 import { existsSync } from 'fs'
 import { readFile, rm, writeFile } from 'fs/promises'
 
-let child: ChildProcess
+let child: ChildProcess | null = null
 
 export async function startMonitor(detached = false): Promise<void> {
   if (process.platform !== 'win32') return
   if (existsSync(path.join(dataDir(), 'monitor.pid'))) {
     const pid = parseInt(await readFile(path.join(dataDir(), 'monitor.pid'), 'utf-8'))
-    try {
-      process.kill(pid, 'SIGINT')
-    } catch {
-      // ignore
-    } finally {
-      await rm(path.join(dataDir(), 'monitor.pid'))
+    if (!isNaN(pid)) {
+      try {
+        process.kill(pid, 'SIGINT')
+      } catch {
+        // ignore
+      }
     }
+    await rm(path.join(dataDir(), 'monitor.pid'))
   }
   await stopMonitor()
   const { showTraffic = false } = await getAppConfig()
@@ -26,6 +27,9 @@ export async function startMonitor(detached = false): Promise<void> {
     cwd: path.join(resourcesFilesDir(), 'TrafficMonitor'),
     detached: detached,
     stdio: detached ? 'ignore' : undefined
+  })
+  child.on('error', () => {
+    // ignore
   })
   if (detached) {
     if (child && child.pid) {
@@ -38,5 +42,6 @@ export async function startMonitor(detached = false): Promise<void> {
 async function stopMonitor(): Promise<void> {
   if (child) {
     child.kill('SIGINT')
+    child = null
   }
 }

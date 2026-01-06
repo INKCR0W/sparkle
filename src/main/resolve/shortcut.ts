@@ -69,7 +69,7 @@ export async function registerShortcut(
             title: `虚拟网卡已${!enable ? '开启' : '关闭'}`
           }).show()
           mainWindow?.webContents.send('controledMihomoConfigUpdated')
-          floatingWindow?.webContents.send('appConfigUpdated')
+          floatingWindow?.webContents.send('controledMihomoConfigUpdated')
         } catch {
           // ignore
         } finally {
