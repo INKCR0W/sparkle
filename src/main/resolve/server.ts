@@ -12,9 +12,9 @@ import express from 'express'
 import axios from 'axios'
 import AdmZip from 'adm-zip'
 
-export let pacPort: number
-export let subStorePort: number
-export let subStoreFrontendPort: number
+export let pacPort: number | undefined
+export let subStorePort: number | undefined
+export let subStoreFrontendPort: number | undefined
 let subStoreFrontendServer: http.Server | null = null
 let subStoreBackendWorker: Worker | null = null
 
@@ -69,7 +69,7 @@ export async function stopPacServer(): Promise<void> {
   if (pacServer) {
     pacServer.close()
     pacServer = null
-    pacPort = undefined as unknown as number
+    pacPort = undefined
   }
 }
 
@@ -91,7 +91,7 @@ export async function stopSubStoreFrontendServer(): Promise<void> {
   if (subStoreFrontendServer) {
     subStoreFrontendServer.close()
     subStoreFrontendServer = null
-    subStoreFrontendPort = undefined as unknown as number
+    subStoreFrontendPort = undefined
   }
 }
 
@@ -151,7 +151,7 @@ export async function stopSubStoreBackendServer(): Promise<void> {
   if (subStoreBackendWorker) {
     subStoreBackendWorker.terminate()
     subStoreBackendWorker = null
-    subStorePort = undefined as unknown as number
+    subStorePort = undefined
   }
 }
 

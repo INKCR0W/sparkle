@@ -445,6 +445,7 @@ function parseFilename(str: string): string {
       try {
         return decodeURIComponent(match[1])
       } catch {
+        console.warn('[parseFilename] Failed to decode filename:', match[1])
         return match[1]
       }
     }

@@ -52,10 +52,12 @@ export async function changeCurrentProfile(id: string): Promise<void> {
   const config = await getProfileConfig()
   const current = config.current
   config.current = id
+  // 先持久化新配置，restartCore 成功后无需再次写入
   await setProfileConfig(config)
   try {
     await restartCore()
   } catch (e) {
+    // 失败时回滚到原配置
     config.current = current
     await setProfileConfig(config)
     throw e
@@ -365,11 +367,11 @@ export async function setFileStr(filePath: string, content: string): Promise<voi
   if (isAbsolutePath(filePath)) {
     // 对绝对路径进行规范化检查，防止路径遍历
     const normalized = normalize(filePath)
-    if (normalized !== filePath && normalized !== filePath.replace(/\\/g, '/')) {
+    if (normalized.includes('..')) {
       throw new Error('Invalid path: path traversal detected')
     }
-    await mkdir(dirname(filePath), { recursive: true })
-    await writeFile(filePath, content, 'utf-8')
+    await mkdir(dirname(normalized), { recursive: true })
+    await writeFile(normalized, content, 'utf-8')
   } else {
     const baseDir = diffWorkDir ? mihomoProfileWorkDir(current) : mihomoWorkDir()
     const target = join(baseDir, filePath)
