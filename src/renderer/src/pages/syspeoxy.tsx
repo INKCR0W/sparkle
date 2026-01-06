@@ -89,13 +89,66 @@ const Sysproxy: React.FC = () => {
     originSetValues(v)
     setChanged(true)
   }
+  const validateHost = (host: string): boolean => {
+    if (!host) return true
+    const ipMatch = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/)
+    if (ipMatch) {
+      return ipMatch.slice(1).every((octet) => {
+        const num = parseInt(octet, 10)
+        return num >= 0 && num <= 255
+      })
+    }
+    const hostnameRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$|^[a-zA-Z0-9]$/
+    return hostnameRegex.test(host)
+  }
+
+  const validateBypass = (bypass: string[]): boolean => {
+    if (!bypass || bypass.length === 0) return true
+    // 支持的格式：
+    // - 域名: localhost, example.com, *.example.com, .local
+    // - IP: 192.168.1.1, 127.0.0.1/8
+    // - 通配符: 127.*, 192.168.*, 10.*
+    // - 特殊: <local>, ::1
+    const bypassRegex = /^(\*\.)?[a-zA-Z0-9*.-]+(\.\*)?$|^\.[a-zA-Z0-9-]+$|^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$|^\d{1,3}\.\*$|^(\d{1,3}\.){2}\*$|^(\d{1,3}\.){3}\*$|^<[a-z]+>$|^::1$/
+    return bypass.every((item) => typeof item === 'string' && item.trim().length > 0 && bypassRegex.test(item.trim()))
+  }
+
+  const validatePacScript = (script: string): boolean => {
+    if (!script) return false
+    return /function\s+FindProxyForURL\s*\(/.test(script)
+  }
+
   const onSave = async (): Promise<void> => {
-    // check valid TODO
-    await patchAppConfig({ sysProxy: values })
-    setChanged(false)
-    if (values.enable) {
+    if (!validateHost(values.host)) {
+      alert('代理主机格式无效，请输入有效的 IP 地址或主机名')
+      return
+    }
+
+    if (!validateBypass(values.bypass)) {
+      alert('代理绕过列表包含无效项')
+      return
+    }
+
+    if (values.mode === 'auto' && !validatePacScript(values.pacScript)) {
+      alert('PAC 脚本无效，必须包含 FindProxyForURL 函数')
+      return
+    }
+
+    const saveValues = {
+      ...values,
+      host: values.host || '127.0.0.1',
+      bypass: values.bypass.map(item => item.trim())
+    }
+    try {
+      await patchAppConfig({ sysProxy: saveValues })
+      setChanged(false)
+    } catch (e) {
+      alert(e)
+      return
+    }
+    if (saveValues.enable) {
       try {
-        await triggerSysProxy(values.enable, onlyActiveDevice)
+        await triggerSysProxy(saveValues.enable, onlyActiveDevice)
       } catch (e) {
         alert(e)
         await patchAppConfig({ sysProxy: { enable: false } })
