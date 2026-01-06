@@ -247,17 +247,33 @@ jobs:
           API_URL: ${{ secrets.API_URL }}
           API_KEY: ${{ secrets.API_KEY }}
         run: |
+          # 如果仓库中已有 changelog.md 且不为空，直接使用
+          if [ -f "changelog.md" ] && [ -s "changelog.md" ]; then
+            echo "Using existing changelog.md from repository"
+            exit 0
+          fi
+          
           CURRENT_VERSION=$(jq -r .version package.json)
           if git rev-parse "$CURRENT_VERSION" >/dev/null 2>&1; then
             TEXT=$(git log ${CURRENT_VERSION}..HEAD --pretty=format:%s | grep -v '[0-9]\+\.[0-9]\+\.[0-9]\+$' | sed ':a;N;$!ba;s/\n/\\n/g' || echo "")
           else
             TEXT=$(git log -20 --pretty=format:%s | grep -v '[0-9]\+\.[0-9]\+\.[0-9]\+$' | sed ':a;N;$!ba;s/\n/\\n/g' || echo "")
           fi
+          
           if [ -z "$TEXT" ]; then
             echo '# 更新日志' > changelog.md
             echo ' - Bug fixes and improvements' >> changelog.md
             exit 0
           fi
+          
+          # 如果没有配置 API，使用原始 commit 信息
+          if [ -z "$API_URL" ] || [ -z "$API_KEY" ]; then
+            echo "API not configured, using raw commit messages"
+            echo '# 更新日志' > changelog.md
+            echo "$TEXT" | sed 's/\\n/\n/g' | sed 's/^/ - /g' >> changelog.md
+            exit 0
+          fi
+          
           QUESTION="Translate into Chinese:\n"""\n$TEXT\n""""
           PAYLOAD=$(cat <<EOF
           {
@@ -281,8 +297,17 @@ jobs:
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
             --max-time 30)
-          echo '# 更新日志' > changelog.md
-          echo $RESPONSE | jq .choices[0].message.content -r | sed 's/\\n/\n/g' | sed 's/^/ - /g' >> changelog.md
+          
+          # 检查 API 响应是否有效
+          CONTENT=$(echo $RESPONSE | jq -r '.choices[0].message.content // empty')
+          if [ -z "$CONTENT" ]; then
+            echo "API response invalid, using raw commit messages"
+            echo '# 更新日志' > changelog.md
+            echo "$TEXT" | sed 's/\\n/\n/g' | sed 's/^/ - /g' >> changelog.md
+          else
+            echo '# 更新日志' > changelog.md
+            echo "$CONTENT" | sed 's/\\n/\n/g' | sed 's/^/ - /g' >> changelog.md
+          fi
 
       - name: Update Version
         run: |
