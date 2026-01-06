@@ -98,7 +98,8 @@ const Sysproxy: React.FC = () => {
         return num >= 0 && num <= 255
       })
     }
-    const hostnameRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$|^[a-zA-Z0-9]$/
+    const hostnameRegex =
+      /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$|^[a-zA-Z0-9]$/
     return hostnameRegex.test(host)
   }
 
@@ -109,8 +110,11 @@ const Sysproxy: React.FC = () => {
     // - IP: 192.168.1.1, 127.0.0.1/8
     // - 通配符: 127.*, 192.168.*, 10.*
     // - 特殊: <local>, ::1
-    const bypassRegex = /^(\*\.)?[a-zA-Z0-9*.-]+(\.\*)?$|^\.[a-zA-Z0-9-]+$|^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$|^\d{1,3}\.\*$|^(\d{1,3}\.){2}\*$|^(\d{1,3}\.){3}\*$|^<[a-z]+>$|^::1$/
-    return bypass.every((item) => typeof item === 'string' && item.trim().length > 0 && bypassRegex.test(item.trim()))
+    const bypassRegex =
+      /^(\*\.)?[a-zA-Z0-9*.-]+(\.\*)?$|^\.[a-zA-Z0-9-]+$|^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$|^\d{1,3}\.\*$|^(\d{1,3}\.){2}\*$|^(\d{1,3}\.){3}\*$|^<[a-z]+>$|^::1$/
+    return bypass.every(
+      (item) => typeof item === 'string' && item.trim().length > 0 && bypassRegex.test(item.trim())
+    )
   }
 
   const validatePacScript = (script: string): boolean => {
@@ -137,7 +141,7 @@ const Sysproxy: React.FC = () => {
     const saveValues = {
       ...values,
       host: values.host || '127.0.0.1',
-      bypass: values.bypass.map(item => item.trim())
+      bypass: values.bypass.map((item) => item.trim())
     }
     try {
       await patchAppConfig({ sysProxy: saveValues })
