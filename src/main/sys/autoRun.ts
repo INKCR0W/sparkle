@@ -143,10 +143,14 @@ export async function disableAutoRun(): Promise<void> {
     const appPath = exePath()
     const appMatch = appPath.match(/\/([^/]+)\.app/)
     if (appMatch) {
-      await execFilePromise('osascript', [
-        '-e',
-        `tell application "System Events" to delete login item "${appMatch[1]}"`
-      ])
+      try {
+        await execFilePromise('osascript', [
+          '-e',
+          `tell application "System Events" to delete login item "${appMatch[1]}"`
+        ])
+      } catch {
+        // ignore if login item doesn't exist
+      }
     }
   }
   if (process.platform === 'linux') {

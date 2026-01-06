@@ -173,7 +173,8 @@ function configureLanSettings(profile: MihomoConfig): void {
   if (allowedIps?.length === 0) {
     delete partialProfile['lan-allowed-ips']
   } else if (allowedIps && !allowedIps.some((ip: string) => ip.startsWith('127.0.0.1/'))) {
-    allowedIps.push('127.0.0.1/8')
+    // 创建新数组避免修改原始配置
+    profile['lan-allowed-ips'] = [...allowedIps, '127.0.0.1/8']
   }
 
   if (profile['lan-disallowed-ips']?.length === 0) {
@@ -252,6 +253,7 @@ function cleanDnsConfig(profile: MihomoConfig, controlDns: boolean): void {
     delete dnsConfig['nameserver-policy']
   }
 
+  // 删除 fallback 相关配置，mihomo 已不再使用这些配置
   delete dnsConfig.fallback
   delete dnsConfig['fallback-filter']
 }
@@ -298,10 +300,11 @@ async function prepareProfileWorkDir(current: string | undefined): Promise<void>
         await copyFile(sourcePath, targetPath)
       }
     } catch {
-      // ignore
+      // ignore copy errors for individual files
     }
   }
-  await Promise.all([
+  // 并行复制所有文件，单个文件失败不影响其他文件
+  await Promise.allSettled([
     copy('country.mmdb'),
     copy('geoip.metadb'),
     copy('geoip.dat'),

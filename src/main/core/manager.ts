@@ -444,19 +444,23 @@ async function checkProfile(): Promise<void> {
     )
   } catch (error) {
     if (error instanceof Error && 'stdout' in error) {
-      const { stdout } = error as { stdout: string }
-      const errorLines = stdout
+      const { stdout, stderr } = error as { stdout: string; stderr?: string }
+      const output = stdout || stderr || ''
+      const errorLines = output
         .split('\n')
         .filter((line) => line.includes('level=error'))
-        .map((line) => line.split('level=error')[1])
-      throw new Error(`Profile Check Failed:\n${errorLines.join('\n')}`)
+        .map((line) => {
+          const parts = line.split('level=error')
+          return parts[1] || line
+        })
+      throw new Error(`Profile Check Failed:\n${errorLines.join('\n') || output}`)
     } else {
       throw error
     }
   }
 }
 
-export async function manualGrantCorePermition(
+export async function manualGrantCorePermission(
   cores?: ('mihomo' | 'mihomo-alpha')[]
 ): Promise<void> {
   const execFilePromise = promisify(execFile)
@@ -488,6 +492,9 @@ export async function manualGrantCorePermition(
   const targetCores = cores || ['mihomo', 'mihomo-alpha']
   await Promise.all(targetCores.map((core) => grantPermission(core)))
 }
+
+/** @deprecated Use manualGrantCorePermission instead */
+export const manualGrantCorePermition = manualGrantCorePermission
 
 export function checkCorePermissionSync(coreName: 'mihomo' | 'mihomo-alpha'): boolean {
   if (process.platform === 'win32') return true

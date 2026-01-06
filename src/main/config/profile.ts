@@ -14,7 +14,7 @@ import { URL } from 'url'
 import { parseYaml, stringifyYaml } from '../utils/yaml'
 import { defaultProfile } from '../utils/template'
 import { subStorePort } from '../resolve/server'
-import { dirname, join } from 'path'
+import { dirname, join, normalize } from 'path'
 import { deepMerge } from '../utils/merge'
 import { getUserAgent } from '../utils/userAgent'
 
@@ -52,14 +52,15 @@ export async function changeCurrentProfile(id: string): Promise<void> {
   const config = await getProfileConfig()
   const current = config.current
   config.current = id
+  // 先持久化新配置，restartCore 成功后无需再次写入
   await setProfileConfig(config)
   try {
     await restartCore()
   } catch (e) {
+    // 失败时回滚到原配置
     config.current = current
-    throw e
-  } finally {
     await setProfileConfig(config)
+    throw e
   }
 }
 
@@ -360,14 +361,25 @@ export async function getFileStr(path: string): Promise<string> {
   }
 }
 
-export async function setFileStr(path: string, content: string): Promise<void> {
+export async function setFileStr(filePath: string, content: string): Promise<void> {
   const { diffWorkDir = false } = await getAppConfig()
   const { current } = await getProfileConfig()
-  if (isAbsolutePath(path)) {
-    await mkdir(dirname(path), { recursive: true })
-    await writeFile(path, content, 'utf-8')
+  if (isAbsolutePath(filePath)) {
+    // 对绝对路径进行规范化检查，防止路径遍历
+    const normalized = normalize(filePath)
+    if (normalized.includes('..')) {
+      throw new Error('Invalid path: path traversal detected')
+    }
+    await mkdir(dirname(normalized), { recursive: true })
+    await writeFile(normalized, content, 'utf-8')
   } else {
-    const target = join(diffWorkDir ? mihomoProfileWorkDir(current) : mihomoWorkDir(), path)
+    const baseDir = diffWorkDir ? mihomoProfileWorkDir(current) : mihomoWorkDir()
+    const target = join(baseDir, filePath)
+    // 确保目标路径在工作目录内
+    const normalizedTarget = normalize(target)
+    if (!normalizedTarget.startsWith(normalize(baseDir))) {
+      throw new Error('Invalid path: path traversal detected')
+    }
     await mkdir(dirname(target), { recursive: true })
     await writeFile(target, content, 'utf-8')
   }

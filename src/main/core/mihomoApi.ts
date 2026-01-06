@@ -260,7 +260,8 @@ const mihomoTraffic = async (): Promise<void> => {
     }
   }
 
-  mihomoTrafficWs.onerror = (): void => {
+  mihomoTrafficWs.onerror = (error): void => {
+    console.warn('[WebSocket] Traffic connection error:', error.message || 'Unknown error')
     if (mihomoTrafficWs) {
       mihomoTrafficWs.close()
       mihomoTrafficWs = null
@@ -303,7 +304,8 @@ const mihomoMemory = async (): Promise<void> => {
     }
   }
 
-  mihomoMemoryWs.onerror = (): void => {
+  mihomoMemoryWs.onerror = (error): void => {
+    console.warn('[WebSocket] Memory connection error:', error.message || 'Unknown error')
     if (mihomoMemoryWs) {
       mihomoMemoryWs.close()
       mihomoMemoryWs = null
@@ -348,7 +350,8 @@ const mihomoLogs = async (): Promise<void> => {
     }
   }
 
-  mihomoLogsWs.onerror = (): void => {
+  mihomoLogsWs.onerror = (error): void => {
+    console.warn('[WebSocket] Logs connection error:', error.message || 'Unknown error')
     if (mihomoLogsWs) {
       mihomoLogsWs.close()
       mihomoLogsWs = null
@@ -399,7 +402,8 @@ const mihomoConnections = async (): Promise<void> => {
     }
   }
 
-  mihomoConnectionsWs.onerror = (): void => {
+  mihomoConnectionsWs.onerror = (error): void => {
+    console.warn('[WebSocket] Connections error:', error.message || 'Unknown error')
     if (mihomoConnectionsWs) {
       mihomoConnectionsWs.close()
       mihomoConnectionsWs = null

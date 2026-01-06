@@ -64,11 +64,16 @@ export async function fetchThemes(): Promise<void> {
 
 export async function importThemes(files: string[]): Promise<void> {
   for (const file of files) {
-    if (existsSync(file))
-      await copyFile(
-        file,
-        path.join(themesDir(), `${new Date().getTime().toString(16)}-${path.basename(file)}`)
-      )
+    try {
+      if (existsSync(file)) {
+        await copyFile(
+          file,
+          path.join(themesDir(), `${new Date().getTime().toString(16)}-${path.basename(file)}`)
+        )
+      }
+    } catch {
+      // ignore individual file copy errors
+    }
   }
 }
 
@@ -87,12 +92,16 @@ export async function writeTheme(theme: string, css: string): Promise<void> {
 
 export async function applyTheme(theme: string): Promise<void> {
   const css = await readTheme(theme)
-  await mainWindow?.webContents.removeInsertedCSS(insertedCSSKeyMain || '')
-  insertedCSSKeyMain = await mainWindow?.webContents.insertCSS(css)
+  try {
+    await mainWindow?.webContents.removeInsertedCSS(insertedCSSKeyMain || '')
+    insertedCSSKeyMain = await mainWindow?.webContents.insertCSS(css)
+  } catch {
+    // ignore main window errors
+  }
   try {
     await floatingWindow?.webContents.removeInsertedCSS(insertedCSSKeyFloating || '')
     insertedCSSKeyFloating = await floatingWindow?.webContents.insertCSS(css)
   } catch {
-    // ignore
+    // ignore floating window errors
   }
 }

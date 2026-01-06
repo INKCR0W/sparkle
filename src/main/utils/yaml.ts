@@ -3,11 +3,12 @@ import yaml from 'yaml'
 export function parseYaml<T = unknown>(content: string): T {
   const processedContent = addYamlTagsToProxiesShortId(content)
 
-  const result =
-    yaml.parse(processedContent, {
-      merge: true
-    }) || {}
-  return result as T
+  const result = yaml.parse(processedContent, {
+    merge: true
+  })
+  // 返回解析结果，如果为 null/undefined 则返回空对象
+  // 注意：调用方应检查返回值是否符合预期类型
+  return (result ?? {}) as T
 }
 
 export function stringifyYaml(data: unknown): string {

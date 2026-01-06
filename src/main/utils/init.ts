@@ -129,7 +129,7 @@ async function cleanup(): Promise<void> {
   const { maxLogDays = 7 } = await getAppConfig()
   const logs = await readdir(logDir())
   for (const log of logs) {
-    const datePart = log.split('.')[0]
+    const datePart = log.replace(/^sub-store-/, '').split('.')[0]
     const date = new Date(datePart)
     if (isNaN(date.getTime())) {
       continue

@@ -104,7 +104,11 @@ export async function triggerFloatingWindow(): Promise<void> {
   } else {
     await showFloatingWindow()
     triggerTimeoutRef = setTimeout(async () => {
-      await patchAppConfig({ showFloatingWindow: true })
+      try {
+        await patchAppConfig({ showFloatingWindow: true })
+      } catch {
+        // ignore
+      }
       triggerTimeoutRef = null
     }, 1000)
   }
@@ -112,7 +116,6 @@ export async function triggerFloatingWindow(): Promise<void> {
 
 export async function closeFloatingWindow(): Promise<void> {
   if (floatingWindow) {
-    floatingWindow.close()
     floatingWindow.destroy()
     floatingWindow = null
   }

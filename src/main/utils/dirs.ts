@@ -68,7 +68,11 @@ export function mihomoIpcPath(): string {
   if (core === 'system') {
     return '/tmp/sparkle-mihomo-external.sock'
   }
-  if (!checkCorePermissionSync(core as 'mihomo' | 'mihomo-alpha')) {
+  try {
+    if (!checkCorePermissionSync(core as 'mihomo' | 'mihomo-alpha')) {
+      return '/tmp/sparkle-mihomo-api-noperm.sock'
+    }
+  } catch {
     return '/tmp/sparkle-mihomo-api-noperm.sock'
   }
   return '/tmp/sparkle-mihomo-api.sock'
