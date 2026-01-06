@@ -14,6 +14,68 @@ import { disableSysProxy } from '../sys/sysproxy'
 
 let downloadCancelToken: CancelTokenSource | null = null
 
+async function fetchBetaChangelog(
+  currentVersion: string,
+  mixedPort: number
+): Promise<string | undefined> {
+  try {
+    const proxyConfig =
+      mixedPort != 0
+        ? {
+            proxy: {
+              protocol: 'http' as const,
+              host: '127.0.0.1',
+              port: mixedPort
+            }
+          }
+        : {}
+
+    let baseRef: string
+    const betaMatch = currentVersion.match(/-beta-([a-f0-9]+)$/)
+    if (betaMatch) {
+      baseRef = betaMatch[1]
+    } else {
+      baseRef = currentVersion
+    }
+
+    const preReleaseTagRes = await axios.get(
+      'https://api.github.com/repos/INKCR0W/sparkle/git/ref/tags/pre-release',
+      {
+        headers: { Accept: 'application/vnd.github.v3+json' },
+        ...proxyConfig,
+        timeout: 10000
+      }
+    )
+    const latestSha = preReleaseTagRes.data.object.sha
+
+    // 获取两个版本之间的 commits
+    const compareRes = await axios.get(
+      `https://api.github.com/repos/INKCR0W/sparkle/compare/${baseRef}...${latestSha}`,
+      {
+        headers: { Accept: 'application/vnd.github.v3+json' },
+        ...proxyConfig,
+        timeout: 10000
+      }
+    )
+
+    const commits: Array<{ commit: { message: string } }> = compareRes.data.commits || []
+    if (commits.length === 0) {
+      return undefined
+    }
+
+    const changelog = commits
+      .map((c) => c.commit.message.split('\n')[0])
+      .filter((msg) => !msg.match(/^\d+\.\d+\.\d+$/))
+      .filter((msg) => !msg.match(/^update version/i))
+      .map((msg) => `- ${msg}`)
+      .join('\n')
+
+    return changelog ? `# 更新日志\n${changelog}` : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export async function checkUpdate(): Promise<AppVersion | undefined> {
   const { 'mixed-port': mixedPort = 7890 } = await getControledMihomoConfig()
   const { updateChannel = 'stable' } = await getAppConfig()
@@ -35,6 +97,13 @@ export async function checkUpdate(): Promise<AppVersion | undefined> {
   const latest = parseYaml<AppVersion>(res.data)
   const currentVersion = app.getVersion()
   if (latest.version !== currentVersion) {
+    // 对于 beta 通道，尝试获取从当前版本到最新版本的所有 commit
+    if (updateChannel === 'beta') {
+      const changelog = await fetchBetaChangelog(currentVersion, mixedPort)
+      if (changelog) {
+        latest.changelog = changelog
+      }
+    }
     return latest
   } else {
     return undefined
