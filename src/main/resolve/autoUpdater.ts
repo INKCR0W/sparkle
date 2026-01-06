@@ -88,7 +88,11 @@ export async function downloadAndInstallUpdate(version: string): Promise<void> {
     if (!matchedAsset || !matchedAsset.digest) {
       throw new Error(`无法从 GitHub Release 中找到 "${file}" 对应的 SHA-256 信息`)
     }
-    const expectedHash = matchedAsset.digest.split(':')[1].toLowerCase()
+    const digestParts = matchedAsset.digest.split(':')
+    if (digestParts.length !== 2 || digestParts[0] !== 'sha256') {
+      throw new Error(`无效的 digest 格式: ${matchedAsset.digest}`)
+    }
+    const expectedHash = digestParts[1].toLowerCase()
 
     if (!existsSync(path.join(dataDir(), file))) {
       const res = await axios.get(`${baseUrl}${file}`, {
@@ -137,6 +141,8 @@ export async function downloadAndInstallUpdate(version: string): Promise<void> {
         detached: true,
         stdio: 'ignore'
       }).unref()
+      setNotQuitDialog()
+      app.quit()
     }
     if (file.endsWith('.7z')) {
       await copyFile(path.join(resourcesFilesDir(), '7za.exe'), path.join(dataDir(), '7za.exe'))
@@ -157,7 +163,8 @@ export async function downloadAndInstallUpdate(version: string): Promise<void> {
     if (file.endsWith('.pkg')) {
       try {
         const execPromise = promisify(exec)
-        const shell = `installer -pkg ${path.join(dataDir(), file).replace(' ', '\\\\ ')} -target /`
+        const escapedPath = path.join(dataDir(), file).replace(/'/g, "'\\''")
+        const shell = `installer -pkg '${escapedPath}' -target /`
         const command = `do shell script "${shell}" with administrator privileges`
         await execPromise(`osascript -e '${command}'`)
         app.relaunch()

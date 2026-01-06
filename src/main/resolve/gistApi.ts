@@ -8,6 +8,10 @@ interface GistInfo {
   html_url: string
 }
 
+function isValidGistId(id: string): boolean {
+  return /^[a-f0-9]+$/i.test(id)
+}
+
 async function listGists(token: string): Promise<GistInfo[]> {
   const { 'mixed-port': port = 7890 } = await getControledMihomoConfig()
   const res = await axios.get('https://api.github.com/gists', {
@@ -30,7 +34,7 @@ async function listGists(token: string): Promise<GistInfo[]> {
 
 async function createGist(token: string, content: string): Promise<void> {
   const { 'mixed-port': port = 7890 } = await getControledMihomoConfig()
-  return await axios.post(
+  await axios.post(
     'https://api.github.com/gists',
     {
       description: 'Auto Synced Sparkle Runtime Config',
@@ -55,9 +59,12 @@ async function createGist(token: string, content: string): Promise<void> {
 }
 
 async function updateGist(token: string, id: string, content: string): Promise<void> {
+  if (!isValidGistId(id)) {
+    throw new Error('Invalid gist id')
+  }
   const { 'mixed-port': port = 7890 } = await getControledMihomoConfig()
-  return await axios.patch(
-    `https://api.github.com/gists/${id}`,
+  await axios.patch(
+    `https://api.github.com/gists/${encodeURIComponent(id)}`,
     {
       description: 'Auto Synced Sparkle Runtime Config',
       files: { 'sparkle.yaml': { content } }
@@ -82,28 +89,36 @@ async function updateGist(token: string, id: string, content: string): Promise<v
 export async function getGistUrl(): Promise<string> {
   const { githubToken } = await getAppConfig()
   if (!githubToken) return ''
-  const gists = await listGists(githubToken)
-  const gist = gists.find((gist) => gist.description === 'Auto Synced Sparkle Runtime Config')
-  if (gist) {
-    return gist.html_url
-  } else {
-    await uploadRuntimeConfig()
+  try {
     const gists = await listGists(githubToken)
     const gist = gists.find((gist) => gist.description === 'Auto Synced Sparkle Runtime Config')
-    if (!gist) throw new Error('Gist not found')
-    return gist.html_url
+    if (gist) {
+      return gist.html_url
+    } else {
+      await uploadRuntimeConfig()
+      const gists = await listGists(githubToken)
+      const gist = gists.find((gist) => gist.description === 'Auto Synced Sparkle Runtime Config')
+      if (!gist) throw new Error('Gist not found')
+      return gist.html_url
+    }
+  } catch {
+    return ''
   }
 }
 
 export async function uploadRuntimeConfig(): Promise<void> {
   const { githubToken } = await getAppConfig()
   if (!githubToken) return
-  const gists = await listGists(githubToken)
-  const gist = gists.find((gist) => gist.description === 'Auto Synced Sparkle Runtime Config')
-  const config = await getRuntimeConfigStr()
-  if (gist) {
-    await updateGist(githubToken, gist.id, config)
-  } else {
-    await createGist(githubToken, config)
+  try {
+    const gists = await listGists(githubToken)
+    const gist = gists.find((gist) => gist.description === 'Auto Synced Sparkle Runtime Config')
+    const config = await getRuntimeConfigStr()
+    if (gist) {
+      await updateGist(githubToken, gist.id, config)
+    } else {
+      await createGist(githubToken, config)
+    }
+  } catch {
+    // ignore
   }
 }

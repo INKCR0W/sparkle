@@ -14,10 +14,19 @@ import {
   themesDir
 } from '../utils/dirs'
 
-function isPathSafe(targetDir: string, filePath: string): boolean {
-  const resolvedTarget = path.resolve(targetDir)
-  const resolvedFile = path.resolve(targetDir, filePath)
-  return resolvedFile.startsWith(resolvedTarget + path.sep) || resolvedFile === resolvedTarget
+function isValidFilename(filename: string): boolean {
+  const normalized = path.normalize(filename)
+  return !normalized.includes('..') && !path.isAbsolute(normalized) && !filename.includes('/')
+}
+
+function isValidWebdavUrl(url: string): boolean {
+  if (!url) return false
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
 }
 
 export async function webdavBackup(): Promise<boolean> {
@@ -28,6 +37,11 @@ export async function webdavBackup(): Promise<boolean> {
     webdavPassword = '',
     webdavDir = 'sparkle'
   } = await getAppConfig()
+
+  if (!isValidWebdavUrl(webdavUrl)) {
+    throw new Error('Invalid WebDAV URL')
+  }
+
   const zip = new AdmZip()
 
   zip.addLocalFile(appConfigPath())
@@ -55,6 +69,10 @@ export async function webdavBackup(): Promise<boolean> {
 }
 
 export async function webdavRestore(filename: string): Promise<void> {
+  if (!isValidFilename(filename)) {
+    throw new Error('Invalid filename')
+  }
+
   const { createClient } = await import('webdav/dist/node/index.js')
   const {
     webdavUrl = '',
@@ -62,6 +80,10 @@ export async function webdavRestore(filename: string): Promise<void> {
     webdavPassword = '',
     webdavDir = 'sparkle'
   } = await getAppConfig()
+
+  if (!isValidWebdavUrl(webdavUrl)) {
+    throw new Error('Invalid WebDAV URL')
+  }
 
   const client = createClient(webdavUrl, {
     username: webdavUsername,
@@ -71,7 +93,8 @@ export async function webdavRestore(filename: string): Promise<void> {
   const zip = new AdmZip(zipData as Buffer)
   const targetDir = dataDir()
   for (const entry of zip.getEntries()) {
-    if (!isPathSafe(targetDir, entry.entryName)) {
+    const normalized = path.normalize(entry.entryName)
+    if (normalized.includes('..') || path.isAbsolute(normalized)) {
       throw new Error(`Invalid path in archive: ${entry.entryName}`)
     }
   }
@@ -87,6 +110,10 @@ export async function listWebdavBackups(): Promise<string[]> {
     webdavDir = 'sparkle'
   } = await getAppConfig()
 
+  if (!isValidWebdavUrl(webdavUrl)) {
+    throw new Error('Invalid WebDAV URL')
+  }
+
   const client = createClient(webdavUrl, {
     username: webdavUsername,
     password: webdavPassword
@@ -100,6 +127,10 @@ export async function listWebdavBackups(): Promise<string[]> {
 }
 
 export async function webdavDelete(filename: string): Promise<void> {
+  if (!isValidFilename(filename)) {
+    throw new Error('Invalid filename')
+  }
+
   const { createClient } = await import('webdav/dist/node/index.js')
   const {
     webdavUrl = '',
@@ -107,6 +138,10 @@ export async function webdavDelete(filename: string): Promise<void> {
     webdavPassword = '',
     webdavDir = 'sparkle'
   } = await getAppConfig()
+
+  if (!isValidWebdavUrl(webdavUrl)) {
+    throw new Error('Invalid WebDAV URL')
+  }
 
   const client = createClient(webdavUrl, {
     username: webdavUsername,
