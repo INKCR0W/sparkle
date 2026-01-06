@@ -112,14 +112,18 @@ export const mihomoGroups = async (): Promise<ControllerMixedGroup[]> => {
     if (proxies.proxies[name] && 'all' in proxies.proxies[name] && !proxies.proxies[name].hidden) {
       const newGroup = proxies.proxies[name]
       newGroup.testUrl = url
-      const newAll = newGroup.all.map((name) => proxies.proxies[name])
+      const newAll = newGroup.all
+        .map((name) => proxies.proxies[name])
+        .filter((p): p is ControllerProxiesDetail => p !== undefined)
       groups.push({ ...newGroup, all: newAll })
     }
   })
   if (!groups.find((group) => group.name === 'GLOBAL')) {
     const newGlobal = proxies.proxies['GLOBAL'] as ControllerGroupDetail
     if (!newGlobal.hidden) {
-      const newAll = newGlobal.all.map((name) => proxies.proxies[name])
+      const newAll = newGlobal.all
+        .map((name) => proxies.proxies[name])
+        .filter((p): p is ControllerProxiesDetail => p !== undefined)
       groups.push({ ...newGlobal, all: newAll })
     }
   }
@@ -223,7 +227,10 @@ export const stopMihomoTraffic = (): void => {
   }
 }
 
+const RECONNECT_DELAY = 1000
+
 const mihomoTraffic = async (): Promise<void> => {
+  stopMihomoTraffic()
   mihomoTrafficWs = new WebSocket(`ws+unix:${mihomoIpcPath()}:/traffic`)
 
   mihomoTrafficWs.onmessage = async (e): Promise<void> => {
@@ -249,7 +256,7 @@ const mihomoTraffic = async (): Promise<void> => {
   mihomoTrafficWs.onclose = (): void => {
     if (trafficRetry) {
       trafficRetry--
-      mihomoTraffic()
+      setTimeout(() => mihomoTraffic(), RECONNECT_DELAY)
     }
   }
 
@@ -276,6 +283,7 @@ export const stopMihomoMemory = (): void => {
 }
 
 const mihomoMemory = async (): Promise<void> => {
+  stopMihomoMemory()
   mihomoMemoryWs = new WebSocket(`ws+unix:${mihomoIpcPath()}:/memory`)
 
   mihomoMemoryWs.onmessage = (e): void => {
@@ -291,7 +299,7 @@ const mihomoMemory = async (): Promise<void> => {
   mihomoMemoryWs.onclose = (): void => {
     if (memoryRetry) {
       memoryRetry--
-      mihomoMemory()
+      setTimeout(() => mihomoMemory(), RECONNECT_DELAY)
     }
   }
 
@@ -318,6 +326,7 @@ export const stopMihomoLogs = (): void => {
 }
 
 const mihomoLogs = async (): Promise<void> => {
+  stopMihomoLogs()
   const { 'log-level': logLevel = 'info' } = await getControledMihomoConfig()
 
   mihomoLogsWs = new WebSocket(`ws+unix:${mihomoIpcPath()}:/logs?level=${logLevel}`)
@@ -335,7 +344,7 @@ const mihomoLogs = async (): Promise<void> => {
   mihomoLogsWs.onclose = (): void => {
     if (logsRetry) {
       logsRetry--
-      mihomoLogs()
+      setTimeout(() => mihomoLogs(), RECONNECT_DELAY)
     }
   }
 
@@ -367,6 +376,7 @@ export const restartMihomoConnections = async (): Promise<void> => {
 }
 
 const mihomoConnections = async (): Promise<void> => {
+  stopMihomoConnections()
   const { connectionInterval = 500 } = await getAppConfig()
   mihomoConnectionsWs = new WebSocket(
     `ws+unix:${mihomoIpcPath()}:/connections?interval=${connectionInterval}`
@@ -385,7 +395,7 @@ const mihomoConnections = async (): Promise<void> => {
   mihomoConnectionsWs.onclose = (): void => {
     if (connectionsRetry) {
       connectionsRetry--
-      mihomoConnections()
+      setTimeout(() => mihomoConnections(), RECONNECT_DELAY)
     }
   }
 
