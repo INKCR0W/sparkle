@@ -197,7 +197,6 @@ function showQuitConfirmDialog(): Promise<boolean> {
     setTimeout(() => {
       mainWindow?.webContents.send('show-quit-confirm')
       const handleQuitConfirm = (_event: Electron.IpcMainEvent, confirmed: boolean): void => {
-        ipcMain.off('quit-confirm-result', handleQuitConfirm)
         resolve(confirmed)
       }
       ipcMain.once('quit-confirm-result', handleQuitConfirm)
@@ -430,7 +429,6 @@ async function showProfileInstallConfirm(url: string, name?: string | null): Pro
         name: extractedName || name
       })
       const handleConfirm = (_event: Electron.IpcMainEvent, confirmed: boolean): void => {
-        ipcMain.off('profile-install-confirm-result', handleConfirm)
         resolve(confirmed)
       }
       ipcMain.once('profile-install-confirm-result', handleConfirm)
@@ -438,11 +436,17 @@ async function showProfileInstallConfirm(url: string, name?: string | null): Pro
   })
 }
 
+// attachment;filename=xxx.yaml; filename*=UTF-8''%xx%xx%xx
 function parseFilename(str: string): string {
+  if (!str) return ''
   if (str.match(/filename\*=.*''/)) {
     const match = str.split(/filename\*=.*''/)
     if (match[1]) {
-      return decodeURIComponent(match[1])
+      try {
+        return decodeURIComponent(match[1])
+      } catch {
+        return match[1]
+      }
     }
   }
   const parts = str.split('filename=')
@@ -459,9 +463,13 @@ async function showOverrideInstallConfirm(url: string, name?: string | null): Pr
   return new Promise((resolve) => {
     let finalName = name
     if (!finalName) {
-      const urlObj = new URL(url)
-      const pathName = urlObj.pathname.split('/').pop()
-      finalName = pathName ? decodeURIComponent(pathName) : undefined
+      try {
+        const urlObj = new URL(url)
+        const pathName = urlObj.pathname.split('/').pop()
+        finalName = pathName ? decodeURIComponent(pathName) : undefined
+      } catch {
+        // ignore invalid URL
+      }
     }
 
     const delay = showWindow()
@@ -471,7 +479,6 @@ async function showOverrideInstallConfirm(url: string, name?: string | null): Pr
         name: finalName
       })
       const handleConfirm = (_event: Electron.IpcMainEvent, confirmed: boolean): void => {
-        ipcMain.off('override-install-confirm-result', handleConfirm)
         resolve(confirmed)
       }
       ipcMain.once('override-install-confirm-result', handleConfirm)
