@@ -35,14 +35,18 @@ const TunSwitcher: React.FC<Props> = (props) => {
   })
   const transform = tf ? { x: tf.x, y: tf.y, scaleX: 1, scaleY: 1 } : null
   const onChange = async (enable: boolean): Promise<void> => {
-    if (enable) {
-      await patchControledMihomoConfig({ tun: { enable }, dns: { enable: true } })
-    } else {
-      await patchControledMihomoConfig({ tun: { enable } })
+    try {
+      if (enable) {
+        await patchControledMihomoConfig({ tun: { enable }, dns: { enable: true } })
+      } else {
+        await patchControledMihomoConfig({ tun: { enable } })
+      }
+      await restartCore()
+      window.electron.ipcRenderer.send('updateFloatingWindow')
+      window.electron.ipcRenderer.send('updateTrayMenu')
+    } catch (e) {
+      alert('TUN 模式切换失败: ' + e)
     }
-    await restartCore()
-    window.electron.ipcRenderer.send('updateFloatingWindow')
-    window.electron.ipcRenderer.send('updateTrayMenu')
   }
 
   if (iconOnly) {

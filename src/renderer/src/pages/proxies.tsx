@@ -208,10 +208,14 @@ const Proxies: React.FC = () => {
         groups[index].icon.startsWith('http') &&
         !localStorage.getItem(groups[index].icon)
       ) {
-        getImageDataURL(groups[index].icon).then((dataURL) => {
-          localStorage.setItem(groups[index].icon, dataURL)
-          mutate()
-        })
+        getImageDataURL(groups[index].icon)
+          .then((dataURL) => {
+            localStorage.setItem(groups[index].icon, dataURL)
+            mutate()
+          })
+          .catch((e) => {
+            console.warn('Failed to load group icon:', groups[index].icon, e)
+          })
       }
       return groups[index] ? (
         <div

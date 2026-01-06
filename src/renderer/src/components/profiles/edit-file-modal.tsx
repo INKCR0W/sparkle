@@ -41,9 +41,14 @@ const EditFileModal: React.FC<Props> = (props) => {
   }
 
   const getContent = async (): Promise<void> => {
-    const data = await getProfileStr(id)
-    setCurrData(data)
-    setOriginalData(data)
+    try {
+      const data = await getProfileStr(id)
+      setCurrData(data)
+      setOriginalData(data)
+    } catch (e) {
+      alert('获取配置内容失败: ' + e)
+      onClose()
+    }
   }
 
   useEffect(() => {
@@ -123,8 +128,12 @@ const EditFileModal: React.FC<Props> = (props) => {
               size="sm"
               color="primary"
               onPress={async () => {
-                await setProfileStr(id, currData)
-                onClose()
+                try {
+                  await setProfileStr(id, currData)
+                  onClose()
+                } catch (e) {
+                  alert('保存配置失败: ' + e)
+                }
               }}
             >
               保存
