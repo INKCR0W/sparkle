@@ -6,7 +6,7 @@ import { servicePath } from '../utils/dirs'
 import { net } from 'electron'
 import { disableProxy, setPac, setProxy } from '../service/api'
 
-let defaultBypass: string[]
+let defaultBypass: string[] = []
 let triggerSysProxyTimer: NodeJS.Timeout | null = null
 const SYSPROXY_RETRY_MAX = 10
 let sysProxyRetryCount = 0

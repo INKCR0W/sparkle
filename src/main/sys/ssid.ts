@@ -62,7 +62,11 @@ export async function startSSIDCheck(): Promise<void> {
   if (ssidCheckTimer) {
     clearInterval(ssidCheckTimer)
   }
-  ssidCheckTimer = setInterval(checkSSID, 30000)
+  ssidCheckTimer = setInterval(() => {
+    checkSSID().catch(() => {
+      // ignore check errors
+    })
+  }, 30000)
 }
 
 export function stopSSIDCheck(): void {
