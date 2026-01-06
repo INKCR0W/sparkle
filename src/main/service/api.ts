@@ -5,6 +5,10 @@ import { serviceIpcPath } from '../utils/dirs'
 let serviceAxios: AxiosInstance | null = null
 let keyManager: KeyManager | null = null
 
+function generateNonce(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 10)}`
+}
+
 export const initServiceAPI = (km: KeyManager): void => {
   keyManager = km
 
@@ -20,9 +24,11 @@ export const initServiceAPI = (km: KeyManager): void => {
   serviceAxios.interceptors.request.use((config) => {
     if (keyManager?.isInitialized()) {
       const timestamp = Math.floor(Date.now() / 1000).toString()
-      const signature = keyManager.signData(timestamp)
+      const nonce = generateNonce()
+      const signature = keyManager.signData(`${timestamp}:${nonce}`)
 
       config.headers['X-Timestamp'] = timestamp
+      config.headers['X-Nonce'] = nonce
       config.headers['X-Signature'] = signature
     }
 

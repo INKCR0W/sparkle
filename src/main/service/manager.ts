@@ -7,35 +7,46 @@ import { execFile } from 'child_process'
 import { promisify } from 'util'
 
 let keyManager: KeyManager | null = null
+let initKeyManagerPromise: Promise<KeyManager> | null = null
 
 export async function initKeyManager(): Promise<KeyManager> {
   if (keyManager) {
     return keyManager
   }
 
-  keyManager = new KeyManager()
-
-  const config = await getAppConfig()
-  if (config.serviceAuthKey) {
-    try {
-      const [publicKey, privateKey] = config.serviceAuthKey.split(':')
-      if (publicKey && privateKey) {
-        keyManager.setKeyPair(publicKey, privateKey)
-        initServiceAPI(keyManager)
-        return keyManager
-      }
-    } catch {
-      // ignore
-    }
+  if (initKeyManagerPromise) {
+    return initKeyManagerPromise
   }
 
-  const keyPair = keyManager.generateKeyPair()
-  await patchAppConfig({
-    serviceAuthKey: `${keyPair.publicKey}:${keyPair.privateKey}`
-  })
+  initKeyManagerPromise = (async () => {
+    const km = new KeyManager()
 
-  initServiceAPI(keyManager)
-  return keyManager
+    const config = await getAppConfig()
+    if (config.serviceAuthKey) {
+      try {
+        const parts = config.serviceAuthKey.split(':')
+        if (parts.length === 2 && parts[0] && parts[1]) {
+          km.setKeyPair(parts[0], parts[1])
+          initServiceAPI(km)
+          keyManager = km
+          return km
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    const keyPair = km.generateKeyPair()
+    await patchAppConfig({
+      serviceAuthKey: `${keyPair.publicKey}:${keyPair.privateKey}`
+    })
+
+    initServiceAPI(km)
+    keyManager = km
+    return km
+  })()
+
+  return initKeyManagerPromise
 }
 
 export function getKeyManager(): KeyManager {
@@ -180,8 +191,9 @@ export async function serviceStatus(): Promise<
   const execFilePromise = promisify(execFile)
 
   try {
-    const { stderr } = await execFilePromise(execPath, ['service', 'status'])
-    if (stderr.includes('the service is not installed')) {
+    const { stdout, stderr } = await execFilePromise(execPath, ['service', 'status'])
+    const output = stdout + stderr
+    if (output.includes('the service is not installed')) {
       return 'not-installed'
     } else {
       try {
