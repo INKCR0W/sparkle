@@ -114,6 +114,14 @@ export const BaseEditor: React.FC<Props> = (props) => {
     const model = monaco.editor.createModel(value, language, uri)
     editorRef.current.setModel(model)
   }
+
+  const editorWillUnmount = (editor: monaco.editor.IStandaloneCodeEditor): void => {
+    const model = editor.getModel()
+    if (model) {
+      model.dispose()
+    }
+  }
+
   const diffEditorDidMount = (editor: monaco.editor.IStandaloneDiffEditor): void => {
     diffEditorRef.current = editor
 
@@ -129,6 +137,14 @@ export const BaseEditor: React.FC<Props> = (props) => {
       original: originalModel,
       modified: modifiedModel
     })
+  }
+
+  const diffEditorWillUnmount = (editor: monaco.editor.IStandaloneDiffEditor): void => {
+    const model = editor.getModel()
+    if (model) {
+      model.original?.dispose()
+      model.modified?.dispose()
+    }
   }
 
   const options = {
@@ -183,7 +199,7 @@ export const BaseEditor: React.FC<Props> = (props) => {
         options={options}
         editorWillMount={editorWillMount}
         editorDidMount={diffEditorDidMount}
-        editorWillUnmount={(): void => {}}
+        editorWillUnmount={diffEditorWillUnmount}
         onChange={onChange}
       />
     )
@@ -198,7 +214,7 @@ export const BaseEditor: React.FC<Props> = (props) => {
       options={options}
       editorWillMount={editorWillMount}
       editorDidMount={editorDidMount}
-      editorWillUnmount={(): void => {}}
+      editorWillUnmount={editorWillUnmount}
       onChange={onChange}
     />
   )
