@@ -140,10 +140,13 @@ export const BaseEditor: React.FC<Props> = (props) => {
   }
 
   const diffEditorWillUnmount = (editor: monaco.editor.IStandaloneDiffEditor): void => {
+    if (!editor) return
     const model = editor.getModel()
-    if (model) {
-      model.original?.dispose()
-      model.modified?.dispose()
+    if (model?.original) {
+      model.original.dispose()
+    }
+    if (model?.modified) {
+      model.modified.dispose()
     }
   }
 
