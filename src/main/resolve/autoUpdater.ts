@@ -174,7 +174,7 @@ export async function downloadAndInstallUpdate(version: string): Promise<void> {
           }
         }),
         headers: {
-          'Content-Type': 'application/octet-stream'
+          'User-Agent': 'Sparkle-Updater'
         },
         cancelToken: downloadCancelToken.token,
         onDownloadProgress: (progressEvent) => {
