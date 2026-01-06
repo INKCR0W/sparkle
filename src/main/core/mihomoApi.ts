@@ -104,33 +104,46 @@ export const mihomoProxies = async (): Promise<ControllerProxies> => {
 export const mihomoGroups = async (): Promise<ControllerMixedGroup[]> => {
   const { mode = 'rule' } = await getControledMihomoConfig()
   if (mode === 'direct') return []
+
   const proxies = await mihomoProxies()
   const runtime = await getRuntimeConfig()
+
   const groups: ControllerMixedGroup[] = []
+
   runtime?.['proxy-groups']?.forEach((group: { name: string; url?: string }) => {
     const { name, url } = group
-    if (proxies.proxies[name] && 'all' in proxies.proxies[name] && !proxies.proxies[name].hidden) {
-      const newGroup = proxies.proxies[name]
-      newGroup.testUrl = url
-      const newAll = newGroup.all
-        .map((name) => proxies.proxies[name])
+    const proxyGroup = proxies.proxies[name]
+
+    if (proxyGroup && 'all' in proxyGroup && !proxyGroup.hidden) {
+      const newAll = (proxyGroup as ControllerGroupDetail).all
+        .map((proxyName) => proxies.proxies[proxyName])
         .filter((p): p is ControllerProxiesDetail => p !== undefined)
-      groups.push({ ...newGroup, all: newAll })
+
+      groups.push({
+        ...(proxyGroup as ControllerGroupDetail),
+        testUrl: url,
+        all: newAll
+      })
     }
   })
-  if (!groups.find((group) => group.name === 'GLOBAL')) {
-    const newGlobal = proxies.proxies['GLOBAL'] as ControllerGroupDetail
-    if (!newGlobal.hidden) {
-      const newAll = newGlobal.all
+
+  if (!groups.find((group) => group.name === 'GLOBAL') && proxies.proxies['GLOBAL']) {
+    const proxyGlobal = proxies.proxies['GLOBAL'] as ControllerGroupDetail
+    if (!proxyGlobal.hidden) {
+      const newAll = proxyGlobal.all
         .map((name) => proxies.proxies[name])
         .filter((p): p is ControllerProxiesDetail => p !== undefined)
-      groups.push({ ...newGlobal, all: newAll })
+      groups.push({ ...proxyGlobal, all: newAll })
     }
   }
+
   if (mode === 'global') {
-    const global = groups.findIndex((group) => group.name === 'GLOBAL')
-    groups.unshift(groups.splice(global, 1)[0])
+    const globalIndex = groups.findIndex((group) => group.name === 'GLOBAL')
+    if (globalIndex > 0) {
+      groups.unshift(groups.splice(globalIndex, 1)[0])
+    }
   }
+
   return groups
 }
 
@@ -227,7 +240,11 @@ export const stopMihomoTraffic = (): void => {
   }
 }
 
-const RECONNECT_DELAY = 1000
+// 指数退避: 1s, 2s, 4s, 8s, 16s, 后续保持 30s
+function getRetryDelay(retryCount: number, maxRetry: number): number {
+  const attempt = maxRetry - retryCount
+  return Math.min(1000 * Math.pow(2, attempt), 30000)
+}
 
 const mihomoTraffic = async (): Promise<void> => {
   stopMihomoTraffic()
@@ -255,8 +272,9 @@ const mihomoTraffic = async (): Promise<void> => {
 
   mihomoTrafficWs.onclose = (): void => {
     if (trafficRetry) {
+      const delay = getRetryDelay(trafficRetry, 10)
       trafficRetry--
-      setTimeout(() => mihomoTraffic(), RECONNECT_DELAY)
+      setTimeout(() => mihomoTraffic(), delay)
     }
   }
 
@@ -299,8 +317,9 @@ const mihomoMemory = async (): Promise<void> => {
 
   mihomoMemoryWs.onclose = (): void => {
     if (memoryRetry) {
+      const delay = getRetryDelay(memoryRetry, 10)
       memoryRetry--
-      setTimeout(() => mihomoMemory(), RECONNECT_DELAY)
+      setTimeout(() => mihomoMemory(), delay)
     }
   }
 
@@ -345,8 +364,9 @@ const mihomoLogs = async (): Promise<void> => {
 
   mihomoLogsWs.onclose = (): void => {
     if (logsRetry) {
+      const delay = getRetryDelay(logsRetry, 10)
       logsRetry--
-      setTimeout(() => mihomoLogs(), RECONNECT_DELAY)
+      setTimeout(() => mihomoLogs(), delay)
     }
   }
 
@@ -397,8 +417,9 @@ const mihomoConnections = async (): Promise<void> => {
 
   mihomoConnectionsWs.onclose = (): void => {
     if (connectionsRetry) {
+      const delay = getRetryDelay(connectionsRetry, 10)
       connectionsRetry--
-      setTimeout(() => mihomoConnections(), RECONNECT_DELAY)
+      setTimeout(() => mihomoConnections(), delay)
     }
   }
 
