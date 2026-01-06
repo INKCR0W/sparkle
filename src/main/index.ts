@@ -120,17 +120,12 @@ if (!gotTheLock) {
 }
 
 export function customRelaunch(): void {
-  const script = `while kill -0 ${process.pid} 2>/dev/null; do
-  sleep 0.1
-done
-${process.argv.join(' ')} & disown
-exit
-`
-  spawn('sh', ['-c', `"${script}"`], {
-    shell: true,
+  const escapedArgv = process.argv.map((arg) => `'${arg.replace(/'/g, "'\\''")}'`).join(' ')
+  const script = `while kill -0 ${process.pid} 2>/dev/null; do sleep 0.1; done; ${escapedArgv} & disown; exit`
+  spawn('sh', ['-c', script], {
     detached: true,
     stdio: 'ignore'
-  })
+  }).unref()
 }
 
 if (process.platform === 'linux') {
@@ -288,7 +283,7 @@ app.whenReady().then(async () => {
   const { showFloatingWindow: showFloating = false, disableTray = false } = appConfig
   registerIpcMainHandlers()
 
-  const createWindowPromise = createWindow(appConfig)
+  const windowPromise = createWindow(appConfig)
 
   let coreStarted = false
 
@@ -312,7 +307,7 @@ app.whenReady().then(async () => {
     }
   })()
 
-  await createWindowPromise
+  await windowPromise
 
   const uiTasks: Promise<void>[] = [initShortcut()]
 
@@ -440,12 +435,16 @@ async function showProfileInstallConfirm(url: string, name?: string | null): Pro
 
 function parseFilename(str: string): string {
   if (str.match(/filename\*=.*''/)) {
-    const filename = decodeURIComponent(str.split(/filename\*=.*''/)[1])
-    return filename
-  } else {
-    const filename = str.split('filename=')[1]
-    return filename?.replace(/"/g, '') || ''
+    const match = str.split(/filename\*=.*''/)
+    if (match[1]) {
+      return decodeURIComponent(match[1])
+    }
   }
+  const parts = str.split('filename=')
+  if (parts[1]) {
+    return parts[1].replace(/"/g, '')
+  }
+  return ''
 }
 
 async function showOverrideInstallConfirm(url: string, name?: string | null): Promise<boolean> {

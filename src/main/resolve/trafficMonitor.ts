@@ -20,7 +20,7 @@ export async function startMonitor(detached = false): Promise<void> {
     }
     await rm(path.join(dataDir(), 'monitor.pid'))
   }
-  await stopMonitor()
+  stopMonitor()
   const { showTraffic = false } = await getAppConfig()
   if (!showTraffic) return
   child = spawn(path.join(resourcesFilesDir(), 'TrafficMonitor/TrafficMonitor.exe'), [], {

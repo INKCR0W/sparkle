@@ -555,6 +555,8 @@ export async function closeTrayIcon(): Promise<void> {
     customTrayWindow.destroy()
   }
   customTrayWindow = null
+  trayIconUpdateRegistered = false
+  updateTrayMenuRegistered = false
 }
 
 export function setDockVisible(visible: boolean): void {
