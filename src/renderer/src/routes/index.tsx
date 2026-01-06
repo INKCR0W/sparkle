@@ -1,79 +1,48 @@
+import { lazy, Suspense } from 'react'
 import { Navigate } from 'react-router-dom'
-import Override from '@renderer/pages/override'
+import { PageSkeleton } from '@renderer/components/base/skeleton'
+
 import Proxies from '@renderer/pages/proxies'
-import Rules from '@renderer/pages/rules'
-import Settings from '@renderer/pages/settings'
-import Profiles from '@renderer/pages/profiles'
-import Logs from '@renderer/pages/logs'
-import Connections from '@renderer/pages/connections'
-import Mihomo from '@renderer/pages/mihomo'
-import Sysproxy from '@renderer/pages/syspeoxy'
-import Tun from '@renderer/pages/tun'
-import Resources from '@renderer/pages/resources'
-import DNS from '@renderer/pages/dns'
-import Sniffer from '@renderer/pages/sniffer'
-import SubStore from '@renderer/pages/substore'
+
+const Connections = lazy(() => import('@renderer/pages/connections'))
+const Rules = lazy(() => import('@renderer/pages/rules'))
+const Logs = lazy(() => import('@renderer/pages/logs'))
+const Profiles = lazy(() => import('@renderer/pages/profiles'))
+const Settings = lazy(() => import('@renderer/pages/settings'))
+const Override = lazy(() => import('@renderer/pages/override'))
+const Mihomo = lazy(() => import('@renderer/pages/mihomo'))
+const Sysproxy = lazy(() => import('@renderer/pages/syspeoxy'))
+const Tun = lazy(() => import('@renderer/pages/tun'))
+const Resources = lazy(() => import('@renderer/pages/resources'))
+const DNS = lazy(() => import('@renderer/pages/dns'))
+const Sniffer = lazy(() => import('@renderer/pages/sniffer'))
+const SubStore = lazy(() => import('@renderer/pages/substore'))
+
+const LazyPage: React.FC<{ component: React.LazyExoticComponent<React.ComponentType> }> = ({
+  // eslint-disable-next-line react/prop-types
+  component: Component
+}) => (
+  <Suspense fallback={<PageSkeleton />}>
+    <Component />
+  </Suspense>
+)
+
 const routes = [
-  {
-    path: '/mihomo',
-    element: <Mihomo />
-  },
-  {
-    path: '/sysproxy',
-    element: <Sysproxy />
-  },
-  {
-    path: '/tun',
-    element: <Tun />
-  },
-  {
-    path: '/proxies',
-    element: <Proxies />
-  },
-  {
-    path: '/rules',
-    element: <Rules />
-  },
-  {
-    path: '/resources',
-    element: <Resources />
-  },
-  {
-    path: '/dns',
-    element: <DNS />
-  },
-  {
-    path: '/sniffer',
-    element: <Sniffer />
-  },
-  {
-    path: '/logs',
-    element: <Logs />
-  },
-  {
-    path: '/connections',
-    element: <Connections />
-  },
-  {
-    path: '/override',
-    element: <Override />
-  },
-  {
-    path: '/profiles',
-    element: <Profiles />
-  },
-  {
-    path: '/settings',
-    element: <Settings />
-  },
-  {
-    path: '/substore',
-    element: <SubStore />
-  },
-  {
-    path: '/',
-    element: <Navigate to="/proxies" />
-  }
+  { path: '/proxies', element: <Proxies /> },
+  { path: '/connections', element: <LazyPage component={Connections} /> },
+  { path: '/rules', element: <LazyPage component={Rules} /> },
+  { path: '/logs', element: <LazyPage component={Logs} /> },
+  { path: '/profiles', element: <LazyPage component={Profiles} /> },
+  { path: '/settings', element: <LazyPage component={Settings} /> },
+  { path: '/override', element: <LazyPage component={Override} /> },
+  { path: '/mihomo', element: <LazyPage component={Mihomo} /> },
+  { path: '/sysproxy', element: <LazyPage component={Sysproxy} /> },
+  { path: '/tun', element: <LazyPage component={Tun} /> },
+  { path: '/resources', element: <LazyPage component={Resources} /> },
+  { path: '/dns', element: <LazyPage component={DNS} /> },
+  { path: '/sniffer', element: <LazyPage component={Sniffer} /> },
+  { path: '/substore', element: <LazyPage component={SubStore} /> },
+  { path: '/', element: <Navigate to="/proxies" /> }
 ]
 
 export default routes
