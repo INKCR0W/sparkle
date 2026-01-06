@@ -33,15 +33,27 @@ const Proxies: React.FC = () => {
     delayTestConcurrency = 50
   } = appConfig || {}
   const [cols, setCols] = useState(1)
-  const [isOpen, setIsOpen] = useState(Array(groups.length).fill(false))
-  const [delaying, setDelaying] = useState(Array(groups.length).fill(false))
-  const [searchValue, setSearchValue] = useState(Array(groups.length).fill(''))
+  const [isOpen, setIsOpen] = useState<boolean[]>([])
+  const [delaying, setDelaying] = useState<boolean[]>([])
+  const [searchValue, setSearchValue] = useState<string[]>([])
   const [isSettingModalOpen, setIsSettingModalOpen] = useState(false)
   const virtuosoRef = useRef<GroupedVirtuosoHandle>(null)
+
+  useEffect(() => {
+    if (groups.length !== isOpen.length) {
+      setIsOpen(Array(groups.length).fill(false))
+    }
+    if (groups.length !== delaying.length) {
+      setDelaying(Array(groups.length).fill(false))
+    }
+    if (groups.length !== searchValue.length) {
+      setSearchValue(Array(groups.length).fill(''))
+    }
+  }, [groups.length])
+
   const { groupCounts, allProxies } = useMemo(() => {
     const groupCounts: number[] = []
     const allProxies: (ControllerProxiesDetail | ControllerGroupDetail)[][] = []
-    if (groups.length !== searchValue.length) setSearchValue(Array(groups.length).fill(''))
     groups.forEach((group, index) => {
       if (isOpen[index]) {
         let groupProxies = group.all.filter(
