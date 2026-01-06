@@ -68,6 +68,7 @@ export async function startPacServer(): Promise<void> {
 export async function stopPacServer(): Promise<void> {
   if (pacServer) {
     pacServer.close()
+    pacServer = null!
   }
 }
 
@@ -88,6 +89,7 @@ export async function startSubStoreFrontendServer(): Promise<void> {
 export async function stopSubStoreFrontendServer(): Promise<void> {
   if (subStoreFrontendServer) {
     subStoreFrontendServer.close()
+    subStoreFrontendServer = null!
   }
 }
 
@@ -132,6 +134,12 @@ export async function startSubStoreBackendServer(): Promise<void> {
           }
         : env
     })
+    subStoreBackendWorker.on('error', () => {
+      // ignore
+    })
+    subStoreBackendWorker.on('exit', () => {
+      // ignore
+    })
     subStoreBackendWorker.stdout.pipe(stdout)
     subStoreBackendWorker.stderr.pipe(stderr)
   }
@@ -140,6 +148,7 @@ export async function startSubStoreBackendServer(): Promise<void> {
 export async function stopSubStoreBackendServer(): Promise<void> {
   if (subStoreBackendWorker) {
     subStoreBackendWorker.terminate()
+    subStoreBackendWorker = null!
   }
 }
 

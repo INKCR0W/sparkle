@@ -38,6 +38,7 @@ import { applyTheme } from './theme'
 
 export let tray: Tray | null = null
 let customTrayWindow: BrowserWindow | null = null
+let trayIpcRegistered = false
 
 function formatDelayText(delay: number): string {
   if (delay === 0) {
@@ -109,9 +110,9 @@ async function showCustomTray(): Promise<void> {
     })
 
     if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-      await customTrayWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/traymenu.html`)
+      await customTrayWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/traymenu.html`).catch(() => {})
     } else {
-      await customTrayWindow.loadFile(join(__dirname, '../renderer/traymenu.html'))
+      await customTrayWindow.loadFile(join(__dirname, '../renderer/traymenu.html')).catch(() => {})
     }
   }
 
@@ -153,8 +154,8 @@ export const buildContextMenu = async (): Promise<Menu> => {
     try {
       const groups = await mihomoGroups()
       groupsMenu = groups.map((group) => {
-        const currentProxy = group.all.find((proxy) => proxy.name === group.now)
-        const delay = currentProxy?.history.length
+        const currentProxy = group.all.find((proxy) => proxy?.name === group.now)
+        const delay = currentProxy?.history?.length
           ? currentProxy.history[currentProxy.history.length - 1].delay
           : -1
         const displayDelay = formatDelayText(delay)
@@ -179,25 +180,27 @@ export const buildContextMenu = async (): Promise<Menu> => {
               }
             },
             { type: 'separator' },
-            ...group.all.map((proxy) => {
-              const proxyDelay = proxy.history.length
-                ? proxy.history[proxy.history.length - 1].delay
-                : -1
-              const proxyDisplayDelay = formatDelayText(proxyDelay)
-              return {
-                id: proxy.name,
-                label: proxy.name,
-                sublabel: proxyDisplayDelay,
-                type: 'radio' as const,
-                checked: proxy.name === group.now,
-                click: async (): Promise<void> => {
-                  await mihomoChangeProxy(group.name, proxy.name)
-                  if (autoCloseConnection) {
-                    await mihomoCloseAllConnections()
+            ...group.all
+              .filter((proxy): proxy is NonNullable<typeof proxy> => proxy != null)
+              .map((proxy) => {
+                const proxyDelay = proxy.history?.length
+                  ? proxy.history[proxy.history.length - 1].delay
+                  : -1
+                const proxyDisplayDelay = formatDelayText(proxyDelay)
+                return {
+                  id: proxy.name,
+                  label: proxy.name,
+                  sublabel: proxyDisplayDelay,
+                  type: 'radio' as const,
+                  checked: proxy.name === group.now,
+                  click: async (): Promise<void> => {
+                    await mihomoChangeProxy(group.name, proxy.name)
+                    if (autoCloseConnection) {
+                      await mihomoCloseAllConnections()
+                    }
                   }
                 }
-              }
-            })
+              })
           ]
         }
       })
@@ -456,11 +459,14 @@ export async function createTray(): Promise<void> {
     if (!useDockIcon && app.dock) {
       app.dock.hide()
     }
-    ipcMain.on('trayIconUpdate', async (_, png: string) => {
-      const image = nativeImage.createFromDataURL(png).resize({ height: 16 })
-      image.setTemplateImage(true)
-      tray?.setImage(image)
-    })
+    if (!trayIpcRegistered) {
+      trayIpcRegistered = true
+      ipcMain.on('trayIconUpdate', async (_, png: string) => {
+        const image = nativeImage.createFromDataURL(png).resize({ height: 16 })
+        image.setTemplateImage(true)
+        tray?.setImage(image)
+      })
+    }
     tray?.addListener('right-click', async () => {
       await triggerMainWindow()
     })
@@ -480,9 +486,12 @@ export async function createTray(): Promise<void> {
     tray?.addListener('click', async () => {
       await triggerMainWindow()
     })
-    ipcMain.on('updateTrayMenu', async () => {
-      await updateTrayMenu()
-    })
+    if (!trayIpcRegistered) {
+      trayIpcRegistered = true
+      ipcMain.on('updateTrayMenu', async () => {
+        await updateTrayMenu()
+      })
+    }
   }
 }
 

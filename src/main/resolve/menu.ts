@@ -184,7 +184,8 @@ export async function createApplicationMenu(): Promise<void> {
         {
           label: '关于',
           click: () => {
-            dialog.showMessageBox(mainWindow!, {
+            if (!mainWindow) return
+            dialog.showMessageBox(mainWindow, {
               type: 'info',
               title: '关于 Sparkle',
               message: 'Sparkle',

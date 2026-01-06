@@ -8,6 +8,7 @@ import { buildContextMenu, showTrayIcon } from './tray'
 
 export let floatingWindow: BrowserWindow | null = null
 let triggerTimeoutRef: NodeJS.Timeout | null = null
+let floatingWindowIpcRegistered = false
 
 async function preallocateGpuResources(): Promise<void> {
   const preallocWin = new BrowserWindow({
@@ -67,12 +68,15 @@ async function createFloatingWindow(): Promise<void> {
   floatingWindow.on('moved', () => {
     if (floatingWindow) floatingWindowState.saveState(floatingWindow)
   })
-  ipcMain.on('updateFloatingWindow', () => {
-    if (floatingWindow) {
-      floatingWindow?.webContents.send('controledMihomoConfigUpdated')
-      floatingWindow?.webContents.send('appConfigUpdated')
-    }
-  })
+  if (!floatingWindowIpcRegistered) {
+    floatingWindowIpcRegistered = true
+    ipcMain.on('updateFloatingWindow', () => {
+      if (floatingWindow) {
+        floatingWindow?.webContents.send('controledMihomoConfigUpdated')
+        floatingWindow?.webContents.send('appConfigUpdated')
+      }
+    })
+  }
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     floatingWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/floating.html`)
   } else {
