@@ -71,8 +71,8 @@ export const defaultControledMihomoConfig: Partial<MihomoConfig> = {
   'find-process-mode': 'always',
   'interface-name': '',
   'bind-address': '*',
-  'keep-alive-idle': 0,
-  'keep-alive-interval': 0,
+  'keep-alive-idle': 15,
+  'keep-alive-interval': 15,
   'disable-keep-alive': false,
   'global-client-fingerprint': '',
   'lan-allowed-ips': ['0.0.0.0/0', '::/0'],
@@ -88,11 +88,13 @@ export const defaultControledMihomoConfig: Partial<MihomoConfig> = {
     'auto-detect-interface': true,
     'dns-hijack': ['any:53'],
     'route-exclude-address': [],
+    'strict-route': false,
+    'disable-icmp-forwarding': false,
     mtu: 1500
   },
   dns: {
     enable: true,
-    ipv6: true,
+    ipv6: false,
     'respect-rules': false,
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
@@ -116,9 +118,13 @@ export const defaultControledMihomoConfig: Partial<MihomoConfig> = {
       },
       TLS: {
         ports: [443]
+      },
+      QUIC: {
+        ports: []
       }
     },
     'skip-domain': ['+.push.apple.com'],
+    'force-domain': [],
     'skip-dst-address': [
       '91.105.192.0/23',
       '91.108.4.0/22',
@@ -132,7 +138,8 @@ export const defaultControledMihomoConfig: Partial<MihomoConfig> = {
       '2001:b28:f23c::/47',
       '2001:b28:f23f::/48',
       '2a0a:f280:203::/48'
-    ]
+    ],
+    'skip-src-address': []
   },
   profile: {
     'store-selected': true,
