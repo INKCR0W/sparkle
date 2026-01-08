@@ -1,8 +1,8 @@
-import React, { createContext, useContext, ReactNode, useRef, useState, useCallback } from 'react'
+import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react'
 
 interface ProxiesStateContextType {
-  getIsOpen: (groupName: string) => boolean
-  getSearchValue: (groupName: string) => string
+  isOpenMap: Map<string, boolean>
+  searchValueMap: Map<string, string>
   setIsOpen: (groupName: string, value: boolean) => void
   setSearchValue: (groupName: string, value: string) => void
   syncGroups: (groupNames: string[]) => void
@@ -11,67 +11,68 @@ interface ProxiesStateContextType {
 const ProxiesStateContext = createContext<ProxiesStateContextType | undefined>(undefined)
 
 export const ProxiesStateProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const isOpenMapRef = useRef<Map<string, boolean>>(new Map())
-  const searchValueMapRef = useRef<Map<string, string>>(new Map())
-  // 用于触发重渲染的版本号
-  const [, setVersion] = useState(0)
-  const forceUpdate = useCallback(() => setVersion((v) => v + 1), [])
+  const [isOpenMap, setIsOpenMap] = useState<Map<string, boolean>>(new Map())
+  const [searchValueMap, setSearchValueMap] = useState<Map<string, string>>(new Map())
 
-  const getIsOpen = useCallback((groupName: string) => {
-    return isOpenMapRef.current.get(groupName) ?? false
+  const setIsOpen = useCallback((groupName: string, value: boolean) => {
+    setIsOpenMap((prev) => {
+      if (prev.get(groupName) === value) return prev
+      const next = new Map(prev)
+      next.set(groupName, value)
+      return next
+    })
   }, [])
 
-  const getSearchValue = useCallback((groupName: string) => {
-    return searchValueMapRef.current.get(groupName) ?? ''
+  const setSearchValue = useCallback((groupName: string, value: string) => {
+    setSearchValueMap((prev) => {
+      if (prev.get(groupName) === value) return prev
+      const next = new Map(prev)
+      next.set(groupName, value)
+      return next
+    })
   }, [])
 
-  const setIsOpen = useCallback(
-    (groupName: string, value: boolean) => {
-      if (isOpenMapRef.current.get(groupName) !== value) {
-        isOpenMapRef.current.set(groupName, value)
-        forceUpdate()
-      }
-    },
-    [forceUpdate]
-  )
-
-  const setSearchValue = useCallback(
-    (groupName: string, value: string) => {
-      if (searchValueMapRef.current.get(groupName) !== value) {
-        searchValueMapRef.current.set(groupName, value)
-        forceUpdate()
-      }
-    },
-    [forceUpdate]
-  )
-
-  const syncGroups = useCallback(
-    (groupNames: string[]) => {
-      const groupNameSet = new Set(groupNames)
+  const syncGroups = useCallback((groupNames: string[]) => {
+    const groupNameSet = new Set(groupNames)
+    setIsOpenMap((prev) => {
       let changed = false
-      // 删除不存在的组
-      for (const key of isOpenMapRef.current.keys()) {
+      for (const key of prev.keys()) {
         if (!groupNameSet.has(key)) {
-          isOpenMapRef.current.delete(key)
           changed = true
+          break
         }
       }
-      for (const key of searchValueMapRef.current.keys()) {
+      if (!changed) return prev
+      const next = new Map(prev)
+      for (const key of next.keys()) {
         if (!groupNameSet.has(key)) {
-          searchValueMapRef.current.delete(key)
-          changed = true
+          next.delete(key)
         }
       }
-      if (changed) {
-        forceUpdate()
+      return next
+    })
+    setSearchValueMap((prev) => {
+      let changed = false
+      for (const key of prev.keys()) {
+        if (!groupNameSet.has(key)) {
+          changed = true
+          break
+        }
       }
-    },
-    [forceUpdate]
-  )
+      if (!changed) return prev
+      const next = new Map(prev)
+      for (const key of next.keys()) {
+        if (!groupNameSet.has(key)) {
+          next.delete(key)
+        }
+      }
+      return next
+    })
+  }, [])
 
   return (
     <ProxiesStateContext.Provider
-      value={{ getIsOpen, getSearchValue, setIsOpen, setSearchValue, syncGroups }}
+      value={{ isOpenMap, searchValueMap, setIsOpen, setSearchValue, syncGroups }}
     >
       {children}
     </ProxiesStateContext.Provider>

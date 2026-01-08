@@ -24,7 +24,7 @@ const Proxies: React.FC = () => {
   const { controledMihomoConfig } = useControledMihomoConfig()
   const { mode = 'rule' } = controledMihomoConfig || {}
   const { groups = [], mutate } = useGroups()
-  const { getIsOpen, getSearchValue, setIsOpen, setSearchValue, syncGroups } = useProxiesState()
+  const { isOpenMap, searchValueMap, setIsOpen, setSearchValue, syncGroups } = useProxiesState()
   const { appConfig } = useAppConfig()
   const {
     proxyDisplayLayout = 'double',
@@ -47,8 +47,8 @@ const Proxies: React.FC = () => {
     const groupCounts: number[] = []
     const allProxies: (ControllerProxiesDetail | ControllerGroupDetail)[][] = []
     groups.forEach((group) => {
-      const isGroupOpen = getIsOpen(group.name)
-      const groupSearchValue = getSearchValue(group.name)
+      const isGroupOpen = isOpenMap.get(group.name) ?? false
+      const groupSearchValue = searchValueMap.get(group.name) ?? ''
       if (isGroupOpen) {
         let groupProxies = group.all.filter(
           (proxy) => proxy && includesIgnoreCase(proxy.name, groupSearchValue)
@@ -74,7 +74,7 @@ const Proxies: React.FC = () => {
       }
     })
     return { groupCounts, allProxies }
-  }, [groups, getIsOpen, getSearchValue, proxyDisplayOrder, cols])
+  }, [groups, isOpenMap, searchValueMap, proxyDisplayOrder, cols])
 
   const onChangeProxy = useCallback(
     async (group: string, proxy: string): Promise<void> => {
@@ -151,9 +151,9 @@ const Proxies: React.FC = () => {
   const toggleOpen = useCallback(
     (index: number) => {
       const group = groups[index]
-      setIsOpen(group.name, !getIsOpen(group.name))
+      setIsOpen(group.name, !(isOpenMap.get(group.name) ?? false))
     },
-    [groups, getIsOpen, setIsOpen]
+    [groups, isOpenMap, setIsOpen]
   )
 
   const updateSearchValue = useCallback(
@@ -167,7 +167,7 @@ const Proxies: React.FC = () => {
   const scrollToCurrentProxy = useCallback(
     (index: number) => {
       const group = groups[index]
-      if (!getIsOpen(group.name)) {
+      if (!(isOpenMap.get(group.name) ?? false)) {
         setIsOpen(group.name, true)
       }
       let i = 0
@@ -180,7 +180,7 @@ const Proxies: React.FC = () => {
         align: 'start'
       })
     },
-    [groups, getIsOpen, setIsOpen, groupCounts, allProxies, cols]
+    [groups, isOpenMap, setIsOpen, groupCounts, allProxies, cols]
   )
 
   useEffect(() => {
@@ -216,8 +216,8 @@ const Proxies: React.FC = () => {
           })
       }
       const group = groups[index]
-      const isGroupOpen = getIsOpen(group.name)
-      const groupSearchValue = getSearchValue(group.name)
+      const isGroupOpen = isOpenMap.get(group.name) ?? false
+      const groupSearchValue = searchValueMap.get(group.name) ?? ''
       const isGroupDelaying = delaying.get(group.name) ?? false
       return group ? (
         <div
@@ -313,8 +313,8 @@ const Proxies: React.FC = () => {
     [
       groups,
       groupCounts,
-      getIsOpen,
-      getSearchValue,
+      isOpenMap,
+      searchValueMap,
       delaying,
       groupDisplayLayout,
       toggleOpen,
