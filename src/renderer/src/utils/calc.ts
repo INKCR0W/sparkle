@@ -1,5 +1,5 @@
 export function calcTraffic(byte: number): string {
-  if (!Number.isFinite(byte) || byte > Number.MAX_SAFE_INTEGER) {
+  if (!Number.isFinite(byte)) {
     return '∞'
   }
   if (byte < 1024) return `${formatNumString(byte)} B`
@@ -41,7 +41,7 @@ export function calcPercent(
   if (upload === undefined || download === undefined || total === undefined) {
     return 100
   }
-  if (!Number.isFinite(total) || total > Number.MAX_SAFE_INTEGER) {
+  if (!Number.isFinite(total)) {
     return 0
   }
   return Math.round(((upload + download) / total) * 100)

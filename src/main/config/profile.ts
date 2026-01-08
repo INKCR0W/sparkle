@@ -339,7 +339,7 @@ function parseSubinfo(str: string): SubscriptionUserInfo {
   const obj = {} as SubscriptionUserInfo
   parts.forEach((part) => {
     const [key, value] = part.trim().split('=')
-    obj[key] = parseInt(value)
+    obj[key] = Number(value)
   })
   return obj
 }
