@@ -140,14 +140,8 @@ export const BaseEditor: React.FC<Props> = (props) => {
   }
 
   const diffEditorWillUnmount = (editor: monaco.editor.IStandaloneDiffEditor): void => {
-    if (!editor) return
-    const model = editor.getModel()
-    if (model?.original) {
-      model.original.dispose()
-    }
-    if (model?.modified) {
-      model.modified.dispose()
-    }
+    // 不需要在这里清理 model，因为我们已经 patch 了 react-monaco-editor
+    // 让库自己在 dispose editor 之前清理 model
   }
 
   const options = {
@@ -194,6 +188,7 @@ export const BaseEditor: React.FC<Props> = (props) => {
   if (originalValue !== undefined) {
     return (
       <MonacoDiffEditor
+        key="diff-editor"
         language={language}
         original={originalValue}
         value={value}
@@ -210,6 +205,7 @@ export const BaseEditor: React.FC<Props> = (props) => {
 
   return (
     <MonacoEditor
+      key="normal-editor"
       language={language}
       value={value}
       height="100%"

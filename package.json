@@ -103,7 +103,8 @@
       "electron"
     ],
     "patchedDependencies": {
-      "vite-plugin-monaco-editor@1.1.0": "patches/vite-plugin-monaco-editor@1.1.0.patch"
+      "vite-plugin-monaco-editor@1.1.0": "patches/vite-plugin-monaco-editor@1.1.0.patch",
+      "react-monaco-editor@0.59.0": "patches/react-monaco-editor@0.59.0.patch"
     },
     "overrides": {
       "vite": "npm:rolldown-vite@latest"

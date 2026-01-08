@@ -1,0 +1,20 @@
+diff --git a/lib/diff.js b/lib/diff.js
+index 709679669ebdc99f605b2349501dd139fcb2ed00..65423b1f4c16c6463ef328e8ecf901103df3ca7e 100644
+--- a/lib/diff.js
++++ b/lib/diff.js
+@@ -135,7 +135,6 @@ function MonacoDiffEditor(_a, ref) {
+     useEffect(function () { return function () {
+         if (editor.current) {
+             handleEditorWillUnmount();
+-            editor.current.dispose();
+             var _a = editor.current.getModel(), originalEditor = _a.original, modified = _a.modified;
+             if (originalEditor) {
+                 originalEditor.dispose();
+@@ -143,6 +142,7 @@ function MonacoDiffEditor(_a, ref) {
+             if (modified) {
+                 modified.dispose();
+             }
++            editor.current.dispose();
+         }
+         if (_subscription.current) {
+             _subscription.current.dispose();
