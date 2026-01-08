@@ -22,7 +22,6 @@
 - perf(api): 优化 mihomoGroups 遍历并添加 WebSocket 指数退避重连
 - perf(connections): 修复依赖循环并优化图标加载性能
 - perf(renderer): SWR 全局配置与 IPC 监听器清理优化
-- perf(main): SubStore 服务按需启动以优化启动速度
 
 ### 重构
 
