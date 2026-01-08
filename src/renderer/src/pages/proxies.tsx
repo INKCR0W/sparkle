@@ -15,6 +15,7 @@ import ProxySettingModal from '@renderer/components/proxies/proxy-setting-modal'
 import { IoIosArrowBack } from 'react-icons/io'
 import { MdDoubleArrow, MdOutlineSpeed, MdTune } from 'react-icons/md'
 import { useGroups } from '@renderer/hooks/use-groups'
+import { useProxiesState } from '@renderer/hooks/use-proxies-state'
 import CollapseInput from '@renderer/components/base/collapse-input'
 import { includesIgnoreCase } from '@renderer/utils/includes'
 import { useControledMihomoConfig } from '@renderer/hooks/use-controled-mihomo-config'
@@ -23,6 +24,7 @@ const Proxies: React.FC = () => {
   const { controledMihomoConfig } = useControledMihomoConfig()
   const { mode = 'rule' } = controledMihomoConfig || {}
   const { groups = [], mutate } = useGroups()
+  const { getIsOpen, getSearchValue, setIsOpen, setSearchValue, syncGroups } = useProxiesState()
   const { appConfig } = useAppConfig()
   const {
     proxyDisplayLayout = 'double',
@@ -33,31 +35,23 @@ const Proxies: React.FC = () => {
     delayTestConcurrency = 50
   } = appConfig || {}
   const [cols, setCols] = useState(1)
-  const [isOpen, setIsOpen] = useState<boolean[]>([])
-  const [delaying, setDelaying] = useState<boolean[]>([])
-  const [searchValue, setSearchValue] = useState<string[]>([])
+  const [delaying, setDelaying] = useState<Map<string, boolean>>(new Map())
   const [isSettingModalOpen, setIsSettingModalOpen] = useState(false)
   const virtuosoRef = useRef<GroupedVirtuosoHandle>(null)
 
   useEffect(() => {
-    if (groups.length !== isOpen.length) {
-      setIsOpen(Array(groups.length).fill(false))
-    }
-    if (groups.length !== delaying.length) {
-      setDelaying(Array(groups.length).fill(false))
-    }
-    if (groups.length !== searchValue.length) {
-      setSearchValue(Array(groups.length).fill(''))
-    }
-  }, [groups.length])
+    syncGroups(groups.map((g) => g.name))
+  }, [groups, syncGroups])
 
   const { groupCounts, allProxies } = useMemo(() => {
     const groupCounts: number[] = []
     const allProxies: (ControllerProxiesDetail | ControllerGroupDetail)[][] = []
-    groups.forEach((group, index) => {
-      if (isOpen[index]) {
+    groups.forEach((group) => {
+      const isGroupOpen = getIsOpen(group.name)
+      const groupSearchValue = getSearchValue(group.name)
+      if (isGroupOpen) {
         let groupProxies = group.all.filter(
-          (proxy) => proxy && includesIgnoreCase(proxy.name, searchValue[index])
+          (proxy) => proxy && includesIgnoreCase(proxy.name, groupSearchValue)
         )
         const count = Math.floor(groupProxies.length / cols)
         groupCounts.push(groupProxies.length % cols === 0 ? count : count + 1)
@@ -80,7 +74,7 @@ const Proxies: React.FC = () => {
       }
     })
     return { groupCounts, allProxies }
-  }, [groups, isOpen, proxyDisplayOrder, cols, searchValue])
+  }, [groups, getIsOpen, getSearchValue, proxyDisplayOrder, cols])
 
   const onChangeProxy = useCallback(
     async (group: string, proxy: string): Promise<void> => {
@@ -102,24 +96,21 @@ const Proxies: React.FC = () => {
 
   const onGroupDelay = useCallback(
     async (index: number): Promise<void> => {
+      const group = groups[index]
       if (allProxies[index].length === 0) {
-        setIsOpen((prev) => {
-          const newOpen = [...prev]
-          newOpen[index] = true
-          return newOpen
-        })
+        setIsOpen(group.name, true)
       }
       setDelaying((prev) => {
-        const newDelaying = [...prev]
-        newDelaying[index] = true
-        return newDelaying
+        const next = new Map(prev)
+        next.set(group.name, true)
+        return next
       })
       const result: Promise<void>[] = []
       const runningList: Promise<void>[] = []
       for (const proxy of allProxies[index]) {
         const promise = Promise.resolve().then(async () => {
           try {
-            await mihomoProxyDelay(proxy.name, groups[index].testUrl)
+            await mihomoProxyDelay(proxy.name, group.testUrl)
           } catch {
             // ignore
           } finally {
@@ -137,12 +128,12 @@ const Proxies: React.FC = () => {
       }
       await Promise.all(result)
       setDelaying((prev) => {
-        const newDelaying = [...prev]
-        newDelaying[index] = false
-        return newDelaying
+        const next = new Map(prev)
+        next.set(group.name, false)
+        return next
       })
     },
-    [allProxies, groups, delayTestConcurrency, mutate]
+    [allProxies, groups, delayTestConcurrency, mutate, setIsOpen]
   )
 
   const calcCols = useCallback((): number => {
@@ -157,44 +148,41 @@ const Proxies: React.FC = () => {
     }
   }, [])
 
-  const toggleOpen = useCallback((index: number) => {
-    setIsOpen((prev) => {
-      const newOpen = [...prev]
-      newOpen[index] = !prev[index]
-      return newOpen
-    })
-  }, [])
+  const toggleOpen = useCallback(
+    (index: number) => {
+      const group = groups[index]
+      setIsOpen(group.name, !getIsOpen(group.name))
+    },
+    [groups, getIsOpen, setIsOpen]
+  )
 
-  const updateSearchValue = useCallback((index: number, value: string) => {
-    setSearchValue((prev) => {
-      const newSearchValue = [...prev]
-      newSearchValue[index] = value
-      return newSearchValue
-    })
-  }, [])
+  const updateSearchValue = useCallback(
+    (index: number, value: string) => {
+      const group = groups[index]
+      setSearchValue(group.name, value)
+    },
+    [groups, setSearchValue]
+  )
 
   const scrollToCurrentProxy = useCallback(
     (index: number) => {
-      if (!isOpen[index]) {
-        setIsOpen((prev) => {
-          const newOpen = [...prev]
-          newOpen[index] = true
-          return newOpen
-        })
+      const group = groups[index]
+      if (!getIsOpen(group.name)) {
+        setIsOpen(group.name, true)
       }
       let i = 0
       for (let j = 0; j < index; j++) {
         i += groupCounts[j]
       }
       i += Math.floor(
-        allProxies[index].findIndex((proxy) => proxy.name === groups[index].now) / cols
+        allProxies[index].findIndex((proxy) => proxy.name === group.now) / cols
       )
       virtuosoRef.current?.scrollToIndex({
         index: Math.floor(i),
         align: 'start'
       })
     },
-    [isOpen, groupCounts, allProxies, groups, cols]
+    [groups, getIsOpen, setIsOpen, groupCounts, allProxies, cols]
   )
 
   useEffect(() => {
@@ -229,23 +217,27 @@ const Proxies: React.FC = () => {
             console.warn('Failed to load group icon:', groups[index].icon, e)
           })
       }
-      return groups[index] ? (
+      const group = groups[index]
+      const isGroupOpen = getIsOpen(group.name)
+      const groupSearchValue = getSearchValue(group.name)
+      const isGroupDelaying = delaying.get(group.name) ?? false
+      return group ? (
         <div
-          className={`w-full pt-2 ${index === groupCounts.length - 1 && !isOpen[index] ? 'pb-2' : ''} px-2`}
+          className={`w-full pt-2 ${index === groupCounts.length - 1 && !isGroupOpen ? 'pb-2' : ''} px-2`}
         >
           <Card as="div" isPressable fullWidth onPress={() => toggleOpen(index)}>
             <CardBody className="w-full h-14">
               <div className="flex justify-between h-full">
                 <div className="flex text-ellipsis overflow-hidden whitespace-nowrap h-full">
-                  {groups[index].icon ? (
+                  {group.icon ? (
                     <Avatar
                       className="bg-transparent mr-2 w-8 h-8"
                       size="sm"
                       radius="sm"
                       src={
-                        groups[index].icon.startsWith('<svg')
-                          ? `data:image/svg+xml;utf8,${groups[index].icon}`
-                          : localStorage.getItem(groups[index].icon) || groups[index].icon
+                        group.icon.startsWith('<svg')
+                          ? `data:image/svg+xml;utf8,${group.icon}`
+                          : localStorage.getItem(group.icon) || group.icon
                       }
                     />
                   ) : null}
@@ -255,25 +247,25 @@ const Proxies: React.FC = () => {
                     <div
                       className={`text-ellipsis overflow-hidden whitespace-nowrap leading-tight ${groupDisplayLayout === 'double' ? 'text-md flex-5 flex items-center' : 'text-lg'}`}
                     >
-                      <span className="flag-emoji inline-block">{groups[index].name}</span>
+                      <span className="flag-emoji inline-block">{group.name}</span>
                       {groupDisplayLayout === 'single' && (
                         <>
                           <div
-                            title={groups[index].type}
+                            title={group.type}
                             className="inline ml-2 text-sm text-foreground-500"
                           >
-                            {groups[index].type}
+                            {group.type}
                           </div>
                           <div className="inline flag-emoji ml-2 text-sm text-foreground-500">
-                            {groups[index].now}
+                            {group.now}
                           </div>
                         </>
                       )}
                     </div>
                     {groupDisplayLayout === 'double' && (
                       <div className="text-ellipsis whitespace-nowrap text-[10px] text-foreground-500 leading-tight flex-3 flex items-center">
-                        <span>{groups[index].type}</span>
-                        <span className="flag-emoji ml-1 inline-block">{groups[index].now}</span>
+                        <span>{group.type}</span>
+                        <span className="flag-emoji ml-1 inline-block">{group.now}</span>
                       </div>
                     )}
                   </div>
@@ -281,11 +273,11 @@ const Proxies: React.FC = () => {
                 <div className="flex items-center">
                   <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
                     <Chip size="sm" className="my-1 mr-2">
-                      {groups[index].all.length}
+                      {group.all.length}
                     </Chip>
                     <CollapseInput
                       title="搜索节点"
-                      value={searchValue[index]}
+                      value={groupSearchValue}
                       onValueChange={(v) => updateSearchValue(index, v)}
                     />
                     <Button
@@ -300,7 +292,7 @@ const Proxies: React.FC = () => {
                     <Button
                       title="延迟测试"
                       variant="light"
-                      isLoading={delaying[index]}
+                      isLoading={isGroupDelaying}
                       size="sm"
                       isIconOnly
                       onPress={() => onGroupDelay(index)}
@@ -309,7 +301,7 @@ const Proxies: React.FC = () => {
                     </Button>
                   </div>
                   <IoIosArrowBack
-                    className={`transition duration-200 ml-2 h-[32px] text-lg text-foreground-500 flex items-center ${isOpen[index] ? '-rotate-90' : ''}`}
+                    className={`transition duration-200 ml-2 h-[32px] text-lg text-foreground-500 flex items-center ${isGroupOpen ? '-rotate-90' : ''}`}
                   />
                 </div>
               </div>
@@ -323,10 +315,10 @@ const Proxies: React.FC = () => {
     [
       groups,
       groupCounts,
-      isOpen,
-      groupDisplayLayout,
-      searchValue,
+      getIsOpen,
+      getSearchValue,
       delaying,
+      groupDisplayLayout,
       toggleOpen,
       updateSearchValue,
       scrollToCurrentProxy,
