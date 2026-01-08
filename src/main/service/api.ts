@@ -25,7 +25,7 @@ export const initServiceAPI = (km: KeyManager): void => {
     if (keyManager?.isInitialized()) {
       const timestamp = Math.floor(Date.now() / 1000).toString()
       const nonce = generateNonce()
-      const signature = keyManager.signData(`${timestamp}:${nonce}`)
+      const signature = keyManager.signData(`${timestamp}`)
 
       config.headers['X-Timestamp'] = timestamp
       config.headers['X-Nonce'] = nonce
