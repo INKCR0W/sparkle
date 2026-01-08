@@ -295,14 +295,6 @@ export async function getFilePath(ext: string[]): Promise<string[] | undefined> 
   return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('getFilePath', ext))
 }
 
-export async function selectCorePath(): Promise<string | undefined> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('selectCorePath'))
-}
-
-export async function validateCorePath(filePath: string): Promise<string> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('validateCorePath', filePath))
-}
-
 export async function readTextFile(filePath: string): Promise<string> {
   return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('readTextFile', filePath))
 }

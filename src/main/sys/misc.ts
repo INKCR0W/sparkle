@@ -1,7 +1,6 @@
 import { exec, execFile, execSync, spawn } from 'child_process'
 import { app, dialog, nativeTheme, shell } from 'electron'
-import { readFile, access, constants } from 'fs/promises'
-import { accessSync, constants as fsConstants, existsSync } from 'fs'
+import { readFile } from 'fs/promises'
 import path from 'path'
 import { promisify } from 'util'
 import {
@@ -24,76 +23,6 @@ export function getFilePath(ext: string[]): string[] | undefined {
     filters: [{ name: `${ext} file`, extensions: ext }],
     properties: ['openFile']
   })
-}
-
-export async function selectCorePath(): Promise<string | undefined> {
-  const filters =
-    process.platform === 'win32'
-      ? [{ name: '可执行文件', extensions: ['exe'] }]
-      : [{ name: '所有文件', extensions: ['*'] }]
-
-  const result = await dialog.showOpenDialog({
-    title: '选择内核文件',
-    filters,
-    properties: ['openFile']
-  })
-
-  if (result.canceled || !result.filePaths[0]) {
-    return undefined
-  }
-
-  const selectedPath = result.filePaths[0]
-  return validateCorePath(selectedPath)
-}
-
-export async function validateCorePath(filePath: string): Promise<string> {
-  if (!filePath) {
-    throw new Error('路径不能为空')
-  }
-
-  try {
-    await access(filePath, constants.F_OK)
-  } catch {
-    throw new Error(`文件不存在: ${filePath}`)
-  }
-
-  if (process.platform !== 'win32') {
-    try {
-      await access(filePath, constants.X_OK)
-    } catch {
-      throw new Error('所选文件不是可执行文件')
-    }
-  } else {
-    if (!filePath.toLowerCase().endsWith('.exe')) {
-      throw new Error('所选文件不是可执行文件（需要 .exe 文件）')
-    }
-  }
-
-  return filePath
-}
-
-export function validateCorePathSync(filePath: string): string {
-  if (!filePath) {
-    throw new Error('路径不能为空')
-  }
-
-  if (!existsSync(filePath)) {
-    throw new Error(`文件不存在: ${filePath}`)
-  }
-
-  if (process.platform !== 'win32') {
-    try {
-      accessSync(filePath, fsConstants.X_OK)
-    } catch {
-      throw new Error('所选文件不是可执行文件')
-    }
-  } else {
-    if (!filePath.toLowerCase().endsWith('.exe')) {
-      throw new Error('所选文件不是可执行文件（需要 .exe 文件）')
-    }
-  }
-
-  return filePath
 }
 
 export async function readTextFile(filePath: string): Promise<string> {

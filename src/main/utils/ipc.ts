@@ -76,8 +76,6 @@ import {
   openUWPTool,
   readTextFile,
   resetAppConfig,
-  selectCorePath,
-  validateCorePath,
   setNativeTheme,
   setupFirewall
 } from '../sys/misc'
@@ -239,8 +237,6 @@ export function registerIpcMainHandlers(): void {
   ipcMain.handle('stopService', () => ipcErrorWrapper(stopService)())
   ipcMain.handle('findSystemMihomo', () => findSystemMihomo())
   ipcMain.handle('getFilePath', (_e, ext) => getFilePath(ext))
-  ipcMain.handle('selectCorePath', ipcErrorWrapper(selectCorePath))
-  ipcMain.handle('validateCorePath', (_e, filePath) => ipcErrorWrapper(validateCorePath)(filePath))
   ipcMain.handle('readTextFile', (_e, filePath) => ipcErrorWrapper(readTextFile)(filePath))
   ipcMain.handle('getRuntimeConfigStr', ipcErrorWrapper(getRuntimeConfigStr))
   ipcMain.handle('getRawProfileStr', ipcErrorWrapper(getRawProfileStr))

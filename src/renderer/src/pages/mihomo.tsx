@@ -25,9 +25,7 @@ import {
   startService,
   stopService,
   initService,
-  restartService,
-  selectCorePath,
-  validateCorePath
+  restartService
 } from '@renderer/utils/ipc'
 import React, { useState, useEffect } from 'react'
 import ControllerSetting from '@renderer/components/mihomo/controller-setting'
@@ -49,8 +47,6 @@ const Mihomo: React.FC = () => {
   const [pendingPermissionMode, setPendingPermissionMode] = useState<string>('')
   const [systemCorePaths, setSystemCorePaths] = useState<string[]>(getSystemCorePathsCache() || [])
   const [loadingPaths, setLoadingPaths] = useState(false)
-  const [customCorePathInput, setCustomCorePathInput] = useState(appConfig?.customCorePath || '')
-  const [isValidating, setIsValidating] = useState(false)
 
   useEffect(() => {
     if (core !== 'system') return
@@ -65,10 +61,6 @@ const Mihomo: React.FC = () => {
       .then(setSystemCorePaths)
       .finally(() => setLoadingPaths(false))
   }, [core])
-
-  useEffect(() => {
-    setCustomCorePathInput(appConfig?.customCorePath || '')
-  }, [appConfig?.customCorePath])
 
   const onChangeNeedRestart = async (patch: Partial<MihomoConfig>): Promise<void> => {
     await patchControledMihomoConfig(patch)
@@ -102,7 +94,7 @@ const Mihomo: React.FC = () => {
   }
 
   const handleCoreChange = async (
-    newCore: 'mihomo' | 'mihomo-alpha' | 'system' | 'custom'
+    newCore: 'mihomo' | 'mihomo-alpha' | 'system'
   ): Promise<void> => {
     if (newCore === 'system') {
       const paths = await getSystemCorePaths()
@@ -117,21 +109,6 @@ const Mihomo: React.FC = () => {
       if (!appConfig?.systemCorePath || !paths.includes(appConfig.systemCorePath)) {
         await patchAppConfig({ systemCorePath: paths[0] })
       }
-    }
-    if (newCore === 'custom') {
-      // 如果已有有效的自定义内核路径，直接切换并重启
-      if (appConfig?.customCorePath) {
-        try {
-          await validateCorePath(appConfig.customCorePath)
-          await handleConfigChangeWithRestart('core', newCore)
-          return
-        } catch {
-          // 路径无效，继续显示输入框让用户重新选择
-        }
-      }
-      // 没有有效路径时，只切换到 custom 模式，不重启内核，等用户选择路径后再重启
-      await patchAppConfig({ core: newCore })
-      return
     }
     await handleConfigChangeWithRestart('core', newCore)
   }
@@ -305,13 +282,12 @@ const Mihomo: React.FC = () => {
             selectedKeys={new Set([core])}
             disallowEmptySelection={true}
             onSelectionChange={(v) =>
-              handleCoreChange(v.currentKey as 'mihomo' | 'mihomo-alpha' | 'system' | 'custom')
+              handleCoreChange(v.currentKey as 'mihomo' | 'mihomo-alpha' | 'system')
             }
           >
             <SelectItem key="mihomo">内置稳定版</SelectItem>
             <SelectItem key="mihomo-alpha">内置预览版</SelectItem>
             <SelectItem key="system">使用系统内核</SelectItem>
-            <SelectItem key="custom">使用自定义内核</SelectItem>
           </Select>
         </SettingItem>
         {core === 'system' && (
@@ -341,62 +317,6 @@ const Mihomo: React.FC = () => {
                 未在系统中找到 mihomo 或 clash 内核，请安装后重试
               </div>
             )}
-          </SettingItem>
-        )}
-        {core === 'custom' && (
-          <SettingItem title="自定义内核路径" divider>
-            <div className="flex gap-2">
-              <Input
-                size="sm"
-                className="w-[300px]"
-                value={customCorePathInput}
-                placeholder="请选择或输入内核路径，按 Enter 确认"
-                onValueChange={setCustomCorePathInput}
-                isDisabled={isValidating}
-                onKeyDown={async (e) => {
-                  if (e.key !== 'Enter') return
-                  if (isValidating) return
-                  if (!customCorePathInput) return
-                  if (customCorePathInput === appConfig?.customCorePath) return
-                  setIsValidating(true)
-                  try {
-                    const validPath = await validateCorePath(customCorePathInput)
-                    if (validPath) {
-                      await patchAppConfig({ customCorePath: validPath })
-                      await restartCore()
-                      PubSub.publish('mihomo-core-changed')
-                    }
-                  } catch (err) {
-                    setCustomCorePathInput(appConfig?.customCorePath || '')
-                    alert(err)
-                  } finally {
-                    setIsValidating(false)
-                  }
-                }}
-              />
-              <Button
-                size="sm"
-                isDisabled={isValidating}
-                onPress={async () => {
-                  if (isValidating) return
-                  setIsValidating(true)
-                  try {
-                    const selectedPath = await selectCorePath()
-                    if (selectedPath) {
-                      await patchAppConfig({ customCorePath: selectedPath })
-                      await restartCore()
-                      PubSub.publish('mihomo-core-changed')
-                    }
-                  } catch (e) {
-                    alert(e)
-                  } finally {
-                    setIsValidating(false)
-                  }
-                }}
-              >
-                选择
-              </Button>
-            </div>
           </SettingItem>
         )}
         <SettingItem title="运行模式" divider>
