@@ -21,7 +21,7 @@ export async function startMonitor(detached = false): Promise<void> {
     }
     await rm(path.join(dataDir(), 'monitor.pid'))
   }
-  stopMonitor()
+  await stopMonitor()
   const { showTraffic = false } = await getAppConfig()
   if (!showTraffic) return
   child = spawn(path.join(resourcesFilesDir(), 'TrafficMonitor/TrafficMonitor.exe'), [], {
@@ -40,9 +40,17 @@ export async function startMonitor(detached = false): Promise<void> {
   }
 }
 
-export function stopMonitor(): void {
+export async function stopMonitor(): Promise<void> {
   if (child) {
     child.kill('SIGINT')
+    await new Promise<void>((resolve) => {
+      if (child) {
+        child.once('exit', () => resolve())
+        setTimeout(resolve, 1000)
+      } else {
+        resolve()
+      }
+    })
     child = null
   }
 }
