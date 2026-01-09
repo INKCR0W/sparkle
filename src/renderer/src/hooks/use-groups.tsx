@@ -12,7 +12,10 @@ const GroupsContext = createContext<GroupsContextType | undefined>(undefined)
 export const GroupsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { data: groups, mutate } = useSWR<ControllerMixedGroup[]>('mihomoGroups', mihomoGroups, {
     errorRetryInterval: 200,
-    errorRetryCount: 10
+    errorRetryCount: 10,
+    refreshInterval: 2000,
+    dedupingInterval: 1000,
+    keepPreviousData: true
   })
 
   React.useEffect(() => {
@@ -26,7 +29,7 @@ export const GroupsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       unsubGroupsUpdated()
       unsubCoreStarted()
     }
-  }, [])
+  }, [mutate])
 
   return <GroupsContext.Provider value={{ groups, mutate }}>{children}</GroupsContext.Provider>
 }

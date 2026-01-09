@@ -38,7 +38,7 @@ export const ControledMihomoConfigProvider: React.FC<{ children: ReactNode }> = 
     return (): void => {
       unsubControledMihomoConfigUpdated()
     }
-  }, [])
+  }, [mutateControledMihomoConfig])
 
   return (
     <ControledMihomoConfigContext.Provider

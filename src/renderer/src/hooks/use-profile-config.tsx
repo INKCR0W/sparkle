@@ -88,7 +88,7 @@ export const ProfileConfigProvider: React.FC<{ children: ReactNode }> = ({ child
     return (): void => {
       unsubProfileConfigUpdated()
     }
-  }, [])
+  }, [mutateProfileConfig])
 
   return (
     <ProfileConfigContext.Provider

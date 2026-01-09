@@ -74,7 +74,7 @@ export const OverrideConfigProvider: React.FC<{ children: ReactNode }> = ({ chil
     return (): void => {
       unsubOverrideConfigUpdated()
     }
-  }, [])
+  }, [mutateOverrideConfig])
 
   return (
     <OverrideConfigContext.Provider

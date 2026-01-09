@@ -26,7 +26,7 @@ export const RulesProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       unsubRulesUpdated()
       unsubCoreStarted()
     }
-  }, [])
+  }, [mutate])
 
   return <RulesContext.Provider value={{ rules, mutate }}>{children}</RulesContext.Provider>
 }

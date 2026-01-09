@@ -48,7 +48,7 @@ export const AppConfigProvider: React.FC<{ children: ReactNode }> = ({ children 
     return (): void => {
       unsubAppConfigUpdated()
     }
-  }, [])
+  }, [mutateAppConfig])
 
   return (
     <AppConfigContext.Provider value={{ appConfig, mutateAppConfig, patchAppConfig }}>
