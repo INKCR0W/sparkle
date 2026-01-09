@@ -126,11 +126,8 @@ export async function listWebdavBackups(): Promise<string[]> {
     password: webdavPassword
   })
   const files = await client.getDirectoryContents(webdavDir, { glob: '*.zip' })
-  if (Array.isArray(files)) {
-    return files.map((file) => file.basename)
-  } else {
-    return files.data.map((file) => file.basename)
-  }
+  const fileList = Array.isArray(files) ? files : files.data
+  return fileList.map((file) => file.basename).sort((a, b) => b.localeCompare(a))
 }
 
 export async function webdavDelete(filename: string): Promise<void> {
