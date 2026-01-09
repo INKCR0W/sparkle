@@ -53,10 +53,17 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
     const unsubscribeCoreStarted = window.electron.ipcRenderer.on('core-started', () => {
       mutate()
     })
+
+    const handleWindowFocus = (): void => {
+      mutate()
+    }
+    window.addEventListener('focus', handleWindowFocus)
+
     return (): void => {
       PubSub.unsubscribe(token)
       unsubscribeMemory()
       unsubscribeCoreStarted()
+      window.removeEventListener('focus', handleWindowFocus)
     }
   }, [])
 
