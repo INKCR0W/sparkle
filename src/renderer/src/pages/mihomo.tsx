@@ -93,9 +93,7 @@ const Mihomo: React.FC = () => {
     }
   }
 
-  const handleCoreChange = async (
-    newCore: 'mihomo' | 'mihomo-alpha' | 'system'
-  ): Promise<void> => {
+  const handleCoreChange = async (newCore: 'mihomo' | 'mihomo-alpha' | 'system'): Promise<void> => {
     if (newCore === 'system') {
       const paths = await getSystemCorePaths()
 
