@@ -18,6 +18,7 @@ import { platform } from '@renderer/utils/init'
 import { useControledMihomoConfig } from '@renderer/hooks/use-controled-mihomo-config'
 import { MdTune } from 'react-icons/md'
 import { saveIconToCache, getIconFromCache } from '@renderer/utils/icon-cache'
+import { IoMdPause, IoMdPlay } from 'react-icons/io'
 
 let cachedConnections: ControllerConnectionDetail[] = []
 const MAX_QUEUE_SIZE = 100
@@ -48,10 +49,12 @@ const Connections: React.FC = () => {
 
   const [tab, setTab] = useState('active')
   const [_deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
+  const [isPaused, setIsPaused] = useState(false)
 
   const allConnectionsRef = useRef<ControllerConnectionDetail[]>(cachedConnections)
   const activeConnectionsRef = useRef<ControllerConnectionDetail[]>([])
   const deletedIdsRef = useRef<Set<string>>(new Set())
+  const isPausedRef = useRef(false)
 
   const iconRequestQueue = useRef(new Set<string>())
   const processingIcons = useRef(new Set<string>())
@@ -168,7 +171,13 @@ const Connections: React.FC = () => {
   )
 
   useEffect(() => {
+    isPausedRef.current = isPaused
+  }, [isPaused])
+
+  useEffect(() => {
     const handleConnections = (_e: unknown, info: ControllerConnections): void => {
+      if (isPausedRef.current) return
+      
       setConnectionsInfo(info)
 
       if (!info.connections) return
@@ -521,6 +530,16 @@ const Connections: React.FC = () => {
               </Button>
             </Badge>
           </div>
+          <Button
+            size="sm"
+            isIconOnly
+            className="app-nodrag"
+            variant="light"
+            title={isPaused ? '恢复' : '暂停'}
+            onPress={() => setIsPaused(!isPaused)}
+          >
+            {isPaused ? <IoMdPlay className="text-lg" /> : <IoMdPause className="text-lg" />}
+          </Button>
           <Button
             size="sm"
             isIconOnly
