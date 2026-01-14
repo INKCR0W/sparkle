@@ -18,7 +18,7 @@ import { platform } from '@renderer/utils/init'
 import { useControledMihomoConfig } from '@renderer/hooks/use-controled-mihomo-config'
 import { MdTune } from 'react-icons/md'
 import { saveIconToCache, getIconFromCache } from '@renderer/utils/icon-cache'
-import { IoMdPause, IoMdPlay } from 'react-icons/io'
+import { IoPause, IoPlay } from 'react-icons/io5'
 
 let cachedConnections: ControllerConnectionDetail[] = []
 const MAX_QUEUE_SIZE = 100
@@ -177,7 +177,7 @@ const Connections: React.FC = () => {
   useEffect(() => {
     const handleConnections = (_e: unknown, info: ControllerConnections): void => {
       if (isPausedRef.current) return
-      
+
       setConnectionsInfo(info)
 
       if (!info.connections) return
@@ -538,7 +538,7 @@ const Connections: React.FC = () => {
             title={isPaused ? '恢复' : '暂停'}
             onPress={() => setIsPaused(!isPaused)}
           >
-            {isPaused ? <IoMdPlay className="text-lg" /> : <IoMdPause className="text-lg" />}
+            {isPaused ? <IoPlay className="text-lg" /> : <IoPause className="text-lg" />}
           </Button>
           <Button
             size="sm"
