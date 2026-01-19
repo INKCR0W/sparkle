@@ -173,6 +173,11 @@ export function I18nProvider({
   useEffect(() => {
     mountedRef.current = true
 
+    if (cleanupTimerRef.current !== null) {
+      clearTimeout(cleanupTimerRef.current)
+      cleanupTimerRef.current = null
+    }
+
     initialize().catch((err) => {
       if (mountedRef.current) {
         console.error('[i18n] Initialization failed:', err)

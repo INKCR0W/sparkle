@@ -117,11 +117,29 @@ async function loadWithRetry(
     } catch (error) {
       lastError = error as Error
 
-      if (attempt >= maxRetries) {
-        console.error(
-          `[i18n] Failed to load translation after ${maxRetries + 1} attempts: ${language}/${namespace}`,
-          lastError
-        )
+      const errorMessage = lastError.message || ''
+      const errorName = lastError.name || ''
+
+      const isClientError =
+        errorName === 'TypeError' ||
+        errorName === 'ReferenceError' ||
+        errorMessage.includes('is not a function') ||
+        errorMessage.includes('is not defined') ||
+        errorMessage.includes('Cannot read propert') || // 匹配 property 和 properties
+        errorMessage.includes('is not iterable')
+
+      if (isClientError || attempt >= maxRetries) {
+        if (isClientError) {
+          console.error(
+            `[i18n] Non-retryable client error loading translation: ${language}/${namespace}`,
+            lastError
+          )
+        } else {
+          console.error(
+            `[i18n] Failed to load translation after ${maxRetries + 1} attempts: ${language}/${namespace}`,
+            lastError
+          )
+        }
         return {} as TranslationResource
       }
 

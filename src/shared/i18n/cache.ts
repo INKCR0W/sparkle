@@ -127,42 +127,57 @@ export class LRUCache<K, V> implements ICache<K, V> {
 
   keys(): K[] {
     const keys: K[] = []
+    const keysToDelete: K[] = []
     let current = this.head
 
     while (current) {
-      if (!this.isExpired(current.value)) {
+      if (this.isExpired(current.value)) {
+        keysToDelete.push(current.key)
+      } else {
         keys.push(current.key)
       }
       current = current.next
     }
+
+    keysToDelete.forEach((key) => this.delete(key))
 
     return keys
   }
 
   values(): V[] {
     const values: V[] = []
+    const keysToDelete: K[] = []
     let current = this.head
 
     while (current) {
-      if (!this.isExpired(current.value)) {
+      if (this.isExpired(current.value)) {
+        keysToDelete.push(current.key)
+      } else {
         values.push(current.value.value)
       }
       current = current.next
     }
+
+    keysToDelete.forEach((key) => this.delete(key))
 
     return values
   }
 
   entries(): Array<[K, V]> {
     const entries: Array<[K, V]> = []
+    const keysToDelete: K[] = []
     let current = this.head
 
     while (current) {
-      if (!this.isExpired(current.value)) {
+      if (this.isExpired(current.value)) {
+        keysToDelete.push(current.key)
+      } else {
         entries.push([current.key, current.value.value])
       }
       current = current.next
     }
+
+    keysToDelete.forEach((key) => this.delete(key))
 
     return entries
   }
