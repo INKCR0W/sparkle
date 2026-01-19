@@ -291,6 +291,16 @@ export async function startCore(detached = false): Promise<Promise<void>[]> {
 }
 
 export async function stopCore(force = false): Promise<void> {
+  if (setPublicDNSTimer) {
+    clearTimeout(setPublicDNSTimer)
+    setPublicDNSTimer = null
+  }
+  if (recoverDNSTimer) {
+    clearTimeout(recoverDNSTimer)
+    recoverDNSTimer = null
+  }
+  await stopNetworkDetection()
+
   try {
     if (!force) {
       await recoverDNS()
