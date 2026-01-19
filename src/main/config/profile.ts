@@ -19,6 +19,7 @@ import { deepMerge } from '../utils/merge'
 import { getUserAgent } from '../utils/userAgent'
 
 let profileConfig: ProfileConfig // profile.yaml
+let changeProfileQueue: Promise<void> = Promise.resolve()
 
 export function getCertFingerprint(cert: tls.PeerCertificate) {
   return crypto.createHash('sha256').update(cert.raw).digest('hex').toUpperCase()
@@ -49,18 +50,28 @@ export async function getProfileItem(id: string | undefined): Promise<ProfileIte
 }
 
 export async function changeCurrentProfile(id: string): Promise<void> {
-  const config = await getProfileConfig()
-  const current = config.current
-  config.current = id
-  // 先持久化新配置，restartCore 成功后无需再次写入
-  await setProfileConfig(config)
-  try {
-    await restartCore()
-  } catch (e) {
-    // 失败时回滚到原配置
-    config.current = current
-    await setProfileConfig(config)
-    throw e
+  let taskError: unknown = null
+  changeProfileQueue = changeProfileQueue
+    .catch(() => {
+    })
+    .then(async () => {
+      const config = await getProfileConfig()
+      const current = config.current
+      if (current === id) return
+
+      try {
+        config.current = id
+        await setProfileConfig(config)
+        await restartCore()
+      } catch (e) {
+        config.current = current
+        await setProfileConfig(config)
+        taskError = e
+      }
+    })
+  await changeProfileQueue
+  if (taskError) {
+    throw taskError
   }
 }
 
