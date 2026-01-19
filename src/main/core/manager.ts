@@ -396,12 +396,20 @@ async function stopChildProcess(process: ChildProcess): Promise<void> {
 }
 
 export async function restartCore(): Promise<void> {
+  if (isRestarting) {
+    throw new Error('Core is already restarting')
+  }
+  isRestarting = true
   try {
     await stopCore()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     const promises = await startCore()
     await Promise.all(promises)
   } catch (e) {
     dialog.showErrorBox('内核启动出错', `${e}`)
+    throw e
+  } finally {
+    isRestarting = false
   }
 }
 
