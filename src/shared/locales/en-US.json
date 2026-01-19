@@ -283,7 +283,9 @@
       "switchedToGlobalMode": "Switched to Global Mode",
       "switchedToDirectMode": "Switched to Direct Mode",
       "trayIconFailed": "Tray Icon Creation Failed",
-      "trayIconFailedDesc": "The tray icon cannot be displayed properly. Application functionality is not affected, but you may need to restart the application to restore tray functionality."
+      "trayIconFailedDesc": "The tray icon cannot be displayed properly. Application functionality is not affected, but you may need to restart the application to restore tray functionality.",
+      "tunStartFailed": "TUN Start Failed",
+      "tunStartFailedDesc": "TUN failed to start and has been automatically disabled. Please grant core permissions to use TUN mode."
     },
     "menu": {
       "about": "About",

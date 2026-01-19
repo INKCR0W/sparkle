@@ -283,7 +283,9 @@
       "switchedToGlobalMode": "已切換至全域模式",
       "switchedToDirectMode": "已切換至直連模式",
       "trayIconFailed": "系統匣圖示建立失敗",
-      "trayIconFailedDesc": "系統匣圖示無法正常顯示。應用程式功能不受影響，但您可能需要重新啟動應用程式來恢復系統匣功能。"
+      "trayIconFailedDesc": "系統匣圖示無法正常顯示。應用程式功能不受影響，但您可能需要重新啟動應用程式來恢復系統匣功能。",
+      "tunStartFailed": "TUN 啟動失敗",
+      "tunStartFailedDesc": "TUN 啟動失敗，已自動停用。如需使用請授予核心權限。"
     },
     "menu": {
       "about": "關於",

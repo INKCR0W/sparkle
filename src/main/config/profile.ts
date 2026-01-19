@@ -55,8 +55,7 @@ export async function getProfileItem(id: string | undefined): Promise<ProfileIte
 export async function changeCurrentProfile(id: string): Promise<void> {
   let taskError: unknown = null
   changeProfileQueue = changeProfileQueue
-    .catch(() => {
-    })
+    .catch(() => {})
     .then(async () => {
       const config = await getProfileConfig()
       const current = config.current

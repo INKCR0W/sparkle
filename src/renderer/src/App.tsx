@@ -223,6 +223,12 @@ const App: React.FC = () => {
       setOverrideInstallData(data)
       setShowOverrideInstallConfirm(true)
     }
+    const handleTunStartFailed = (): void => {
+      new Notification(t('main.notifications.tunStartFailed'), {
+        body: t('main.notifications.tunStartFailedDesc'),
+        silent: false
+      })
+    }
 
     const unsubShowQuitConfirm = window.electron.ipcRenderer.on(
       'show-quit-confirm',
@@ -236,13 +242,18 @@ const App: React.FC = () => {
       'show-override-install-confirm',
       handleShowOverrideInstallConfirm
     )
+    const unsubTunStartFailed = window.electron.ipcRenderer.on(
+      'tunStartFailed',
+      handleTunStartFailed
+    )
 
     return (): void => {
       unsubShowQuitConfirm()
       unsubShowProfileInstallConfirm()
       unsubShowOverrideInstallConfirm()
+      unsubTunStartFailed()
     }
-  }, [])
+  }, [t])
 
   const handleQuitConfirm = (confirmed: boolean): void => {
     setShowQuitConfirm(false)

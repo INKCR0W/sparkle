@@ -208,7 +208,7 @@ export async function startCore(detached = false): Promise<Promise<void>[]> {
         (process.platform === 'win32' && str.includes('RESTful API pipe listening at'))
       ) {
         resolve([
-          new Promise((resolve, reject) => {
+          new Promise((resolve, _reject) => {
             const handleProviderInitialization = async (logLine: string): Promise<void> => {
               for (const match of logLine.matchAll(/Start initial provider ([^"]+)"/g)) {
                 const name = normalize(match[1])
@@ -222,10 +222,17 @@ export async function startCore(detached = false): Promise<Promise<void>[]> {
                   'Start TUN listening error: configure tun interface: Connect: operation not permitted'
                 )
               ) {
-                patchControledMihomoConfig({ tun: { enable: false } })
+                await patchControledMihomoConfig({ tun: { enable: false } })
                 mainWindow?.webContents.send('controledMihomoConfigUpdated')
                 ipcMain.emit('updateTrayMenu')
-                reject('虚拟网卡启动失败，前往内核设置页尝试手动授予内核权限')
+
+                await writeFile(
+                  logPath(),
+                  '[Manager]: TUN 启动失败（权限不足），已自动禁用。如需使用 TUN 模式，请前往内核设置页手动授予权限。\n',
+                  { flag: 'a' }
+                )
+
+                mainWindow?.webContents.send('tunStartFailed')
               }
 
               const isDefaultProvider = logLine.includes(
