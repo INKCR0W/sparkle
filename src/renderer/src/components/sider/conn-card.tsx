@@ -224,7 +224,7 @@ const drawSvg = async (upload: number, download: number): Promise<void> => {
   if (upload === currentUpload && download === currentDownload) return
   currentUpload = upload
   currentDownload = download
-  const svg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36"><image height="36" width="36" href="${trayIconBase64}"/><text x="140" y="15" font-size="18" font-family="PingFang SC" font-weight="bold" text-anchor="end">${calcTraffic(upload)}/s</text><text x="140" y="34" font-size="18" font-family="PingFang SC" font-weight="bold" text-anchor="end">${calcTraffic(download)}/s</text></svg>`
+  const svg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 36"><image height="36" width="36" href="${trayIconBase64}"/><text x="156" y="15" font-size="18" font-family="PingFang SC" font-weight="bold" text-anchor="end" fill="black">${calcTraffic(upload)}/s</text><text x="156" y="34" font-size="18" font-family="PingFang SC" font-weight="bold" text-anchor="end" fill="black">${calcTraffic(download)}/s</text></svg>`
   const image = await loadImage(svg)
   window.electron.ipcRenderer.send('trayIconUpdate', image)
 }
