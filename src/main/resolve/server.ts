@@ -136,12 +136,24 @@ export async function startSubStoreBackendServer(): Promise<void> {
           }
         : env
     })
-    subStoreBackendWorker.on('error', () => {
-      // ignore
+    
+    subStoreBackendWorker.on('error', (error) => {
+      console.error('[SubStore] Worker error:', error)
+      if (subStoreBackendWorker) {
+        subStoreBackendWorker.terminate()
+        subStoreBackendWorker = null
+        subStorePort = undefined
+      }
+      stdout.end()
+      stderr.end()
     })
-    subStoreBackendWorker.on('exit', () => {
-      // ignore
+    
+    subStoreBackendWorker.on('exit', (code) => {
+      console.log('[SubStore] Worker exited with code:', code)
+      stdout.end()
+      stderr.end()
     })
+    
     subStoreBackendWorker.stdout.pipe(stdout)
     subStoreBackendWorker.stderr.pipe(stderr)
   }
