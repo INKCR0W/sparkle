@@ -199,10 +199,18 @@ function showQuitConfirmDialog(): Promise<boolean> {
     const delay = showWindow()
     setTimeout(() => {
       mainWindow?.webContents.send('show-quit-confirm')
+      
       const handleQuitConfirm = (_event: Electron.IpcMainEvent, confirmed: boolean): void => {
+        clearTimeout(cleanupTimeoutId)
         resolve(confirmed)
       }
+      
       ipcMain.once('quit-confirm-result', handleQuitConfirm)
+
+      const cleanupTimeoutId = setTimeout(() => {
+        ipcMain.removeListener('quit-confirm-result', handleQuitConfirm)
+        resolve(false)
+      }, 60000)
     }, delay)
   })
 }
@@ -459,10 +467,18 @@ async function showProfileInstallConfirm(url: string, name?: string | null): Pro
         url,
         name: extractedName || name
       })
+      
       const handleConfirm = (_event: Electron.IpcMainEvent, confirmed: boolean): void => {
+        clearTimeout(cleanupTimeoutId)
         resolve(confirmed)
       }
+      
       ipcMain.once('profile-install-confirm-result', handleConfirm)
+
+      const cleanupTimeoutId = setTimeout(() => {
+        ipcMain.removeListener('profile-install-confirm-result', handleConfirm)
+        resolve(false)
+      }, 60000)
     }, delay)
   })
 }
@@ -510,10 +526,18 @@ async function showOverrideInstallConfirm(url: string, name?: string | null): Pr
         url,
         name: finalName
       })
+      
       const handleConfirm = (_event: Electron.IpcMainEvent, confirmed: boolean): void => {
+        clearTimeout(cleanupTimeoutId)
         resolve(confirmed)
       }
+      
       ipcMain.once('override-install-confirm-result', handleConfirm)
+
+      const cleanupTimeoutId = setTimeout(() => {
+        ipcMain.removeListener('override-install-confirm-result', handleConfirm)
+        resolve(false)
+      }, 60000)
     }, delay)
   })
 }
