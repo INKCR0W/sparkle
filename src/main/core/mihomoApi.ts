@@ -11,12 +11,16 @@ import { mihomoIpcPath } from '../utils/dirs'
 let axiosIns: AxiosInstance = null!
 let mihomoTrafficWs: WebSocket | null = null
 let trafficRetry = 10
+let trafficRetryTimer: NodeJS.Timeout | null = null
 let mihomoMemoryWs: WebSocket | null = null
 let memoryRetry = 10
+let memoryRetryTimer: NodeJS.Timeout | null = null
 let mihomoLogsWs: WebSocket | null = null
 let logsRetry = 10
+let logsRetryTimer: NodeJS.Timeout | null = null
 let mihomoConnectionsWs: WebSocket | null = null
 let connectionsRetry = 10
+let connectionsRetryTimer: NodeJS.Timeout | null = null
 
 export const getAxios = async (force: boolean = false): Promise<AxiosInstance> => {
   const currentSocketPath = mihomoIpcPath()
@@ -231,6 +235,10 @@ export const startMihomoTraffic = async (): Promise<void> => {
 }
 
 export const stopMihomoTraffic = (): void => {
+  if (trafficRetryTimer) {
+    clearTimeout(trafficRetryTimer)
+    trafficRetryTimer = null
+  }
   if (mihomoTrafficWs) {
     mihomoTrafficWs.removeAllListeners()
     if (mihomoTrafficWs.readyState === WebSocket.OPEN) {
@@ -274,7 +282,7 @@ const mihomoTraffic = async (): Promise<void> => {
     if (trafficRetry) {
       const delay = getRetryDelay(trafficRetry, 10)
       trafficRetry--
-      setTimeout(() => mihomoTraffic(), delay)
+      trafficRetryTimer = setTimeout(() => mihomoTraffic(), delay)
     }
   }
 
@@ -292,6 +300,10 @@ export const startMihomoMemory = async (): Promise<void> => {
 }
 
 export const stopMihomoMemory = (): void => {
+  if (memoryRetryTimer) {
+    clearTimeout(memoryRetryTimer)
+    memoryRetryTimer = null
+  }
   if (mihomoMemoryWs) {
     mihomoMemoryWs.removeAllListeners()
     if (mihomoMemoryWs.readyState === WebSocket.OPEN) {
@@ -319,7 +331,7 @@ const mihomoMemory = async (): Promise<void> => {
     if (memoryRetry) {
       const delay = getRetryDelay(memoryRetry, 10)
       memoryRetry--
-      setTimeout(() => mihomoMemory(), delay)
+      memoryRetryTimer = setTimeout(() => mihomoMemory(), delay)
     }
   }
 
@@ -337,6 +349,10 @@ export const startMihomoLogs = async (): Promise<void> => {
 }
 
 export const stopMihomoLogs = (): void => {
+  if (logsRetryTimer) {
+    clearTimeout(logsRetryTimer)
+    logsRetryTimer = null
+  }
   if (mihomoLogsWs) {
     mihomoLogsWs.removeAllListeners()
     if (mihomoLogsWs.readyState === WebSocket.OPEN) {
@@ -366,7 +382,7 @@ const mihomoLogs = async (): Promise<void> => {
     if (logsRetry) {
       const delay = getRetryDelay(logsRetry, 10)
       logsRetry--
-      setTimeout(() => mihomoLogs(), delay)
+      logsRetryTimer = setTimeout(() => mihomoLogs(), delay)
     }
   }
 
@@ -384,6 +400,10 @@ export const startMihomoConnections = async (): Promise<void> => {
 }
 
 export const stopMihomoConnections = (): void => {
+  if (connectionsRetryTimer) {
+    clearTimeout(connectionsRetryTimer)
+    connectionsRetryTimer = null
+  }
   if (mihomoConnectionsWs) {
     mihomoConnectionsWs.removeAllListeners()
     if (mihomoConnectionsWs.readyState === WebSocket.OPEN) {
@@ -419,7 +439,7 @@ const mihomoConnections = async (): Promise<void> => {
     if (connectionsRetry) {
       const delay = getRetryDelay(connectionsRetry, 10)
       connectionsRetry--
-      setTimeout(() => mihomoConnections(), delay)
+      connectionsRetryTimer = setTimeout(() => mihomoConnections(), delay)
     }
   }
 
