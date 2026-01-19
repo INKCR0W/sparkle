@@ -18,7 +18,7 @@ import { platform } from '@renderer/utils/init'
 import { useControledMihomoConfig } from '@renderer/hooks/use-controled-mihomo-config'
 import { MdTune } from 'react-icons/md'
 import { saveIconToCache, getIconFromCache } from '@renderer/utils/icon-cache'
-import { IoPause, IoPlay } from 'react-icons/io5'
+import { IoMdPause, IoMdPlay } from 'react-icons/io'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 
 let cachedConnections: ControllerConnectionDetail[] = []
@@ -540,7 +540,7 @@ const Connections: React.FC = () => {
             title={isPaused ? t('resume') : t('pause')}
             onPress={() => setIsPaused(!isPaused)}
           >
-            {isPaused ? <IoPlay className="text-lg" /> : <IoPause className="text-lg" />}
+            {isPaused ? <IoMdPause className="text-lg" /> : <IoMdPause className="text-lg" />}
           </Button>
           <Button
             size="sm"
