@@ -8,8 +8,9 @@ import {
 } from '../config'
 import { triggerSysProxy } from '../sys/sysproxy'
 import { patchMihomoConfig } from '../core/mihomoApi'
-import { quitWithoutCore, restartCore } from '../core/manager'
+import { quitWithoutCore, restartCore, isCoreRestarting } from '../core/manager'
 import { floatingWindow, triggerFloatingWindow } from './floatingWindow'
+import { t } from '../utils/i18n'
 
 export async function registerShortcut(
   oldShortcut: string,
@@ -56,6 +57,14 @@ export async function registerShortcut(
     }
     case 'triggerTunShortcut': {
       return globalShortcut.register(newShortcut, async () => {
+        if (isCoreRestarting()) {
+          new Notification({
+            title: t('main.notifications.coreRestarting'),
+            body: t('main.notifications.coreRestartingDesc')
+          }).show()
+          return
+        }
+
         const { tun } = await getControledMihomoConfig()
         const enable = tun?.enable ?? false
         try {
@@ -66,7 +75,9 @@ export async function registerShortcut(
           }
           await restartCore()
           new Notification({
-            title: `虚拟网卡已${!enable ? '开启' : '关闭'}`
+            title: !enable
+              ? t('main.notifications.tunEnabled')
+              : t('main.notifications.tunDisabled')
           }).show()
           mainWindow?.webContents.send('controledMihomoConfigUpdated')
           floatingWindow?.webContents.send('controledMihomoConfigUpdated')

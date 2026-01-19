@@ -32,7 +32,7 @@ import {
 } from 'electron'
 import { dataDir, logDir, mihomoCoreDir, mihomoWorkDir } from '../utils/dirs'
 import { triggerSysProxy } from '../sys/sysproxy'
-import { quitWithoutCore, restartCore } from '../core/manager'
+import { quitWithoutCore, restartCore, isCoreRestarting } from '../core/manager'
 import { floatingWindow, triggerFloatingWindow } from './floatingWindow'
 import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
@@ -278,7 +278,10 @@ export const buildContextMenu = async (): Promise<Menu> => {
       label: t('main.tray.tun'),
       accelerator: triggerTunShortcut,
       checked: tun?.enable ?? false,
+      enabled: !isCoreRestarting(),
       click: async (item): Promise<void> => {
+        if (isCoreRestarting()) return
+
         const enable = item.checked
         try {
           if (enable) {

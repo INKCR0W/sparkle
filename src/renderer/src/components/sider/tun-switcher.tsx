@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { restartCore } from '@renderer/utils/ipc'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import React from 'react'
+import React, { useState } from 'react'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 
@@ -25,6 +25,7 @@ const TunSwitcher: React.FC<Props> = (props) => {
   const { controledMihomoConfig, patchControledMihomoConfig } = useControledMihomoConfig()
   const { tun } = controledMihomoConfig || {}
   const { enable } = tun || {}
+  const [isRestarting, setIsRestarting] = useState(false)
   const {
     attributes,
     listeners,
@@ -37,6 +38,9 @@ const TunSwitcher: React.FC<Props> = (props) => {
   })
   const transform = tf ? { x: tf.x, y: tf.y, scaleX: 1, scaleY: 1 } : null
   const onChange = async (enable: boolean): Promise<void> => {
+    if (isRestarting) return
+
+    setIsRestarting(true)
     try {
       if (enable) {
         await patchControledMihomoConfig({ tun: { enable }, dns: { enable: true } })
@@ -48,6 +52,8 @@ const TunSwitcher: React.FC<Props> = (props) => {
       window.electron.ipcRenderer.send('updateTrayMenu')
     } catch (e) {
       alert(t('sider.tunSwitchFailed') + ': ' + e)
+    } finally {
+      setIsRestarting(false)
     }
   }
 
@@ -104,6 +110,7 @@ const TunSwitcher: React.FC<Props> = (props) => {
               isShowBorder={match && enable}
               isSelected={enable}
               onValueChange={onChange}
+              isDisabled={isRestarting}
             />
           </div>
         </CardBody>

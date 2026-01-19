@@ -75,6 +75,10 @@ let retry = 10
 let isRestarting = false
 const RESTART_DELAY = 5000
 
+export function isCoreRestarting(): boolean {
+  return isRestarting
+}
+
 export async function startCore(detached = false): Promise<Promise<void>[]> {
   const {
     core = 'mihomo',

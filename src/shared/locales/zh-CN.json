@@ -285,7 +285,9 @@
       "trayIconFailed": "托盘图标创建失败",
       "trayIconFailedDesc": "托盘图标无法正常显示。应用功能不受影响，但您可能需要重启应用来恢复托盘功能。",
       "tunStartFailed": "TUN 启动失败",
-      "tunStartFailedDesc": "TUN 启动失败，已自动禁用。如需使用请授予内核权限。"
+      "tunStartFailedDesc": "TUN 启动失败，已自动禁用。如需使用请授予内核权限。",
+      "coreRestarting": "内核正在重启中",
+      "coreRestartingDesc": "请稍候再试"
     },
     "menu": {
       "about": "关于",
