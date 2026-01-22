@@ -114,6 +114,10 @@ interface AppConfig {
   displayAppName?: boolean
   disableGPU: boolean
   disableAnimation?: boolean
+  proxyGroupsState?: {
+    openState?: Record<string, boolean>
+    searchState?: Record<string, string>
+  }
 }
 
 interface ProfileConfig {
