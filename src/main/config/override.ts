@@ -8,6 +8,7 @@ import http from 'http'
 import tls from 'tls'
 import { parseYaml, stringifyYaml } from '../utils/yaml'
 import { getCertFingerprint } from './profile'
+import { getUserAgent } from '../utils/userAgent'
 
 let overrideConfig: OverrideConfig // override.yaml
 
@@ -141,6 +142,7 @@ export async function createOverride(item: Partial<OverrideItem>): Promise<Overr
             !item.fingerprint && {
               proxy: { protocol: 'http', host: '127.0.0.1', port: mixedPort }
             }),
+          headers: { 'User-Agent': await getUserAgent() },
           responseType: 'text'
         })
       } catch (error) {
