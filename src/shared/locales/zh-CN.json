@@ -8,7 +8,7 @@
       "name": "Sparkle",
       "quitConfirm": "确定要退出 Sparkle 吗？",
       "quitDesc": "退出后代理功能将停止工作",
-      "quitShortcut": "快按两次或长按 {shortcut} 可直接退出",
+      "quitShortcut": "快按两次或长按 {{shortcut}} 可直接退出",
       "importProfileConfirm": "确定要导入订阅配置吗？",
       "importProfileWarning": "请确保订阅配置来源可信，恶意配置可能影响您的网络安全",
       "importOverrideConfirm": "确定要导入覆写文件吗？",

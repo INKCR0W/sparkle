@@ -8,7 +8,7 @@
       "name": "Sparkle",
       "quitConfirm": "Are you sure you want to quit Sparkle?",
       "quitDesc": "Proxy functionality will stop working after quitting",
-      "quitShortcut": "Press {shortcut} twice quickly or hold to quit directly",
+      "quitShortcut": "Press {{shortcut}} twice quickly or hold to quit directly",
       "importProfileConfirm": "Are you sure you want to import this profile?",
       "importProfileWarning": "Please ensure the profile source is trustworthy, malicious profiles may affect your network security",
       "importOverrideConfirm": "Are you sure you want to import this override?",
