@@ -34,6 +34,7 @@ const ProxySettingModal: React.FC<Props> = (props) => {
     proxyDisplayLayout = 'double',
     autoCloseConnection = true,
     delayTestUrl,
+    delayTestUrlScope = 'group',
     delayTestConcurrency,
     delayTestTimeout
   } = appConfig || {}
@@ -147,6 +148,21 @@ const ProxySettingModal: React.FC<Props> = (props) => {
                 setUrlDebounce(v)
               }}
             />
+          </SettingItem>
+          <SettingItem title={t('delayTestUrlScope')} divider>
+            <Tabs
+              size="sm"
+              color="primary"
+              selectedKey={delayTestUrlScope}
+              onSelectionChange={async (v) => {
+                await patchAppConfig({
+                  delayTestUrlScope: v as 'group' | 'global'
+                })
+              }}
+            >
+              <Tab key="group" title={t('delayTestUrlScope.group')} />
+              <Tab key="global" title={t('delayTestUrlScope.global')} />
+            </Tabs>
           </SettingItem>
           <SettingItem title={t('delayTestConcurrency')} divider>
             <Input
