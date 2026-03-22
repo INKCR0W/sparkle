@@ -113,9 +113,7 @@ if (
   }
 }
 
-if (process.platform === 'win32' && is.dev) {
-  patchControledMihomoConfig({ tun: { enable: false } })
-}
+const shouldDisableTunInDev = process.platform === 'win32' && is.dev
 
 const gotTheLock = app.requestSingleInstanceLock()
 
@@ -311,9 +309,13 @@ app.whenReady().then(async () => {
   electronApp.setAppUserModelId('sparkle.app')
   try {
     await initPromise
+    if (shouldDisableTunInDev) {
+      await patchControledMihomoConfig({ tun: { enable: false } })
+    }
   } catch (e) {
     dialog.showErrorBox(t('common.errors.appCrashed'), `${e}`)
     app.quit()
+    return
   }
 
   // Default open or close DevTools by F12 in development

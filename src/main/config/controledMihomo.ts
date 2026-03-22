@@ -13,8 +13,12 @@ export async function getControledMihomoConfig(force = false): Promise<Partial<M
     try {
       const data = await readFile(controledMihomoConfigPath(), 'utf-8')
       controledMihomoConfig = parseYaml<Partial<MihomoConfig>>(data) || defaultControledMihomoConfig
-    } catch {
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error
+      }
       controledMihomoConfig = defaultControledMihomoConfig
+      await writeFile(controledMihomoConfigPath(), stringifyYaml(controledMihomoConfig), 'utf-8')
     }
   }
   if (typeof controledMihomoConfig !== 'object')
