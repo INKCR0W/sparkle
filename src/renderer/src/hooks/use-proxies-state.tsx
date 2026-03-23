@@ -8,6 +8,8 @@ import React, {
   useRef
 } from 'react'
 import { useAppConfig } from './use-app-config'
+import { useProfileConfig } from './use-profile-config'
+import { updateProxyGroupState } from '@renderer/utils/ipc'
 
 interface ProxiesStateContextType {
   isOpenMap: Map<string, boolean>
@@ -20,51 +22,57 @@ interface ProxiesStateContextType {
 const ProxiesStateContext = createContext<ProxiesStateContextType | undefined>(undefined)
 
 export const ProxiesStateProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { appConfig, patchAppConfig } = useAppConfig()
+  const { appConfig } = useAppConfig()
+  const { profileConfig } = useProfileConfig()
+  const currentProfileId = profileConfig?.current
   const saveTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const isOpenMapRef = useRef<Map<string, boolean>>(new Map())
   const searchValueMapRef = useRef<Map<string, string>>(new Map())
   const isUpdatingFromConfigRef = useRef(false)
   const isInitializedRef = useRef(false)
-  const patchAppConfigRef = useRef(patchAppConfig)
+  const currentProfileIdRef = useRef(currentProfileId)
+  const profileConfigRef = useRef(profileConfig)
 
   const [isOpenMap, setIsOpenMap] = useState<Map<string, boolean>>(new Map())
   const [searchValueMap, setSearchValueMap] = useState<Map<string, string>>(new Map())
 
   useEffect(() => {
-    patchAppConfigRef.current = patchAppConfig
-  }, [patchAppConfig])
+    currentProfileIdRef.current = currentProfileId
+  }, [currentProfileId])
 
   useEffect(() => {
-    if (appConfig?.proxyGroupsState) {
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current)
-        saveTimerRef.current = undefined
-      }
+    profileConfigRef.current = profileConfig
+  }, [profileConfig])
 
-      isUpdatingFromConfigRef.current = true
-
-      const newOpenMap = appConfig.proxyGroupsState.openState
-        ? new Map(Object.entries(appConfig.proxyGroupsState.openState))
-        : new Map()
-      setIsOpenMap(newOpenMap)
-      isOpenMapRef.current = newOpenMap
-
-      const newSearchMap = appConfig.proxyGroupsState.searchState
-        ? new Map(Object.entries(appConfig.proxyGroupsState.searchState))
-        : new Map()
-      setSearchValueMap(newSearchMap)
-      searchValueMapRef.current = newSearchMap
-
-      isInitializedRef.current = true
-
-      queueMicrotask(() => {
-        isUpdatingFromConfigRef.current = false
-      })
-    } else if (!isInitializedRef.current) {
-      isInitializedRef.current = true
+  useEffect(() => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current)
+      saveTimerRef.current = undefined
     }
-  }, [appConfig?.proxyGroupsState])
+
+    isUpdatingFromConfigRef.current = true
+
+    const profileState = currentProfileId
+      ? appConfig?.proxyGroupsState?.[currentProfileId]
+      : undefined
+    const newOpenMap = profileState?.openState
+      ? new Map(Object.entries(profileState.openState))
+      : new Map()
+    setIsOpenMap(newOpenMap)
+    isOpenMapRef.current = newOpenMap
+
+    const newSearchMap = profileState?.searchState
+      ? new Map(Object.entries(profileState.searchState))
+      : new Map()
+    setSearchValueMap(newSearchMap)
+    searchValueMapRef.current = newSearchMap
+
+    isInitializedRef.current = true
+
+    queueMicrotask(() => {
+      isUpdatingFromConfigRef.current = false
+    })
+  }, [appConfig?.proxyGroupsState, currentProfileId])
 
   useEffect(() => {
     return () => {
@@ -83,21 +91,29 @@ export const ProxiesStateProvider: React.FC<{ children: ReactNode }> = ({ childr
       clearTimeout(saveTimerRef.current)
     }
 
-    saveTimerRef.current = setTimeout(() => {
+    saveTimerRef.current = setTimeout(async () => {
       if (isUpdatingFromConfigRef.current) {
         return
       }
 
-      patchAppConfigRef
-        .current({
-          proxyGroupsState: {
-            openState: Object.fromEntries(isOpenMapRef.current),
-            searchState: Object.fromEntries(searchValueMapRef.current)
-          }
+      const profileId = currentProfileIdRef.current
+      if (!profileId) {
+        return
+      }
+
+      const profileExists = profileConfigRef.current?.items?.some((item) => item.id === profileId)
+      if (!profileExists) {
+        return
+      }
+
+      try {
+        await updateProxyGroupState(profileId, {
+          openState: Object.fromEntries(isOpenMapRef.current),
+          searchState: Object.fromEntries(searchValueMapRef.current)
         })
-        .catch(() => {
-          // ignore
-        })
+      } catch (error) {
+        console.warn('[ProxiesState] Failed to save state for profile:', profileId, error)
+      }
     }, 500)
   }, [])
 

@@ -1,4 +1,4 @@
-export { getAppConfig, patchAppConfig } from './app'
+export { getAppConfig, patchAppConfig, deleteProxyGroupState, updateProxyGroupState } from './app'
 export { getControledMihomoConfig, patchControledMihomoConfig } from './controledMihomo'
 export {
   getProfile,

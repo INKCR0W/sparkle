@@ -119,6 +119,28 @@ export async function patchAppConfig(patch: Partial<AppConfig>): Promise<void> {
   return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('patchAppConfig', patch))
 }
 
+export async function updateProxyGroupState(
+  profileId: string,
+  state: {
+    openState?: Record<string, boolean>
+    searchState?: Record<string, string>
+  }
+): Promise<void> {
+  const patch: Record<string, unknown> = {}
+  if (state.openState !== undefined) {
+    patch['openState!'] = state.openState
+  }
+  if (state.searchState !== undefined) {
+    patch['searchState!'] = state.searchState
+  }
+
+  return patchAppConfig({
+    proxyGroupsState: {
+      [profileId]: patch
+    }
+  } as unknown as Partial<AppConfig>)
+}
+
 export async function getControledMihomoConfig(force = false): Promise<Partial<MihomoConfig>> {
   return ipcErrorWrapper(
     await window.electron.ipcRenderer.invoke('getControledMihomoConfig', force)

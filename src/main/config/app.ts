@@ -111,6 +111,36 @@ export async function patchAppConfig(patch: Partial<AppConfig>): Promise<void> {
   await writePromise
 }
 
+export async function deleteProxyGroupState(profileId: string): Promise<void> {
+  await patchAppConfig({
+    proxyGroupsState: {
+      [`${profileId}-`]: null
+    }
+  } as unknown as Partial<AppConfig>)
+}
+
+export async function updateProxyGroupState(
+  profileId: string,
+  state: {
+    openState?: Record<string, boolean>
+    searchState?: Record<string, string>
+  }
+): Promise<void> {
+  const patch: Record<string, unknown> = {}
+  if (state.openState !== undefined) {
+    patch['openState!'] = state.openState
+  }
+  if (state.searchState !== undefined) {
+    patch['searchState!'] = state.searchState
+  }
+
+  await patchAppConfig({
+    proxyGroupsState: {
+      [profileId]: patch
+    }
+  } as unknown as Partial<AppConfig>)
+}
+
 export function getAppConfigSync(): AppConfig {
   try {
     const raw = readFileSync(appConfigPath(), 'utf-8')

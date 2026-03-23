@@ -34,6 +34,9 @@ export function deepMerge<T extends object>(target: T, other: Partial<T>, isOver
         const k = trimWrap(key)
         Object.assign(target, { [k]: other[key] })
       }
+    } else if (other[key] === null && key.endsWith('-')) {
+      const k = trimWrap(key.slice(0, -1))
+      delete target[k]
     } else {
       Object.assign(target, { [key]: other[key] })
     }

@@ -3,7 +3,7 @@ import { mihomoProfileWorkDir, mihomoWorkDir, profileConfigPath, profilePath } f
 import { addProfileUpdater, delProfileUpdater } from '../core/profileUpdater'
 import { readFile, writeFile, rm, mkdir } from 'fs/promises'
 import { restartCore } from '../core/manager'
-import { getAppConfig } from './app'
+import { getAppConfig, deleteProxyGroupState } from './app'
 import { existsSync } from 'fs'
 import axios, { AxiosResponse } from 'axios'
 import https from 'https'
@@ -129,6 +129,13 @@ export async function removeProfileItem(id: string): Promise<void> {
     await rm(mihomoProfileWorkDir(id), { recursive: true })
   }
   await delProfileUpdater(id)
+
+  // 清理该 profile 的 UI 状态
+  try {
+    await deleteProxyGroupState(id)
+  } catch (error) {
+    console.warn('[Profile] Failed to cleanup UI state for profile:', id, error)
+  }
 }
 
 export async function getCurrentProfileItem(): Promise<ProfileItem> {
