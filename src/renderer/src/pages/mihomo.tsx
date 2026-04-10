@@ -114,6 +114,8 @@ const Mihomo: React.FC = () => {
   }
 
   const handlePermissionModeChange = async (key: string): Promise<void> => {
+    if (key === corePermissionMode) return
+
     if (platform === 'win32') {
       if (key !== 'elevated') {
         if (await checkElevateTask()) {
