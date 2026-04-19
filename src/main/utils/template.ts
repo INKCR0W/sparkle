@@ -76,7 +76,6 @@ export const defaultControledMihomoConfig: Partial<MihomoConfig> = {
   'keep-alive-idle': 15,
   'keep-alive-interval': 15,
   'disable-keep-alive': false,
-  'global-client-fingerprint': '',
   'lan-allowed-ips': ['0.0.0.0/0', '::/0'],
   'lan-disallowed-ips': [],
   authentication: [],

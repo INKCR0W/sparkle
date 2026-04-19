@@ -4,7 +4,7 @@ import SettingCard from '../base/base-setting-card'
 import SettingItem from '../base/base-setting-item'
 import InterfaceSelect from '../base/interface-select'
 import { restartCore } from '@renderer/utils/ipc'
-import { Button, Input, Select, SelectItem, Switch, Tab, Tabs, Tooltip } from '@heroui/react'
+import { Button, Input, Switch, Tab, Tabs, Tooltip } from '@heroui/react'
 import { useState } from 'react'
 import { IoIosHelpCircle } from 'react-icons/io'
 
@@ -17,7 +17,6 @@ const AdvancedSetting: React.FC = () => {
     'disable-keep-alive': disableKeepAlive = false,
     'find-process-mode': findProcessMode = 'always',
     'interface-name': interfaceName = '',
-    'global-client-fingerprint': globalClientFingerprint = '',
     'keep-alive-idle': idle = 15,
     'keep-alive-interval': interval = 15,
     profile = {},
@@ -168,28 +167,6 @@ const AdvancedSetting: React.FC = () => {
             }}
           />
         </div>
-      </SettingItem>
-      <SettingItem title={t('advanced.utlsFingerprint')} divider>
-        <Select
-          size="sm"
-          className="w-[150px]"
-          selectedKeys={new Set([globalClientFingerprint])}
-          disallowEmptySelection={true}
-          onSelectionChange={(v) => {
-            onChangeNeedRestart({ 'global-client-fingerprint': v.currentKey as Fingerprints })
-          }}
-        >
-          <SelectItem key="">{t('common:ui.disabled')}</SelectItem>
-          <SelectItem key="random">{t('advanced.random')}</SelectItem>
-          <SelectItem key="chrome">Chrome</SelectItem>
-          <SelectItem key="firefox">Firefox</SelectItem>
-          <SelectItem key="safari">Safari</SelectItem>
-          <SelectItem key="ios">iOS</SelectItem>
-          <SelectItem key="android">Android</SelectItem>
-          <SelectItem key="edge">Edge</SelectItem>
-          <SelectItem key="360">360</SelectItem>
-          <SelectItem key="qq">QQ</SelectItem>
-        </Select>
       </SettingItem>
       <SettingItem title={t('advanced.interfaceName')}>
         <InterfaceSelect
