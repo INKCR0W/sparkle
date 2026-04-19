@@ -455,6 +455,17 @@ async function writeEditableFile(
   current: string | undefined,
   elevate = false
 ): Promise<void> {
+  // Explicit path traversal check for security
+  const normalizedTarget = normalize(target)
+  if (normalizedTarget.includes('..')) {
+    throw new Error('Invalid path: path traversal detected')
+  }
+
+  // Additional check: ensure target is within managed directories
+  if (!isManagedEditableFile(target, current)) {
+    throw new Error('Invalid path: target is outside managed editable directories')
+  }
+
   try {
     await attemptWriteFile(target, content)
   } catch (error) {
