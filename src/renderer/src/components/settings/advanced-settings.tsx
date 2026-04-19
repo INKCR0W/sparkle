@@ -49,6 +49,7 @@ const AdvancedSettings: React.FC = () => {
   return (
     <SettingCard title={t('advanced.title')}>
       <SettingItem
+        compatKey="legacy"
         title={t('advanced.autoLightweight')}
         actions={
           <Tooltip content={t('advanced.autoLightweightTip')}>
@@ -211,6 +212,7 @@ const AdvancedSettings: React.FC = () => {
         />
       </SettingItem>
       <SettingItem
+        compatKey="legacy"
         title={t('advanced.networkDetection')}
         actions={
           <Tooltip content={t('advanced.networkDetectionTip')}>

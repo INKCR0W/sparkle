@@ -108,6 +108,7 @@ const AppearanceConfig: React.FC = () => {
           <LanguageSwitcher />
         </SettingItem>
         <SettingItem
+          compatKey="legacy"
           title={t('appearance.showFloatingWindow')}
           actions={
             <Tooltip content={t('appearance.showFloatingWindowTip')}>
