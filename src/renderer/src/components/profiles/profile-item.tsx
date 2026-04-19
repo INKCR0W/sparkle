@@ -23,6 +23,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { openFile } from '@renderer/utils/ipc'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import ConfirmModal from '../base/base-confirm'
+import QRCodeModal from '../base/base-qrcode-modal'
 
 interface Props {
   info: ProfileItem
@@ -76,6 +77,7 @@ const ProfileItem: React.FC<Props> = (props) => {
   const transform = tf ? { x: tf.x, y: tf.y, scaleX: 1, scaleY: 1 } : null
   const [disableSelect, setDisableSelect] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [showQrCode, setShowQrCode] = useState(false)
 
   const menuItems: MenuItem[] = useMemo(() => {
     const list = [
@@ -96,10 +98,21 @@ const ProfileItem: React.FC<Props> = (props) => {
       {
         key: 'open-file',
         label: t('openFile'),
-        showDivider: true,
+        showDivider: !(info.type === 'remote' && info.url),
         color: 'default',
         className: ''
       } as MenuItem,
+      ...(info.type === 'remote' && info.url
+        ? [
+            {
+              key: 'qrcode',
+              label: t('qrCode'),
+              showDivider: true,
+              color: 'default',
+              className: ''
+            } as MenuItem
+          ]
+        : []),
       {
         key: 'delete',
         label: t('common:actions.delete'),
@@ -132,6 +145,10 @@ const ProfileItem: React.FC<Props> = (props) => {
       }
       case 'open-file': {
         openFile('profile', info.id)
+        break
+      }
+      case 'qrcode': {
+        setShowQrCode(true)
         break
       }
       case 'delete': {
@@ -181,6 +198,13 @@ const ProfileItem: React.FC<Props> = (props) => {
           isCurrent={isCurrent}
           onClose={() => setOpenInfoEditor(false)}
           updateProfileItem={updateProfileItem}
+        />
+      )}
+      {showQrCode && info.url && (
+        <QRCodeModal
+          title={info.name}
+          url={info.url}
+          onClose={() => setShowQrCode(false)}
         />
       )}
       {confirmOpen && (

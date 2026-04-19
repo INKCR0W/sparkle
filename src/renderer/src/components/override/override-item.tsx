@@ -19,6 +19,7 @@ import { CSS } from '@dnd-kit/utilities'
 import ExecLogModal from './exec-log-modal'
 import { openFile, restartCore } from '@renderer/utils/ipc'
 import ConfirmModal from '../base/base-confirm'
+import QRCodeModal from '../base/base-qrcode-modal'
 
 interface Props {
   info: OverrideItem
@@ -57,6 +58,7 @@ const OverrideItem: React.FC<Props> = (props) => {
   const transform = tf ? { x: tf.x, y: tf.y, scaleX: 1, scaleY: 1 } : null
   const [disableOpen, setDisableOpen] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [showQrCode, setShowQrCode] = useState(false)
   const menuItems: MenuItem[] = useMemo(() => {
     const list = [
       {
@@ -80,6 +82,17 @@ const OverrideItem: React.FC<Props> = (props) => {
         color: 'default',
         className: ''
       } as MenuItem,
+      ...(info.type === 'remote' && info.url
+        ? [
+            {
+              key: 'qrcode',
+              label: t('qrCode'),
+              showDivider: false,
+              color: 'default',
+              className: ''
+            } as MenuItem
+          ]
+        : []),
       {
         key: 'exec-log',
         label: t('execLog'),
@@ -96,7 +109,13 @@ const OverrideItem: React.FC<Props> = (props) => {
       } as MenuItem
     ]
     if (info.ext === 'yaml') {
-      list.splice(3, 1)
+      const execLogIndex = list.findIndex((item) => item.key === 'exec-log')
+      if (execLogIndex !== -1) list.splice(execLogIndex, 1)
+    }
+    // 确保 delete 前的最后一项有分隔线
+    const deleteIndex = list.findIndex((item) => item.key === 'delete')
+    if (deleteIndex > 0) {
+      list[deleteIndex - 1].showDivider = true
     }
     return list
   }, [info, t])
@@ -112,6 +131,10 @@ const OverrideItem: React.FC<Props> = (props) => {
       }
       case 'open-file': {
         openFile('override', info.id, info.ext)
+        break
+      }
+      case 'qrcode': {
+        setShowQrCode(true)
         break
       }
       case 'exec-log': {
@@ -159,6 +182,13 @@ const OverrideItem: React.FC<Props> = (props) => {
           item={info}
           onClose={() => setOpenInfoEditor(false)}
           updateOverrideItem={updateOverrideItem}
+        />
+      )}
+      {showQrCode && info.url && (
+        <QRCodeModal
+          title={info.name}
+          url={info.url}
+          onClose={() => setShowQrCode(false)}
         />
       )}
       {confirmOpen && (

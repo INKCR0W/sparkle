@@ -40,10 +40,11 @@
     "iconv-lite": "^0.7.1",
     "is-cidr": "^6.0.1",
     "is-ip": "^5.0.1",
+    "qrcode.react": "^4.2.0",
     "react-i18next": "^16.5.3",
-    "webdav": "^5.8.0",
-    "ws": "^8.18.3",
-    "yaml": "^2.8.2"
+    "webdav": "^5.9.0",
+    "ws": "^8.20.0",
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@dnd-kit/core": "^6.3.1",

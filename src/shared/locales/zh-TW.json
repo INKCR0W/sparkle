@@ -572,7 +572,8 @@
     "autoUpdate": "自動更新",
     "updateInterval": "更新間隔（分鐘）",
     "intervalLockedTip": "目前更新間隔由遠端管理",
-    "noAvailableOverride": "沒有可用的覆寫"
+    "noAvailableOverride": "沒有可用的覆寫",
+    "qrCode": "QR Code"
   },
   "connection": {
     "title": "連線",
@@ -656,7 +657,8 @@
     "geoDataMode": "GeoIP 資料模式",
     "autoUpdateGeo": "自動更新 Geo 資料庫",
     "geoUpdateSuccess": "Geo 資料庫更新成功",
-    "updateInterval": "更新間隔(小時)"
+    "updateInterval": "更新間隔(小時)",
+    "qrCode": "QR Code"
   },
   "override": {
     "title": "覆寫",
@@ -689,7 +691,8 @@
     "confirmCancel": "確認取消",
     "unsavedChanges": "您有未儲存的修改，確定要取消嗎？",
     "discardChanges": "放棄修改",
-    "continueEditing": "繼續編輯"
+    "continueEditing": "繼續編輯",
+    "qrCode": "QR Code"
   },
   "mihomo": {
     "title": "核心設定",

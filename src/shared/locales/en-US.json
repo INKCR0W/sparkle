@@ -572,7 +572,8 @@
     "autoUpdate": "Auto Update",
     "updateInterval": "Update Interval (Minutes)",
     "intervalLockedTip": "Current update interval is managed remotely",
-    "noAvailableOverride": "No available override"
+    "noAvailableOverride": "No available override",
+    "qrCode": "QR Code"
   },
   "connection": {
     "title": "Connections",
@@ -656,7 +657,8 @@
     "geoDataMode": "GeoIP Data Mode",
     "autoUpdateGeo": "Auto Update Geo Database",
     "geoUpdateSuccess": "Geo database updated successfully",
-    "updateInterval": "Update Interval (Hours)"
+    "updateInterval": "Update Interval (Hours)",
+    "qrCode": "QR Code"
   },
   "override": {
     "title": "Override",
@@ -689,7 +691,8 @@
     "confirmCancel": "Confirm Cancel",
     "unsavedChanges": "You have unsaved changes, are you sure you want to cancel?",
     "discardChanges": "Discard Changes",
-    "continueEditing": "Continue Editing"
+    "continueEditing": "Continue Editing",
+    "qrCode": "QR Code"
   },
   "mihomo": {
     "title": "Core Settings",

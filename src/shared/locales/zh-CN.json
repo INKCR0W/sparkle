@@ -572,7 +572,8 @@
     "autoUpdate": "自动更新",
     "updateInterval": "更新间隔（分钟）",
     "intervalLockedTip": "当前更新间隔由远程管理",
-    "noAvailableOverride": "没有可用的覆写"
+    "noAvailableOverride": "没有可用的覆写",
+    "qrCode": "二维码"
   },
   "connection": {
     "title": "连接",
@@ -656,7 +657,8 @@
     "geoDataMode": "GeoIP 数据模式",
     "autoUpdateGeo": "自动更新 Geo 数据库",
     "geoUpdateSuccess": "Geo 数据库更新成功",
-    "updateInterval": "更新间隔(小时)"
+    "updateInterval": "更新间隔(小时)",
+    "qrCode": "二维码"
   },
   "override": {
     "title": "覆写",
@@ -689,7 +691,8 @@
     "confirmCancel": "确认取消",
     "unsavedChanges": "您有未保存的修改，确定要取消吗？",
     "discardChanges": "放弃修改",
-    "continueEditing": "继续编辑"
+    "continueEditing": "继续编辑",
+    "qrCode": "二维码"
   },
   "mihomo": {
     "title": "内核设置",
