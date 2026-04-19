@@ -1,4 +1,5 @@
-import { Avatar, Button, Card, CardBody, Chip } from '@heroui/react'
+import { Button, Card, CardBody, Chip } from '@heroui/react'
+import { Avatar } from '@heroui-v3/react'
 import BasePage from '@renderer/components/base/base-page'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import {
@@ -244,16 +245,15 @@ const Proxies: React.FC = () => {
               <div className="flex justify-between h-full">
                 <div className="flex text-ellipsis overflow-hidden whitespace-nowrap h-full">
                   {group.icon ? (
-                    <Avatar
-                      className="bg-transparent mr-2 w-8 h-8"
-                      size="sm"
-                      radius="sm"
-                      src={
-                        group.icon.startsWith('<svg')
-                          ? `data:image/svg+xml;utf8,${group.icon}`
-                          : localStorage.getItem(group.icon) || group.icon
-                      }
-                    />
+                    <Avatar className="bg-transparent mr-2 w-8 h-8" size="sm">
+                      <Avatar.Image
+                        src={
+                          group.icon.startsWith('<svg')
+                            ? `data:image/svg+xml;utf8,${group.icon}`
+                            : localStorage.getItem(group.icon) || group.icon
+                        }
+                      />
+                    </Avatar>
                   ) : null}
                   <div
                     className={`flex flex-col h-full ${groupDisplayLayout === 'double' ? '' : 'justify-center'}`}

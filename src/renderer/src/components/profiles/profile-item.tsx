@@ -8,10 +8,10 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  Progress,
   Tooltip
 } from '@heroui/react'
-import { calcPercent, calcTraffic } from '@renderer/utils/calc'
+import { Meter } from '@heroui-v3/react'
+import { calcTraffic } from '@renderer/utils/calc'
 import { IoMdMore, IoMdRefresh } from 'react-icons/io'
 import dayjs from 'dayjs'
 import React, { Key, useEffect, useMemo, useState } from 'react'
@@ -201,11 +201,7 @@ const ProfileItem: React.FC<Props> = (props) => {
         />
       )}
       {showQrCode && info.url && (
-        <QRCodeModal
-          title={info.name}
-          url={info.url}
-          onClose={() => setShowQrCode(false)}
-        />
+        <QRCodeModal title={info.name} url={info.url} onClose={() => setShowQrCode(false)} />
       )}
       {confirmOpen && (
         <ConfirmModal
@@ -350,13 +346,15 @@ const ProfileItem: React.FC<Props> = (props) => {
               </div>
             )}
             {extra && (
-              <Progress
-                className="w-full"
-                classNames={{
-                  indicator: isCurrent ? 'bg-primary-foreground' : 'bg-foreground'
-                }}
-                value={calcPercent(extra?.upload, extra?.download, extra?.total)}
-              />
+              <Meter maxValue={extra.total} value={extra.download + extra.upload}>
+                <Meter.Track>
+                  <Meter.Fill
+                    style={
+                      isCurrent ? { backgroundColor: 'var(--color-accent-foreground)' } : undefined
+                    }
+                  />
+                </Meter.Track>
+              </Meter>
             )}
           </CardFooter>
         </div>
