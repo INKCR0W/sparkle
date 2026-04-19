@@ -221,7 +221,13 @@
         "diffMode": "对比当前配置",
         "sideBySide": "侧边显示",
         "showOriginal": "显示原始文本",
-        "showOverride": "显示覆写后文本"
+        "showOverride": "显示覆写后文本",
+        "loadingConfig": "正在读取配置...",
+        "loadFailed": "部分内容读取失败：",
+        "runtimeConfigName": "运行时配置",
+        "rawConfigName": "原始配置",
+        "currentConfigName": "当前配置",
+        "overrideConfigName": "覆写后配置"
       }
     }
   },

@@ -163,6 +163,7 @@ export const BaseEditor: React.FC<Props> = (props) => {
     smoothScrolling: !disableAnimation, // 禁用动画时关闭平滑滚动
     pixelRatio: window.devicePixelRatio, // 设置像素比
     renderSideBySide: diffRenderSideBySide, // 侧边显示
+    useInlineViewWhenSpaceIsLimited: false, // 侧边显示时不要自动退回内联模式
     glyphMargin: false, // 禁用字形边距
     folding: true, // 启用代码折叠
     scrollBeyondLastLine: false, // 禁止滚动超过最后一行

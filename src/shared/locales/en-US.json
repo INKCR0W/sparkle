@@ -221,7 +221,13 @@
         "diffMode": "Compare Current Config",
         "sideBySide": "Side by Side",
         "showOriginal": "Show Original Text",
-        "showOverride": "Show Override Text"
+        "showOverride": "Show Override Text",
+        "loadingConfig": "Loading config...",
+        "loadFailed": "Failed to load some content: ",
+        "runtimeConfigName": "Runtime Config",
+        "rawConfigName": "Raw Config",
+        "currentConfigName": "Current Config",
+        "overrideConfigName": "Override Config"
       }
     }
   },
