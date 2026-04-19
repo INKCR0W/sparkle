@@ -129,6 +129,7 @@ const GeneralConfig: React.FC = () => {
           />
         </SettingItem>
         <SettingItem
+          compatKey="legacy"
           title={t('general.disableAnimation')}
           actions={
             <Tooltip content={t('general.disableAnimationTip')}>
