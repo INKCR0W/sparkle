@@ -93,7 +93,7 @@ const ControllerSetting: React.FC = () => {
           >
             <Input
               size="sm"
-              className={`w-[200px] ${externalControllerError ? 'border-red-500 ring-1 ring-red-500 rounded-lg' : ''}`}
+              className={`w-50 ${externalControllerError ? 'border-red-500 ring-1 ring-red-500 rounded-lg' : ''}`}
               value={externalControllerInput}
               onValueChange={(v) => {
                 setExternalControllerInput(v)
@@ -137,7 +137,7 @@ const ControllerSetting: React.FC = () => {
               <Input
                 size="sm"
                 type={showPassword ? 'text' : 'password'}
-                className="w-[200px]"
+                className="w-50"
                 value={secretInput}
                 onValueChange={setSecretInput}
                 startContent={
@@ -241,7 +241,7 @@ const ControllerSetting: React.FC = () => {
                 )}
                 <Select
                   classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
-                  className="w-[150px]"
+                  className="w-37.5"
                   size="sm"
                   selectedKeys={new Set([externalUiUrlInput])}
                   disallowEmptySelection={true}

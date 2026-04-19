@@ -88,7 +88,7 @@ const PortSetting: React.FC = () => {
             <Input
               size="sm"
               type="number"
-              className="w-[100px]"
+              className="w-25"
               value={mixedPortInput.toString()}
               max={65535}
               min={0}
@@ -116,7 +116,7 @@ const PortSetting: React.FC = () => {
             <Input
               size="sm"
               type="number"
-              className="w-[100px]"
+              className="w-25"
               value={socksPortInput.toString()}
               max={65535}
               min={0}
@@ -144,7 +144,7 @@ const PortSetting: React.FC = () => {
             <Input
               size="sm"
               type="number"
-              className="w-[100px]"
+              className="w-25"
               value={httpPortInput.toString()}
               max={65535}
               min={0}
@@ -173,7 +173,7 @@ const PortSetting: React.FC = () => {
               <Input
                 size="sm"
                 type="number"
-                className="w-[100px]"
+                className="w-25"
                 value={redirPortInput.toString()}
                 max={65535}
                 min={0}
@@ -203,7 +203,7 @@ const PortSetting: React.FC = () => {
               <Input
                 size="sm"
                 type="number"
-                className="w-[100px]"
+                className="w-25"
                 value={tproxyPortInput.toString()}
                 max={65535}
                 min={0}

@@ -277,7 +277,7 @@ const Mihomo: React.FC = () => {
         >
           <Select
             classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
-            className="w-[150px]"
+            className="w-37.5"
             size="sm"
             selectedKeys={new Set([core])}
             disallowEmptySelection={true}
@@ -294,7 +294,7 @@ const Mihomo: React.FC = () => {
           <SettingItem title={t('systemCorePath')} divider>
             <Select
               classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
-              className="w-[350px]"
+              className="w-87.5"
               size="sm"
               selectedKeys={new Set([appConfig?.systemCorePath || ''])}
               disallowEmptySelection={systemCorePaths.length > 0}
@@ -358,7 +358,7 @@ const Mihomo: React.FC = () => {
           <Input
             size="sm"
             type="number"
-            className="w-[100px]"
+            className="w-25"
             value={maxLogDays.toString()}
             onValueChange={(v) => patchAppConfig({ maxLogDays: parseInt(v) })}
           />
@@ -366,7 +366,7 @@ const Mihomo: React.FC = () => {
         <SettingItem title={t('logLevel')}>
           <Select
             classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
-            className="w-[100px]"
+            className="w-25"
             size="sm"
             selectedKeys={new Set([logLevel])}
             disallowEmptySelection={true}

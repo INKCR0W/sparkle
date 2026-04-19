@@ -68,7 +68,7 @@ const ProxySettingModal: React.FC<Props> = (props) => {
           <SettingItem title={t('proxyCols')} divider>
             <Select
               classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
-              className="w-[150px]"
+              className="w-37.5"
               size="sm"
               selectedKeys={new Set([proxyCols])}
               disallowEmptySelection={true}
@@ -188,7 +188,7 @@ const ProxySettingModal: React.FC<Props> = (props) => {
             <Input
               type="number"
               size="sm"
-              className="w-[100px]"
+              className="w-25"
               value={delayTestConcurrency?.toString()}
               placeholder={t('delayTestConcurrencyPlaceholder')}
               onValueChange={(v) => {
@@ -200,7 +200,7 @@ const ProxySettingModal: React.FC<Props> = (props) => {
             <Input
               type="number"
               size="sm"
-              className="w-[100px]"
+              className="w-25"
               value={delayTestTimeout?.toString()}
               placeholder={t('delayTestTimeoutPlaceholder')}
               onValueChange={(v) => {

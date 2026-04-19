@@ -103,11 +103,11 @@ const ProfileCard: React.FC<Props> = (props) => {
               ref={setNodeRef}
               {...attributes}
               {...listeners}
-              className="flex justify-between h-[32px]"
+              className="flex justify-between h-8"
             >
               <h3
                 title={info?.name}
-                className={`text-ellipsis whitespace-nowrap overflow-hidden text-md font-bold leading-[32px] ${match ? 'text-primary-foreground' : 'text-foreground'} `}
+                className={`text-ellipsis whitespace-nowrap overflow-hidden text-md font-bold leading-8 ${match ? 'text-primary-foreground' : 'text-foreground'} `}
               >
                 {info?.name}
               </h3>
@@ -157,7 +157,7 @@ const ProfileCard: React.FC<Props> = (props) => {
                   <Button
                     size="sm"
                     variant="light"
-                    className={`h-[20px] p-1 m-0 ${match ? 'text-primary-foreground' : 'text-foreground'}`}
+                    className={`h-5 p-1 m-0 ${match ? 'text-primary-foreground' : 'text-foreground'}`}
                     onPress={async () => {
                       await patchAppConfig({ profileDisplayDate: 'update' })
                     }}
@@ -170,7 +170,7 @@ const ProfileCard: React.FC<Props> = (props) => {
                   <Button
                     size="sm"
                     variant="light"
-                    className={`h-[20px] p-1 m-0 ${match ? 'text-primary-foreground' : 'text-foreground'}`}
+                    className={`h-5 p-1 m-0 ${match ? 'text-primary-foreground' : 'text-foreground'}`}
                     onPress={async () => {
                       await patchAppConfig({ profileDisplayDate: 'expire' })
                     }}

@@ -131,7 +131,7 @@ const AdvancedSetting: React.FC = () => {
           <Input
             size="sm"
             type="number"
-            className="w-[100px]"
+            className="w-25"
             value={intervalInput.toString()}
             min={0}
             onValueChange={(v) => {
@@ -158,7 +158,7 @@ const AdvancedSetting: React.FC = () => {
           <Input
             size="sm"
             type="number"
-            className="w-[100px]"
+            className="w-25"
             value={idleInput.toString()}
             min={0}
             onValueChange={(v) => {

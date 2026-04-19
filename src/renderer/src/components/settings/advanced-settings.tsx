@@ -88,7 +88,7 @@ const AdvancedSettings: React.FC = () => {
           <SettingItem title={t('advanced.lightweightDelay')} divider>
             <Input
               size="sm"
-              className="w-[100px]"
+              className="w-25"
               type="number"
               endContent={t('common:ui.seconds')}
               value={autoLightweightDelay.toString()}
@@ -121,7 +121,7 @@ const AdvancedSettings: React.FC = () => {
       >
         <Select
           classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
-          className="w-[150px]"
+          className="w-37.5"
           size="sm"
           selectionMode="multiple"
           selectedKeys={new Set(envType)}
@@ -147,7 +147,7 @@ const AdvancedSettings: React.FC = () => {
         <SettingItem title={t('advanced.corePriority')} divider>
           <Select
             classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
-            className="w-[150px]"
+            className="w-37.5"
             size="sm"
             selectedKeys={new Set([mihomoCpuPriority])}
             disallowEmptySelection={true}
@@ -249,7 +249,7 @@ const AdvancedSettings: React.FC = () => {
               <Input
                 size="sm"
                 type="number"
-                className="w-[100px]"
+                className="w-25"
                 endContent={t('common:ui.seconds')}
                 value={interval.toString()}
                 min={1}
