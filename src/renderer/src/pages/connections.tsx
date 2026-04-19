@@ -193,7 +193,7 @@ const Connections: React.FC = () => {
 
       const prevActiveMap = new Map(currentActiveConnections.map((conn) => [conn.id, conn]))
       const existingConnectionIds = new Set(currentAllConnections.map((conn) => conn.id))
-      const speedRatio = 1000 / connectionInterval
+      const speedRatio = connectionInterval > 0 ? 1000 / connectionInterval : 0
 
       const now = Date.now()
       const activeConnIds = new Set(info.connections.map((conn) => conn.id))
