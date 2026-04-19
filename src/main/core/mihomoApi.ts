@@ -76,6 +76,12 @@ export const mihomoGetConnections = async (): Promise<ControllerConnections> => 
   return await instance.get('/connections')
 }
 
+/**
+ * Close Mihomo connections.
+ * @param name - Proxy name to match against connection chains. If not provided, closes all connections.
+ * Note: This filters by proxy names in connection chains, not by group names.
+ * To close by group, specify a proxy name that appears in that group's chains.
+ */
 export const mihomoCloseConnections = async (name?: string): Promise<void> => {
   const instance = await getAxios()
   if (name) {
