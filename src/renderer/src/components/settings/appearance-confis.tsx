@@ -129,9 +129,7 @@ const AppearanceConfig: React.FC = () => {
               if (v) {
                 await showFloatingWindow()
                 timeoutRef.current = setTimeout(async () => {
-                  if (isMountedRef.current) {
-                    await patchAppConfig({ showFloatingWindow: v })
-                  }
+                  await patchAppConfig({ showFloatingWindow: v })
                   timeoutRef.current = null
                 }, 1000)
               } else {
