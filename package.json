@@ -42,6 +42,7 @@
     "iconv-lite": "^0.7.1",
     "is-cidr": "^6.0.1",
     "is-ip": "^5.0.1",
+    "koffi": "^2.15.6",
     "qrcode.react": "^4.2.0",
     "react-i18next": "^16.5.3",
     "webdav": "^5.9.0",
