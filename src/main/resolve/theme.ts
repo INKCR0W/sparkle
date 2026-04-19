@@ -19,8 +19,10 @@ function isValidThemeName(theme: string): boolean {
 function normalizeThemeCss(css: string): string {
   const hasLegacyHeroUIVars = /--heroui-(primary|secondary|warning|danger)\s*:/i.test(css)
   const hasV3Tokens = /--(accent|secondary|warning|danger)\s*:/i.test(css)
+  // Check if any target v3 tokens are already hsl-wrapped to prevent double nesting
+  const hasPreWrappedHsl = /--(accent|secondary|warning|danger|success|focus)[^:]*:\s*hsl\(/i.test(css)
 
-  if (!hasLegacyHeroUIVars || hasV3Tokens) return css
+  if (!hasLegacyHeroUIVars || hasV3Tokens || hasPreWrappedHsl) return css
 
   return `${css}
 
