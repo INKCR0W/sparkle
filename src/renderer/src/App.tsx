@@ -76,7 +76,6 @@ const siderCardSelector = Object.keys(siderCardRouteMap)
   .map((className) => `.${className}`)
   .join(', ')
 
-
 const App: React.FC = () => {
   const { t } = useTranslation('common')
   const { appConfig, patchAppConfig } = useAppConfig()
@@ -213,21 +212,6 @@ const App: React.FC = () => {
     override: OverrideCard,
     substore: SubStoreCard
   }
-  const navigateMap = {
-    sysproxy: '/sysproxy',
-    tun: '/tun',
-    profile: '/profiles',
-    proxy: '/proxies',
-    mihomo: '/mihomo',
-    connection: '/connections',
-    dns: '/dns',
-    sniff: '/sniffer',
-    log: '/logs',
-    rule: '/rules',
-    resource: '/resources',
-    override: '/override',
-    substore: '/substore'
-  } as const
 
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
   const [showProfileInstallConfirm, setShowProfileInstallConfirm] = useState(false)
