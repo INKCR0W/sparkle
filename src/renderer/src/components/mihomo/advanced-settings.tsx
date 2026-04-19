@@ -71,6 +71,7 @@ const AdvancedSetting: React.FC = () => {
         />
       </SettingItem>
       <SettingItem
+        compatKey="legacy"
         title={t('advanced.unifiedDelay')}
         actions={
           <Tooltip content={t('advanced.unifiedDelayTip')}>
@@ -90,6 +91,7 @@ const AdvancedSetting: React.FC = () => {
         />
       </SettingItem>
       <SettingItem
+        compatKey="legacy"
         title={t('advanced.tcpConcurrent')}
         actions={
           <Tooltip content={t('advanced.tcpConcurrentTip')}>
