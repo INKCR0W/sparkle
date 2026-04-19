@@ -63,7 +63,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.10.3",
     "@types/pubsub-js": "^1.8.6",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^5.1.2",
@@ -113,7 +113,8 @@
       "react-monaco-editor@0.59.0": "patches/react-monaco-editor@0.59.0.patch"
     },
     "overrides": {
-      "vite": "npm:rolldown-vite@latest"
+      "vite": "npm:rolldown-vite@latest",
+      "react-dom": "19.2.1"
     }
   },
   "packageManager": "pnpm@10.15.0"
