@@ -113,7 +113,6 @@ const PortSetting: React.FC = () => {
                 {t('common:actions.confirm')}
               </Button>
             )}
-
             <Input
               size="sm"
               type="number"
@@ -142,7 +141,6 @@ const PortSetting: React.FC = () => {
                 {t('common:actions.confirm')}
               </Button>
             )}
-
             <Input
               size="sm"
               type="number"
@@ -172,7 +170,6 @@ const PortSetting: React.FC = () => {
                   {t('common:actions.confirm')}
                 </Button>
               )}
-
               <Input
                 size="sm"
                 type="number"
@@ -203,7 +200,6 @@ const PortSetting: React.FC = () => {
                   {t('common:actions.confirm')}
                 </Button>
               )}
-
               <Input
                 size="sm"
                 type="number"

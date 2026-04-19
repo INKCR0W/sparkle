@@ -8,7 +8,7 @@ import {
   ModalBody,
   Input
 } from '@heroui/react'
-import React from 'react'
+import React, { useState } from 'react'
 import SettingItem from '../base/base-setting-item'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import { useTranslation } from '@renderer/hooks/useTranslation'
@@ -24,6 +24,7 @@ const ConnectionSettingModal: React.FC<Props> = (props) => {
   const { appConfig, patchAppConfig } = useAppConfig()
 
   const { displayIcon = true, displayAppName = true, connectionInterval = 500 } = appConfig || {}
+  const [intervalInput, setIntervalInput] = useState(connectionInterval)
 
   return (
     <Modal
@@ -57,21 +58,35 @@ const ConnectionSettingModal: React.FC<Props> = (props) => {
             />
           </SettingItem>
           <SettingItem title={t('refreshInterval')}>
-            <Input
-              type="number"
-              size="sm"
-              className="w-[150px]"
-              endContent="ms"
-              value={connectionInterval?.toString()}
-              placeholder={t('refreshIntervalPlaceholder')}
-              onValueChange={async (v) => {
-                let num = parseInt(v)
-                if (isNaN(num)) num = 500
-                if (num < 100) num = 100
-                await patchAppConfig({ connectionInterval: num })
-                await restartMihomoConnections()
-              }}
-            />
+            <div className="flex">
+              {intervalInput !== connectionInterval && (
+                <Button
+                  size="sm"
+                  color="primary"
+                  className="mr-2"
+                  onPress={() => {
+                    const actualValue = intervalInput < 100 ? 100 : intervalInput
+                    setIntervalInput(actualValue)
+                    patchAppConfig({ connectionInterval: actualValue })
+                    restartMihomoConnections()
+                  }}
+                >
+                  {t('common:actions.confirm')}
+                </Button>
+              )}
+              <Input
+                size="sm"
+                type="number"
+                className="w-[150px]"
+                endContent="ms"
+                value={intervalInput.toString()}
+                max={65535}
+                min={0}
+                onValueChange={(v) => {
+                  setIntervalInput(parseInt(v) || 0)
+                }}
+              />
+            </div>
           </SettingItem>
         </ModalBody>
         <ModalFooter>
