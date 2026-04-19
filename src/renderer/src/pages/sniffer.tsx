@@ -108,7 +108,8 @@ const Sniffer: React.FC = () => {
       }
     >
       <SettingCard>
-        <SettingItem title={t('overrideDestination')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('overrideDestination')} divider>
           <Switch
             size="sm"
             isSelected={values.overrideDestination}
@@ -128,7 +129,8 @@ const Sniffer: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('sniffRealIP')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('sniffRealIP')} divider>
           <Switch
             size="sm"
             isSelected={values.forceDNSMapping}
@@ -137,7 +139,8 @@ const Sniffer: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('sniffUnmappedIP')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('sniffUnmappedIP')} divider>
           <Switch
             size="sm"
             isSelected={values.parsePureIP}
@@ -146,7 +149,8 @@ const Sniffer: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('httpPorts')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('httpPorts')} divider>
           <Input
             size="sm"
             className="w-[50%]"
@@ -155,7 +159,8 @@ const Sniffer: React.FC = () => {
             onValueChange={(v) => handleSniffPortChange('HTTP', v)}
           />
         </SettingItem>
-        <SettingItem title={t('tlsPorts')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('tlsPorts')} divider>
           <Input
             size="sm"
             className="w-[50%]"
@@ -164,7 +169,8 @@ const Sniffer: React.FC = () => {
             onValueChange={(v) => handleSniffPortChange('TLS', v)}
           />
         </SettingItem>
-        <SettingItem title={t('quicPorts')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('quicPorts')} divider>
           <Input
             size="sm"
             className="w-[50%]"

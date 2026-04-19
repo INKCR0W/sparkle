@@ -113,7 +113,8 @@ const RuleProvider: React.FC = () => {
           }
         />
       )}
-      <SettingItem title={t('ruleProvider')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('ruleProvider')} divider>
         <Button
           size="sm"
           color="primary"
@@ -129,6 +130,7 @@ const RuleProvider: React.FC = () => {
       {providers.map((provider, index) => (
         <Fragment key={provider.name}>
           <SettingItem
+            compatKey="legacy"
             title={provider.name}
             actions={
               <Chip className="ml-2" size="sm">
@@ -176,6 +178,7 @@ const RuleProvider: React.FC = () => {
             </div>
           </SettingItem>
           <SettingItem
+            compatKey="legacy"
             title={<div className="text-foreground-500">{provider.format || 'InlineRule'}</div>}
             divider={index !== providers.length - 1}
           >

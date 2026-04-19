@@ -32,7 +32,8 @@ const EnvSetting: React.FC = () => {
 
   return (
     <SettingCard title={t('env.title')}>
-      <SettingItem title={t('env.disableSystemCA')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('env.disableSystemCA')} divider>
         <Switch
           size="sm"
           isSelected={disableSystemCA}
@@ -41,7 +42,8 @@ const EnvSetting: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title={t('env.disableEmbedCA')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('env.disableEmbedCA')} divider>
         <Switch
           size="sm"
           isSelected={disableEmbedCA}
@@ -50,7 +52,8 @@ const EnvSetting: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title={t('env.disableLoopbackDetector')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('env.disableLoopbackDetector')} divider>
         <Switch
           size="sm"
           isSelected={disableLoopbackDetector}
@@ -60,7 +63,8 @@ const EnvSetting: React.FC = () => {
         />
       </SettingItem>
       {platform == 'linux' && (
-        <SettingItem title={t('env.disableNftables')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('env.disableNftables')} divider>
           <Switch
             size="sm"
             isSelected={disableNftables}
@@ -70,7 +74,8 @@ const EnvSetting: React.FC = () => {
           />
         </SettingItem>
       )}
-      <SettingItem title={t('env.safePaths')}>
+      <SettingItem compatKey="legacy"
+          title={t('env.safePaths')}>
         {safePathsInput.join('') != safePaths.join('') && (
           <Button
             size="sm"

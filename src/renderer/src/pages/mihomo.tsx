@@ -260,6 +260,7 @@ const Mihomo: React.FC = () => {
       )}
       <SettingCard>
         <SettingItem
+          compatKey="legacy"
           title={t('version')}
           actions={
             core === 'mihomo' || core === 'mihomo-alpha' ? (
@@ -293,7 +294,7 @@ const Mihomo: React.FC = () => {
           </Select>
         </SettingItem>
         {core === 'system' && (
-          <SettingItem title={t('systemCorePath')} divider>
+          <SettingItem compatKey="legacy" title={t('systemCorePath')} divider>
             <Select
               classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
               className="w-87.5"
@@ -319,44 +320,45 @@ const Mihomo: React.FC = () => {
             )}
           </SettingItem>
         )}
-        {platform === 'darwin' && (
-          <SettingItem title={t('runMode')} divider>
-            <Tabs
-              size="sm"
-              color="primary"
-              selectedKey={corePermissionMode}
-              disabledKeys={['service']}
-              onSelectionChange={(key) => handlePermissionModeChange(key as string)}
-            >
-              <Tab
-                key="elevated"
-                //title={platform === 'win32' ? t('runModeElevated') : t('runModeAuth')}
-                title={t('runModeAuth')}
-              />
-              <Tab key="service" title={t('runModeService')} />
-            </Tabs>
-          </SettingItem>
-        )}
-        <SettingItem title={platform === 'win32' ? t('taskStatus') : t('authStatus')} divider>
+        <SettingItem compatKey="legacy" title={t('runMode')} divider>
+          <Tabs
+            size="sm"
+            color="primary"
+            selectedKey={corePermissionMode}
+            disabledKeys={['service']}
+            onSelectionChange={(key) => handlePermissionModeChange(key as string)}
+          >
+            <Tab
+              key="elevated"
+              title={platform === 'win32' ? t('runModeElevated') : t('runModeAuth')}
+            />
+            <Tab key="service" title={t('runModeService')} />
+          </Tabs>
+        </SettingItem>
+        <SettingItem
+          compatKey="legacy"
+          title={platform === 'win32' ? t('taskStatus') : t('authStatus')}
+          divider
+        >
           <Button size="sm" color="primary" onPress={() => setShowPermissionModal(true)}>
             {t('manage')}
           </Button>
         </SettingItem>
         {platform === 'darwin' && (
-          <SettingItem title={t('serviceStatus')} divider>
+          <SettingItem compatKey="legacy" title={t('serviceStatus')} divider>
             <Button size="sm" color="primary" onPress={() => setShowServiceModal(true)}>
               {t('manage')}
             </Button>
           </SettingItem>
         )}
-        <SettingItem title={t('ipv6')} divider>
+        <SettingItem compatKey="legacy" title={t('ipv6')} divider>
           <Switch
             size="sm"
             isSelected={ipv6}
             onValueChange={(v) => onChangeNeedRestart({ ipv6: v })}
           />
         </SettingItem>
-        <SettingItem title={t('logRetentionDays')} divider>
+        <SettingItem compatKey="legacy" title={t('logRetentionDays')} divider>
           <Input
             size="sm"
             type="number"
@@ -365,7 +367,7 @@ const Mihomo: React.FC = () => {
             onValueChange={(v) => patchAppConfig({ maxLogDays: parseInt(v) })}
           />
         </SettingItem>
-        <SettingItem title={t('logLevel')}>
+        <SettingItem compatKey="legacy" title={t('logLevel')}>
           <Select
             classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
             className="w-25"

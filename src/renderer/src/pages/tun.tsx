@@ -87,7 +87,7 @@ const Tun: React.FC = () => {
       >
         <SettingCard className="tun-settings">
           {platform === 'win32' && (
-            <SettingItem title={t('resetFirewall')} divider>
+            <SettingItem compatKey="legacy" title={t('resetFirewall')} divider>
               <Button
                 size="sm"
                 color="primary"
@@ -110,7 +110,7 @@ const Tun: React.FC = () => {
             </SettingItem>
           )}
           {platform === 'darwin' && (
-            <SettingItem title={t('autoDNS')} divider>
+            <SettingItem compatKey="legacy" title={t('autoDNS')} divider>
               <Tabs
                 size="sm"
                 color="primary"
@@ -125,7 +125,7 @@ const Tun: React.FC = () => {
               </Tabs>
             </SettingItem>
           )}
-          <SettingItem title={t('stack')} divider>
+          <SettingItem compatKey="legacy" title={t('stack')} divider>
             <Tabs
               size="sm"
               color="primary"
@@ -139,7 +139,7 @@ const Tun: React.FC = () => {
           </SettingItem>
           {platform !== 'darwin' && (
             <>
-              <SettingItem title={t('device')} divider>
+              <SettingItem compatKey="legacy" title={t('device')} divider>
                 <Input
                   size="sm"
                   className="w-25"
@@ -149,18 +149,18 @@ const Tun: React.FC = () => {
                   }}
                 />
               </SettingItem>
+              <SettingItem compatKey="legacy" title={t('strictRoute')} divider>
+                <Switch
+                  size="sm"
+                  isSelected={values.strictRoute}
+                  onValueChange={(v) => {
+                    setValues({ ...values, strictRoute: v })
+                  }}
+                />
+              </SettingItem>
             </>
           )}
-          <SettingItem title={t('strictRoute')} divider>
-            <Switch
-              size="sm"
-              isSelected={values.strictRoute}
-              onValueChange={(v) => {
-                setValues({ ...values, strictRoute: v })
-              }}
-            />
-          </SettingItem>
-          <SettingItem title={t('autoRoute')} divider>
+          <SettingItem compatKey="legacy" title={t('autoRoute')} divider>
             <Switch
               size="sm"
               isSelected={values.autoRoute}
@@ -170,7 +170,7 @@ const Tun: React.FC = () => {
             />
           </SettingItem>
           {platform === 'linux' && (
-            <SettingItem title={t('autoRedirect')} divider>
+            <SettingItem compatKey="legacy" title={t('autoRedirect')} divider>
               <Switch
                 size="sm"
                 isSelected={values.autoRedirect}
@@ -180,7 +180,7 @@ const Tun: React.FC = () => {
               />
             </SettingItem>
           )}
-          <SettingItem title={t('autoDetectInterface')} divider>
+          <SettingItem compatKey="legacy" title={t('autoDetectInterface')} divider>
             <Switch
               size="sm"
               isSelected={values.autoDetectInterface}
@@ -189,7 +189,7 @@ const Tun: React.FC = () => {
               }}
             />
           </SettingItem>
-          <SettingItem title={t('icmpForward')} divider>
+          <SettingItem compatKey="legacy" title={t('icmpForward')} divider>
             <Switch
               size="sm"
               isSelected={!values.disableIcmpForwarding}
@@ -198,7 +198,7 @@ const Tun: React.FC = () => {
               }}
             />
           </SettingItem>
-          <SettingItem title={t('mtu')} divider>
+          <SettingItem compatKey="legacy" title={t('mtu')} divider>
             <Input
               size="sm"
               type="number"
@@ -209,7 +209,7 @@ const Tun: React.FC = () => {
               }}
             />
           </SettingItem>
-          <SettingItem title={t('dnsHijack')} divider>
+          <SettingItem compatKey="legacy" title={t('dnsHijack')} divider>
             <Input
               size="sm"
               className="w-[50%]"

@@ -1,12 +1,5 @@
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Switch
-} from '@heroui/react'
+import { Button, Switch } from '@heroui/react'
+import { Modal } from '@heroui-v3/react'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { BaseEditor } from '../base/base-editor-lazy'
@@ -24,7 +17,7 @@ interface Props {
 const EditFileModal: React.FC<Props> = (props) => {
   const { id, isRemote, onClose } = props
   const { t } = useTranslation('profile')
-  const { appConfig: { disableAnimation = false } = {} } = useAppConfig()
+  useAppConfig()
   const [currData, setCurrData] = useState('')
   const [originalData, setOriginalData] = useState('')
   const [isDiff, setIsDiff] = useState(false)
@@ -58,19 +51,7 @@ const EditFileModal: React.FC<Props> = (props) => {
   }, [])
 
   return (
-    <Modal
-      backdrop={disableAnimation ? 'transparent' : 'blur'}
-      disableAnimation={disableAnimation}
-      classNames={{
-        base: 'max-w-none w-full',
-        backdrop: 'top-[48px]'
-      }}
-      size="5xl"
-      hideCloseButton
-      isOpen={true}
-      onOpenChange={handleClose}
-      scrollBehavior="inside"
-    >
+    <Modal>
       {isConfirmOpen && (
         <ConfirmModal
           title={t('override:confirmCancel')}
@@ -81,68 +62,77 @@ const EditFileModal: React.FC<Props> = (props) => {
           onConfirm={onClose}
         />
       )}
-      <ModalContent className="h-full w-[calc(100%-100px)]">
-        <ModalHeader className="flex pb-0 app-drag">
-          <div className="flex justify-start">
-            <div className="flex items-center">{t('editProfile')}</div>
-            {isRemote && (
-              <small className="ml-2 text-foreground-500">
-                {t('editProfileWarning')}
+      <Modal.Backdrop
+        isOpen={true}
+        onOpenChange={handleClose}
+        variant="blur"
+        className="top-12 h-[calc(100%-48px)]"
+      >
+        <Modal.Container scroll="inside">
+          <Modal.Dialog className="mt-4 h-[calc(100%-32px)] max-w-none w-[calc(100%-100px)]">
+            <Modal.Header className="app-drag pb-0">
+              <div className="flex justify-start">
+                <Modal.Heading className="flex items-center">{t('editProfile')}</Modal.Heading>
+                {isRemote && (
+                  <small className="ml-2 text-foreground-500">
+                    {t('editProfileWarning')}
+                    <Button
+                      size="sm"
+                      color="primary"
+                      variant="light"
+                      className="app-nodrag"
+                      onPress={() => {
+                        navigate('/override')
+                      }}
+                    >
+                      {t('override:title')}
+                    </Button>
+                    {t('feature')}
+                  </small>
+                )}
+              </div>
+            </Modal.Header>
+            <Modal.Body className="h-full">
+              <BaseEditor
+                language="yaml"
+                value={currData}
+                originalValue={isDiff ? originalData : undefined}
+                onChange={(value) => setCurrData(value)}
+                diffRenderSideBySide={sideBySide}
+              />
+            </Modal.Body>
+            <Modal.Footer className="flex justify-between pt-0 pb-0">
+              <div className="flex items-center space-x-2">
+                <Switch size="sm" isSelected={isDiff} onValueChange={setIsDiff}>
+                  {t('override:showChanges')}
+                </Switch>
+                <Switch size="sm" isSelected={sideBySide} onValueChange={setSideBySide}>
+                  {t('override:sideBySide')}
+                </Switch>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="light" onPress={handleClose}>
+                  {t('common:actions.cancel')}
+                </Button>
                 <Button
                   size="sm"
                   color="primary"
-                  variant="light"
-                  className="app-nodrag"
-                  onPress={() => {
-                    navigate('/override')
+                  onPress={async () => {
+                    try {
+                      await setProfileStr(id, currData)
+                      onClose()
+                    } catch (e) {
+                      alert(t('saveConfigFailed') + ': ' + e)
+                    }
                   }}
                 >
-                  {t('override:title')}
+                  {t('common:actions.save')}
                 </Button>
-                {t('feature')}
-              </small>
-            )}
-          </div>
-        </ModalHeader>
-        <ModalBody className="h-full">
-          <BaseEditor
-            language="yaml"
-            value={currData}
-            originalValue={isDiff ? originalData : undefined}
-            onChange={(value) => setCurrData(value)}
-            diffRenderSideBySide={sideBySide}
-          />
-        </ModalBody>
-        <ModalFooter className="pt-0 flex justify-between">
-          <div className="flex items-center space-x-2">
-            <Switch size="sm" isSelected={isDiff} onValueChange={setIsDiff}>
-              {t('override:showChanges')}
-            </Switch>
-            <Switch size="sm" isSelected={sideBySide} onValueChange={setSideBySide}>
-              {t('override:sideBySide')}
-            </Switch>
-          </div>
-          <div className="flex gap-2">
-            <Button size="sm" variant="light" onPress={handleClose}>
-              {t('common:actions.cancel')}
-            </Button>
-            <Button
-              size="sm"
-              color="primary"
-              onPress={async () => {
-                try {
-                  await setProfileStr(id, currData)
-                  onClose()
-                } catch (e) {
-                  alert(t('saveConfigFailed') + ': ' + e)
-                }
-              }}
-            >
-              {t('common:actions.save')}
-            </Button>
-          </div>
-        </ModalFooter>
-      </ModalContent>
+              </div>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   )
 }

@@ -59,7 +59,8 @@ const SubStoreConfig: React.FC = () => {
 
   return (
     <SettingCard title={t('substore.title')}>
-      <SettingItem title={t('substore.enable')} divider={useSubStore}>
+      <SettingItem compatKey="legacy"
+          title={t('substore.enable')} divider={useSubStore}>
         <Switch
           size="sm"
           isSelected={useSubStore}
@@ -81,7 +82,8 @@ const SubStoreConfig: React.FC = () => {
       </SettingItem>
       {useSubStore && (
         <>
-          <SettingItem title={t('substore.allowLan')} divider>
+          <SettingItem compatKey="legacy"
+          title={t('substore.allowLan')} divider>
             <Switch
               size="sm"
               isSelected={subStoreHost === '0.0.0.0'}
@@ -100,7 +102,8 @@ const SubStoreConfig: React.FC = () => {
               }}
             />
           </SettingItem>
-          <SettingItem title={t('substore.useCustomBackend')} divider>
+          <SettingItem compatKey="legacy"
+          title={t('substore.useCustomBackend')} divider>
             <Switch
               size="sm"
               isSelected={useCustomSubStore}
@@ -119,7 +122,8 @@ const SubStoreConfig: React.FC = () => {
             />
           </SettingItem>
           {useCustomSubStore ? (
-            <SettingItem title={t('substore.customBackendUrl')}>
+            <SettingItem compatKey="legacy"
+          title={t('substore.customBackendUrl')}>
               <Input
                 size="sm"
                 className="w-[60%]"
@@ -133,7 +137,8 @@ const SubStoreConfig: React.FC = () => {
             </SettingItem>
           ) : (
             <>
-              <SettingItem title={t('substore.enableProxyForAll')} divider>
+              <SettingItem compatKey="legacy"
+          title={t('substore.enableProxyForAll')} divider>
                 <Switch
                   size="sm"
                   isSelected={useProxyInSubStore}
@@ -147,7 +152,8 @@ const SubStoreConfig: React.FC = () => {
                   }}
                 />
               </SettingItem>
-              <SettingItem title={t('substore.syncCron')} divider>
+              <SettingItem compatKey="legacy"
+          title={t('substore.syncCron')} divider>
                 <div className="flex w-[60%] gap-2">
                   {subStoreBackendSyncCronValue !== subStoreBackendSyncCron && (
                     <Button
@@ -180,7 +186,8 @@ const SubStoreConfig: React.FC = () => {
                   />
                 </div>
               </SettingItem>
-              <SettingItem title={t('substore.downloadCron')} divider>
+              <SettingItem compatKey="legacy"
+          title={t('substore.downloadCron')} divider>
                 <div className="flex w-[60%] gap-2">
                   {subStoreBackendDownloadCronValue !== subStoreBackendDownloadCron && (
                     <Button
@@ -213,7 +220,8 @@ const SubStoreConfig: React.FC = () => {
                   />
                 </div>
               </SettingItem>
-              <SettingItem title={t('substore.uploadCron')}>
+              <SettingItem compatKey="legacy"
+          title={t('substore.uploadCron')}>
                 <div className="flex w-[60%] gap-2">
                   {subStoreBackendUploadCronValue !== subStoreBackendUploadCron && (
                     <Button

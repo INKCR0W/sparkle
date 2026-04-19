@@ -81,12 +81,14 @@ const Actions: React.FC = () => {
         />
       )}
       <SettingCard>
-        <SettingItem title={t('actions.openGuide')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('actions.openGuide')} divider>
           <Button size="sm" onPress={() => startTour(navigate)}>
             {t('actions.openGuide')}
           </Button>
         </SettingItem>
-        <SettingItem title={t('actions.checkUpdate')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('actions.checkUpdate')} divider>
           <Button
             size="sm"
             isLoading={checkingUpdate}
@@ -173,12 +175,14 @@ const Actions: React.FC = () => {
             {t('common:actions.exit')}
           </Button>
         </SettingItem>
-        <SettingItem title={t('actions.quitApp')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('actions.quitApp')} divider>
           <Button size="sm" onPress={quitApp}>
             {t('actions.quitApp')}
           </Button>
         </SettingItem>
-        <SettingItem title={t('actions.appVersion')}>
+        <SettingItem compatKey="legacy"
+          title={t('actions.appVersion')}>
           <div>v{version}</div>
         </SettingItem>
       </SettingCard>

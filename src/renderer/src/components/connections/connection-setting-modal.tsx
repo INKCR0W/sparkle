@@ -1,13 +1,5 @@
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  Button,
-  Switch,
-  ModalBody,
-  Input
-} from '@heroui/react'
+import { Button, Switch, Input } from '@heroui/react'
+import { Modal } from '@heroui-v3/react'
 import React, { useState } from 'react'
 import SettingItem from '../base/base-setting-item'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
@@ -27,74 +19,73 @@ const ConnectionSettingModal: React.FC<Props> = (props) => {
   const [intervalInput, setIntervalInput] = useState(connectionInterval)
 
   return (
-    <Modal
-      backdrop="blur"
-      classNames={{ backdrop: 'top-[48px]' }}
-      size="md"
-      hideCloseButton
-      isOpen={true}
-      onOpenChange={onClose}
-      scrollBehavior="inside"
-    >
-      <ModalContent className="flag-emoji">
-        <ModalHeader className="flex">{t('settings')}</ModalHeader>
-        <ModalBody className="py-2 gap-1">
-          <SettingItem title={t('displayIcon')} divider>
-            <Switch
-              size="sm"
-              isSelected={displayIcon}
-              onValueChange={(v) => {
-                patchAppConfig({ displayIcon: v })
-              }}
-            />
-          </SettingItem>
-          <SettingItem title={t('displayAppName')} divider>
-            <Switch
-              size="sm"
-              isSelected={displayAppName}
-              onValueChange={(v) => {
-                patchAppConfig({ displayAppName: v })
-              }}
-            />
-          </SettingItem>
-          <SettingItem title={t('refreshInterval')}>
-            <div className="flex">
-              {intervalInput !== connectionInterval && (
-                <Button
+    <Modal>
+      <Modal.Backdrop
+        isOpen={true}
+        onOpenChange={onClose}
+        variant="blur"
+        className="top-12 h-[calc(100%-48px)]"
+      >
+        <Modal.Container scroll="inside">
+          <Modal.Dialog className="max-w-md flag-emoji">
+            <Modal.Header>
+              <Modal.Heading>{t('settings')}</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="py-2 gap-1">
+              <SettingItem compatKey="legacy" title={t('displayIcon')} divider>
+                <Switch
                   size="sm"
-                  color="primary"
-                  className="mr-2"
-                  onPress={() => {
-                    const actualValue = intervalInput < 100 ? 100 : intervalInput
-                    setIntervalInput(actualValue)
-                    patchAppConfig({ connectionInterval: actualValue })
-                    restartMihomoConnections()
+                  isSelected={displayIcon}
+                  onValueChange={(v) => {
+                    patchAppConfig({ displayIcon: v })
                   }}
-                >
-                  {t('common:actions.confirm')}
-                </Button>
-              )}
-              <Input
-                size="sm"
-                type="number"
-                className="w-37.5"
-                endContent="ms"
-                value={intervalInput.toString()}
-                max={65535}
-                min={0}
-                onValueChange={(v) => {
-                  setIntervalInput(parseInt(v) || 0)
-                }}
-              />
-            </div>
-          </SettingItem>
-        </ModalBody>
-        <ModalFooter>
-          <Button size="sm" variant="light" onPress={onClose}>
-            {t('common:actions.close')}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+                />
+              </SettingItem>
+              <SettingItem compatKey="legacy" title={t('displayAppName')} divider>
+                <Switch
+                  size="sm"
+                  isSelected={displayAppName}
+                  onValueChange={(v) => {
+                    patchAppConfig({ displayAppName: v })
+                  }}
+                />
+              </SettingItem>
+              <SettingItem compatKey="legacy" title={t('refreshInterval')}>
+                <div className="flex">
+                  {intervalInput !== connectionInterval && (
+                    <Button
+                      size="sm"
+                      color="primary"
+                      className="mr-2"
+                      onPress={() => {
+                        const actualValue = intervalInput < 100 ? 100 : intervalInput
+                        setIntervalInput(actualValue)
+                        patchAppConfig({ connectionInterval: actualValue })
+                        restartMihomoConnections()
+                      }}
+                    >
+                      {t('common:actions.confirm')}
+                    </Button>
+                  )}
+                  <Input
+                    size="sm"
+                    type="number"
+                    className="w-37.5"
+                    endContent="ms"
+                    value={intervalInput.toString()}
+                    max={65535}
+                    min={0}
+                    onValueChange={(v) => {
+                      setIntervalInput(parseInt(v) || 0)
+                    }}
+                  />
+                </div>
+              </SettingItem>
+            </Modal.Body>
+            <Modal.CloseTrigger className="app-nodrag" />
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   )
 }

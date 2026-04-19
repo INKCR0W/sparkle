@@ -1,17 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Spinner,
-  Card,
-  CardBody,
-  Chip,
-  Divider
-} from '@heroui/react'
+import { Button, Spinner, Card, CardBody, Chip, Divider } from '@heroui/react'
+import { Modal } from '@heroui-v3/react'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { serviceStatus, testServiceConnection } from '@renderer/utils/ipc'
@@ -33,7 +22,7 @@ const ServiceModal: React.FC<Props> = (props) => {
   const { onChange, onInit, onInstall, onUninstall, onStart, onStop, onRestart } = props
   const { t } = useTranslation('mihomo')
   const tCommon = (key: string) => t(`common:${key}`)
-  const { appConfig: { disableAnimation = false } = {} } = useAppConfig()
+  useAppConfig()
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<ServiceStatusType | null>(null)
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatusType>('checking')
@@ -138,187 +127,186 @@ const ServiceModal: React.FC<Props> = (props) => {
   }
 
   return (
-    <Modal
-      backdrop={disableAnimation ? 'transparent' : 'blur'}
-      disableAnimation={disableAnimation}
-      hideCloseButton
-      isOpen={true}
-      size="5xl"
-      onOpenChange={onChange}
-      scrollBehavior="inside"
-      classNames={{
-        base: 'max-w-none w-full',
-        backdrop: 'top-[48px]'
-      }}
-    >
-      <ModalContent className="w-112.5">
-        <ModalHeader className="flex flex-col gap-1">{t('service.modalTitle')}</ModalHeader>
-        <ModalBody>
-          <div className="space-y-4">
-            <Card
-              shadow="sm"
-              className="border-none bg-linear-to-br from-default-50 to-default-100"
-            >
-              <CardBody className="py-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{t('service.serviceStatus')}</span>
-                  </div>
-                  {status === null ? (
-                    <Chip
-                      color="default"
-                      variant="flat"
-                      size="sm"
-                      startContent={<Spinner size="sm" color="current" />}
-                    >
-                      {t('service.statusChecking')}...
-                    </Chip>
-                  ) : (
-                    <Chip
-                      color={
-                        status === 'running'
-                          ? 'success'
-                          : status === 'stopped'
-                            ? 'warning'
-                            : status === 'not-installed'
-                              ? 'danger'
-                              : status === 'need-init'
+    <Modal>
+      <Modal.Backdrop
+        isOpen={true}
+        onOpenChange={onChange}
+        variant="blur"
+        className="top-12 h-[calc(100%-48px)]"
+      >
+        <Modal.Container scroll="inside">
+          <Modal.Dialog className="w-112.5">
+            <Modal.Header className="flex-col gap-1">
+              <Modal.Heading>{t('service.modalTitle')}</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="space-y-4">
+                <Card
+                  shadow="sm"
+                  className="border-none bg-linear-to-br from-default-50 to-default-100"
+                >
+                  <CardBody className="py-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">{t('service.serviceStatus')}</span>
+                      </div>
+                      {status === null ? (
+                        <Chip
+                          color="default"
+                          variant="flat"
+                          size="sm"
+                          startContent={<Spinner size="sm" color="current" />}
+                        >
+                          {t('service.statusChecking')}...
+                        </Chip>
+                      ) : (
+                        <Chip
+                          color={
+                            status === 'running'
+                              ? 'success'
+                              : status === 'stopped'
                                 ? 'warning'
+                                : status === 'not-installed'
+                                  ? 'danger'
+                                  : status === 'need-init'
+                                    ? 'warning'
+                                    : 'default'
+                          }
+                          variant="flat"
+                          size="sm"
+                        >
+                          {getStatusText()}
+                        </Chip>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">{t('service.connectionStatus')}</span>
+                      </div>
+                      {connectionStatus === 'checking' ? (
+                        <Chip
+                          color="default"
+                          variant="flat"
+                          size="sm"
+                          startContent={<Spinner size="sm" color="current" />}
+                        >
+                          {t('service.connStatusChecking')}...
+                        </Chip>
+                      ) : (
+                        <Chip
+                          color={
+                            connectionStatus === 'connected'
+                              ? 'success'
+                              : connectionStatus === 'disconnected'
+                                ? 'danger'
                                 : 'default'
-                      }
-                      variant="flat"
-                      size="sm"
-                    >
-                      {getStatusText()}
-                    </Chip>
-                  )}
-                </div>
+                          }
+                          variant="flat"
+                          size="sm"
+                        >
+                          {getConnectionStatusText()}
+                        </Chip>
+                      )}
+                    </div>
+                  </CardBody>
+                </Card>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{t('service.connectionStatus')}</span>
+                <Divider />
+
+                <div className="text-xs text-default-500 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span>{t('service.description1')}</span>
                   </div>
-                  {connectionStatus === 'checking' ? (
-                    <Chip
-                      color="default"
-                      variant="flat"
-                      size="sm"
-                      startContent={<Spinner size="sm" color="current" />}
-                    >
-                      {t('service.connStatusChecking')}...
-                    </Chip>
-                  ) : (
-                    <Chip
-                      color={
-                        connectionStatus === 'connected'
-                          ? 'success'
-                          : connectionStatus === 'disconnected'
-                            ? 'danger'
-                            : 'default'
-                      }
-                      variant="flat"
-                      size="sm"
-                    >
-                      {getConnectionStatusText()}
-                    </Chip>
-                  )}
+                  <div className="flex items-start gap-2">
+                    <span>{t('service.description2')}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span>{t('service.description3')}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span>{t('service.description4')}</span>
+                  </div>
                 </div>
-              </CardBody>
-            </Card>
-
-            <Divider />
-
-            <div className="text-xs text-default-500 space-y-2">
-              <div className="flex items-start gap-2">
-                <span>{t('service.description1')}</span>
               </div>
-              <div className="flex items-start gap-2">
-                <span>{t('service.description2')}</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span>{t('service.description3')}</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span>{t('service.description4')}</span>
-              </div>
-            </div>
-          </div>
-        </ModalBody>
-        <ModalFooter className="flex-col gap-2 sm:flex-row">
-          <Button
-            size="sm"
-            variant="light"
-            onPress={() => onChange(false)}
-            isDisabled={loading}
-            className="sm:mr-auto"
-          >
-            {t('common:actions.close')}
-          </Button>
-
-          {status === 'unknown' ? null : status === 'not-installed' ? (
-            <Button
-              size="sm"
-              color="primary"
-              variant="shadow"
-              onPress={() => handleAction(onInstall)}
-              isLoading={loading}
-            >
-              {t('service.install')}
-            </Button>
-          ) : (
-            <>
+            </Modal.Body>
+            <Modal.Footer className="flex-col gap-2 sm:flex-row">
               <Button
                 size="sm"
-                color="primary"
-                variant="flat"
-                onPress={() => handleAction(onInit)}
-                isLoading={loading}
+                variant="light"
+                onPress={() => onChange(false)}
+                isDisabled={loading}
+                className="sm:mr-auto"
               >
-                {t('service.init')}
+                {t('common:actions.close')}
               </Button>
-              <Button
-                size="sm"
-                color="primary"
-                variant="flat"
-                onPress={() => handleAction(onRestart)}
-                isLoading={loading}
-              >
-                {t('service.restart')}
-              </Button>
-              {status === 'running' || status === 'need-init' ? (
+
+              {status === 'unknown' ? null : status === 'not-installed' ? (
                 <Button
                   size="sm"
-                  color="warning"
-                  variant="flat"
-                  onPress={() => handleAction(onStop)}
+                  color="primary"
+                  variant="shadow"
+                  onPress={() => handleAction(onInstall)}
                   isLoading={loading}
                 >
-                  {t('service.stop')}
+                  {t('service.install')}
                 </Button>
               ) : (
-                <Button
-                  size="sm"
-                  color="success"
-                  variant="shadow"
-                  onPress={() => handleAction(onStart, true)}
-                  isLoading={loading}
-                >
-                  {t('service.start')}
-                </Button>
+                <>
+                  <Button
+                    size="sm"
+                    color="primary"
+                    variant="flat"
+                    onPress={() => handleAction(onInit)}
+                    isLoading={loading}
+                  >
+                    {t('service.init')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    color="primary"
+                    variant="flat"
+                    onPress={() => handleAction(onRestart)}
+                    isLoading={loading}
+                  >
+                    {t('service.restart')}
+                  </Button>
+                  {status === 'running' || status === 'need-init' ? (
+                    <Button
+                      size="sm"
+                      color="warning"
+                      variant="flat"
+                      onPress={() => handleAction(onStop)}
+                      isLoading={loading}
+                    >
+                      {t('service.stop')}
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      color="success"
+                      variant="shadow"
+                      onPress={() => handleAction(onStart, true)}
+                      isLoading={loading}
+                    >
+                      {t('service.start')}
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    color="danger"
+                    variant="flat"
+                    onPress={() => handleAction(onUninstall)}
+                    isLoading={loading}
+                  >
+                    {t('service.uninstall')}
+                  </Button>
+                </>
               )}
-              <Button
-                size="sm"
-                color="danger"
-                variant="flat"
-                onPress={() => handleAction(onUninstall)}
-                isLoading={loading}
-              >
-                {t('service.uninstall')}
-              </Button>
-            </>
-          )}
-        </ModalFooter>
-      </ModalContent>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   )
 }

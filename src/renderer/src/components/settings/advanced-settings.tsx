@@ -69,7 +69,8 @@ const AdvancedSettings: React.FC = () => {
       </SettingItem>
       {autoLightweight && (
         <>
-          <SettingItem title={t('advanced.lightweightMode')} divider>
+          <SettingItem compatKey="legacy"
+          title={t('advanced.lightweightMode')} divider>
             <Tabs
               size="sm"
               color="primary"
@@ -85,7 +86,8 @@ const AdvancedSettings: React.FC = () => {
               <Tab key="tray" title={t('advanced.lightweightModeTray')} />
             </Tabs>
           </SettingItem>
-          <SettingItem title={t('advanced.lightweightDelay')} divider>
+          <SettingItem compatKey="legacy"
+          title={t('advanced.lightweightDelay')} divider>
             <Input
               size="sm"
               className="w-25"
@@ -144,7 +146,8 @@ const AdvancedSettings: React.FC = () => {
         </Select>
       </SettingItem>
       {platform === 'win32' && (
-        <SettingItem title={t('advanced.corePriority')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('advanced.corePriority')} divider>
           <Select
             classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
             className="w-37.5"
@@ -175,7 +178,8 @@ const AdvancedSettings: React.FC = () => {
           </Select>
         </SettingItem>
       )}
-      <SettingItem title={t('advanced.controlDns')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.controlDns')} divider>
         <Switch
           size="sm"
           isSelected={controlDns}
@@ -190,7 +194,8 @@ const AdvancedSettings: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title={t('advanced.controlSniff')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.controlSniff')} divider>
         <Switch
           size="sm"
           isSelected={controlSniff}
@@ -231,7 +236,8 @@ const AdvancedSettings: React.FC = () => {
       </SettingItem>
       {networkDetection && (
         <>
-          <SettingItem title={t('advanced.networkDetectionInterval')} divider>
+          <SettingItem compatKey="legacy"
+          title={t('advanced.networkDetectionInterval')} divider>
             <div className="flex">
               {interval !== networkDetectionInterval && (
                 <Button
@@ -260,7 +266,8 @@ const AdvancedSettings: React.FC = () => {
               />
             </div>
           </SettingItem>
-          <SettingItem title={t('advanced.networkDetectionBypass')}>
+          <SettingItem compatKey="legacy"
+          title={t('advanced.networkDetectionBypass')}>
             {bypass.length != networkDetectionBypass.length && (
               <Button
                 size="sm"
@@ -277,7 +284,8 @@ const AdvancedSettings: React.FC = () => {
           <EditableList items={bypass} onChange={(list) => setBypass(list as string[])} />
         </>
       )}
-      <SettingItem title={t('advanced.pauseSSID')}>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.pauseSSID')}>
         {pauseSSIDInput.join('') !== pauseSSIDArray.join('') && (
           <Button
             size="sm"

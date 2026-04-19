@@ -53,7 +53,8 @@ const GeneralConfig: React.FC = () => {
         />
       )}
       <SettingCard>
-        <SettingItem title={t('general.autoStart')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('general.autoStart')} divider>
           <Switch
             size="sm"
             isSelected={enable}
@@ -72,7 +73,8 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('general.silentStart')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('general.silentStart')} divider>
           <Switch
             size="sm"
             isSelected={silentStart}
@@ -81,7 +83,8 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('general.autoCheckUpdate')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('general.autoCheckUpdate')} divider>
           <Switch
             size="sm"
             isSelected={autoCheckUpdate}
@@ -90,7 +93,8 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('general.updateChannel')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('general.updateChannel')} divider>
           <Tabs
             size="sm"
             color="primary"

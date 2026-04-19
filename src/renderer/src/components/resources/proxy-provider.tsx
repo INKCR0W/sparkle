@@ -125,7 +125,8 @@ const ProxyProvider: React.FC = () => {
           }
         />
       )}
-      <SettingItem title={t('proxyProvider')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('proxyProvider')} divider>
         <Button
           size="sm"
           color="primary"
@@ -141,6 +142,7 @@ const ProxyProvider: React.FC = () => {
       {providers.map((provider, index) => (
         <Fragment key={provider.name}>
           <SettingItem
+            compatKey="legacy"
             title={provider.name}
             actions={
               <Chip className="ml-2" size="sm">
@@ -199,6 +201,7 @@ const ProxyProvider: React.FC = () => {
           {provider.subscriptionInfo && (
             <>
               <SettingItem
+                compatKey="legacy"
                 title={
                   <div className="text-foreground-500">
                     {`${calcTraffic(

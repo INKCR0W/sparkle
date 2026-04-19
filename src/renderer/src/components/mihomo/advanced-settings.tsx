@@ -35,7 +35,8 @@ const AdvancedSetting: React.FC = () => {
 
   return (
     <SettingCard title={t('advanced.title')}>
-      <SettingItem title={t('advanced.findProcess')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.findProcess')} divider>
         <Tabs
           size="sm"
           color="primary"
@@ -49,7 +50,8 @@ const AdvancedSetting: React.FC = () => {
           <Tab key="always" title={t('advanced.on')}></Tab>
         </Tabs>
       </SettingItem>
-      <SettingItem title={t('advanced.storeSelected')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.storeSelected')} divider>
         <Switch
           size="sm"
           isSelected={storeSelected}
@@ -58,7 +60,8 @@ const AdvancedSetting: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title={t('advanced.storeFakeIP')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.storeFakeIP')} divider>
         <Switch
           size="sm"
           isSelected={storeFakeIp}
@@ -105,7 +108,8 @@ const AdvancedSetting: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title={t('advanced.disableKeepAlive')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.disableKeepAlive')} divider>
         <Switch
           size="sm"
           isSelected={disableKeepAlive}
@@ -114,7 +118,8 @@ const AdvancedSetting: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title={t('advanced.keepAliveInterval')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.keepAliveInterval')} divider>
         <div className="flex">
           {intervalInput !== interval && (
             <Button
@@ -141,7 +146,8 @@ const AdvancedSetting: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title={t('advanced.keepAliveIdle')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.keepAliveIdle')} divider>
         <div className="flex">
           {idleInput !== idle && (
             <Button
@@ -168,7 +174,8 @@ const AdvancedSetting: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title={t('advanced.interfaceName')}>
+      <SettingItem compatKey="legacy"
+          title={t('advanced.interfaceName')}>
         <InterfaceSelect
           value={interfaceName}
           exclude={[device, 'lo']}

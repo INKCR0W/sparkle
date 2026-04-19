@@ -83,6 +83,8 @@ const AppearanceConfig: React.FC = () => {
           title={t('appearance.language')}
           divider
           /* 暂时隐藏打开自定义语言目录的按钮
+          compatKey="legacy"
+          title="显示悬浮窗"
           actions={
             <Tooltip content={t('appearance.openCustomLocalesDir')}>
               <Button
@@ -141,7 +143,8 @@ const AppearanceConfig: React.FC = () => {
         </SettingItem>
         {localShowFloating && (
           <>
-            <SettingItem title={t('appearance.spinFloatingIcon')} divider>
+            <SettingItem compatKey="legacy"
+                title={t('appearance.spinFloatingIcon')} divider>
               <Switch
                 size="sm"
                 isSelected={spinFloatingIcon}
@@ -151,7 +154,8 @@ const AppearanceConfig: React.FC = () => {
                 }}
               />
             </SettingItem>
-            <SettingItem title={t('appearance.disableTray')} divider>
+            <SettingItem compatKey="legacy"
+                title={t('appearance.disableTray')} divider>
               <Switch
                 size="sm"
                 isSelected={disableTray}
@@ -169,7 +173,8 @@ const AppearanceConfig: React.FC = () => {
         )}
         {platform !== 'linux' && (
           <>
-            <SettingItem title={t('appearance.proxyInTray')} divider>
+            <SettingItem compatKey="legacy"
+                title={t('appearance.proxyInTray')} divider>
               <Switch
                 size="sm"
                 isSelected={proxyInTray}
@@ -179,7 +184,8 @@ const AppearanceConfig: React.FC = () => {
               />
             </SettingItem>
             {proxyInTray && (
-              <SettingItem title={t('appearance.trayProxyDelayLayout')} divider>
+              <SettingItem compatKey="legacy"
+                  title={t('appearance.trayProxyDelayLayout')} divider>
                 <Tabs
                   size="sm"
                   color="primary"
@@ -197,6 +203,7 @@ const AppearanceConfig: React.FC = () => {
               </SettingItem>
             )}
             <SettingItem
+              compatKey="legacy"
               title={
                 platform === 'win32'
                   ? t('appearance.showTrafficTaskbar')
@@ -217,7 +224,8 @@ const AppearanceConfig: React.FC = () => {
         )}
         {platform === 'darwin' && (
           <>
-            <SettingItem title={t('appearance.useDockIcon')} divider>
+            <SettingItem compatKey="legacy"
+                title={t('appearance.useDockIcon')} divider>
               <Switch
                 size="sm"
                 isSelected={useDockIcon}
@@ -229,7 +237,8 @@ const AppearanceConfig: React.FC = () => {
             </SettingItem>
           </>
         )}
-        <SettingItem title={t('appearance.useWindowFrame')} divider>
+        <SettingItem compatKey="legacy"
+            title={t('appearance.useWindowFrame')} divider>
           <Switch
             size="sm"
             isSelected={useWindowFrame}
@@ -239,7 +248,8 @@ const AppearanceConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('appearance.theme')} divider>
+        <SettingItem compatKey="legacy"
+            title={t('appearance.theme')} divider>
           <Tabs
             size="sm"
             color="primary"
@@ -255,6 +265,7 @@ const AppearanceConfig: React.FC = () => {
           </Tabs>
         </SettingItem>
         <SettingItem
+          compatKey="legacy"
           title={t('appearance.customTheme')}
           actions={
             <>

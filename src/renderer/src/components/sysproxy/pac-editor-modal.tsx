@@ -1,4 +1,4 @@
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@heroui/react'
+import { Button, Modal } from '@heroui-v3/react'
 import { BaseEditor } from '@renderer/components/base/base-editor-lazy'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import { useTranslation } from '@renderer/hooks/useTranslation'
@@ -11,41 +11,40 @@ interface Props {
 const PacEditorModal: React.FC<Props> = (props) => {
   const { t } = useTranslation('sysproxy')
   const { script, onCancel, onConfirm } = props
-  const { appConfig: { disableAnimation = false } = {} } = useAppConfig()
+  useAppConfig()
   const [currData, setCurrData] = useState(script)
 
   return (
-    <Modal
-      backdrop={disableAnimation ? 'transparent' : 'blur'}
-      disableAnimation={disableAnimation}
-      classNames={{
-        base: 'max-w-none w-full',
-        backdrop: 'top-[48px]'
-      }}
-      size="5xl"
-      hideCloseButton
-      isOpen={true}
-      onOpenChange={onCancel}
-      scrollBehavior="inside"
-    >
-      <ModalContent className="h-full w-[calc(100%-100px)]">
-        <ModalHeader className="flex pb-0 app-drag">{t('editPac')}</ModalHeader>
-        <ModalBody className="h-full">
-          <BaseEditor
-            language="javascript"
-            value={currData}
-            onChange={(value) => setCurrData(value || '')}
-          />
-        </ModalBody>
-        <ModalFooter className="pt-0">
-          <Button size="sm" variant="light" onPress={onCancel}>
-            {t('common:actions.cancel')}
-          </Button>
-          <Button size="sm" color="primary" onPress={() => onConfirm(currData)}>
-            {t('common:actions.confirm')}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+    <Modal>
+      <Modal.Backdrop
+        isOpen={true}
+        onOpenChange={onCancel}
+        variant="blur"
+        className="top-12 h-[calc(100%-48px)]"
+      >
+        <Modal.Container scroll="inside">
+          <Modal.Dialog className="mt-4 h-[calc(100%-32px)] max-w-none w-[calc(100%-100px)]">
+            <Modal.Header className="app-drag pb-0">
+              <Modal.Heading>{t('editPac')}</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="h-full">
+              <BaseEditor
+                language="javascript"
+                value={currData}
+                onChange={(value) => setCurrData(value || '')}
+              />
+            </Modal.Body>
+            <Modal.Footer className="pt-0 pb-0">
+              <Button size="sm" variant="secondary" onPress={onCancel}>
+                {t('common:actions.cancel')}
+              </Button>
+              <Button size="sm" onPress={() => onConfirm(currData)}>
+                {t('common:actions.confirm')}
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   )
 }

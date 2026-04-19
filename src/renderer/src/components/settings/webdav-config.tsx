@@ -53,7 +53,8 @@ const WebdavConfig: React.FC = () => {
         <WebdavRestoreModal filenames={filenames} onClose={() => setRestoreOpen(false)} />
       )}
       <SettingCard title={t('backup.webdav.title')}>
-        <SettingItem title={t('backup.webdav.url')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('backup.webdav.url')} divider>
           <Input
             size="sm"
             className="w-[60%]"
@@ -64,7 +65,8 @@ const WebdavConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('backup.webdav.dir')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('backup.webdav.dir')} divider>
           <Input
             size="sm"
             className="w-[60%]"
@@ -75,7 +77,8 @@ const WebdavConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('backup.webdav.username')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('backup.webdav.username')} divider>
           <Input
             size="sm"
             className="w-[60%]"
@@ -86,7 +89,8 @@ const WebdavConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('backup.webdav.password')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('backup.webdav.password')} divider>
           <Input
             size="sm"
             className="w-[60%]"

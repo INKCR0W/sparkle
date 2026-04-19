@@ -66,7 +66,8 @@ const ControllerSetting: React.FC = () => {
 
   return (
     <SettingCard title={t('controller.title')}>
-      <SettingItem title={t('controller.listenAddress')} divider={externalController !== ''}>
+      <SettingItem compatKey="legacy"
+          title={t('controller.listenAddress')} divider={externalController !== ''}>
         <div className="flex">
           {externalControllerInput != externalController && !externalControllerError && (
             <Button
@@ -156,7 +157,8 @@ const ControllerSetting: React.FC = () => {
               />
             </div>
           </SettingItem>
-          <SettingItem title={t('controller.enablePanel')} divider>
+          <SettingItem compatKey="legacy"
+          title={t('controller.enablePanel')} divider>
             <Switch
               size="sm"
               isSelected={enableExternalUi}
@@ -268,7 +270,8 @@ const ControllerSetting: React.FC = () => {
               </div>
             </SettingItem>
           )}
-          <SettingItem title={t('controller.corsConfig')}></SettingItem>
+          <SettingItem compatKey="legacy"
+          title={t('controller.corsConfig')}></SettingItem>
           <div className="flex flex-col space-y-2 mt-2"></div>
           <SettingItem title={t('controller.allowPrivateNetwork')}>
             <Switch
@@ -285,7 +288,8 @@ const ControllerSetting: React.FC = () => {
             />
           </SettingItem>
           <div className="mt-1"></div>
-          <SettingItem title={t('controller.allowOrigins')}>
+          <SettingItem compatKey="legacy"
+          title={t('controller.allowOrigins')}>
             {allowOriginsInput.join(',') != initialAllowOrigins.join(',') && (
               <Button
                 size="sm"

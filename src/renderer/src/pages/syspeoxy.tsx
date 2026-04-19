@@ -197,7 +197,8 @@ const Sysproxy: React.FC = () => {
         />
       )}
       <SettingCard className="sysproxy-settings">
-        <SettingItem title={t('host')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('host')} divider>
           <Input
             size="sm"
             className="w-[50%]"
@@ -208,7 +209,8 @@ const Sysproxy: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('mode')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('mode')} divider>
           <Tabs
             size="sm"
             color="primary"
@@ -220,7 +222,8 @@ const Sysproxy: React.FC = () => {
           </Tabs>
         </SettingItem>
         {platform === 'win32' && (
-          <SettingItem title={t('uwpTool')} divider>
+          <SettingItem compatKey="legacy"
+          title={t('uwpTool')} divider>
             <Button
               size="sm"
               onPress={async () => {
@@ -233,7 +236,8 @@ const Sysproxy: React.FC = () => {
         )}
         {platform === 'darwin' && (
           <>
-            <SettingItem title={t('setMethod')} divider>
+            <SettingItem compatKey="legacy"
+          title={t('setMethod')} divider>
               <Tabs
                 size="sm"
                 color="primary"
@@ -275,7 +279,8 @@ const Sysproxy: React.FC = () => {
           </>
         )}
         {values.mode === 'auto' && (
-          <SettingItem title={t('mode')}>
+          <SettingItem compatKey="legacy"
+          title={t('mode')}>
             <Button size="sm" onPress={() => setOpenPacEditor(true)}>
               {t('editPac')}
             </Button>
@@ -283,7 +288,8 @@ const Sysproxy: React.FC = () => {
         )}
         {values.mode === 'manual' && (
           <>
-            <SettingItem title={t('addDefaultBypass')} divider>
+            <SettingItem compatKey="legacy"
+          title={t('addDefaultBypass')} divider>
               <Button
                 size="sm"
                 onPress={() => {
@@ -296,7 +302,8 @@ const Sysproxy: React.FC = () => {
                 {t('addDefaultBypass')}
               </Button>
             </SettingItem>
-            <SettingItem title={t('bypassList')}>
+            <SettingItem compatKey="legacy"
+          title={t('bypassList')}>
               <Button
                 size="sm"
                 onPress={async () => {

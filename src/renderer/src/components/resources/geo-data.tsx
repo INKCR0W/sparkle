@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { IoMdRefresh } from 'react-icons/io'
 
 const defaultGeoxUrl = {
-  geoip: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat',
+  geoip: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat',
   geosite: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat',
   mmdb: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb',
   asn: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb'
@@ -41,7 +41,8 @@ const GeoData: React.FC = () => {
 
   return (
     <SettingCard>
-      <SettingItem title={t('geoip')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('geoip')} divider>
         <div className="flex w-[70%]">
           {geoipInput !== geoxUrl.geoip && (
             <Button
@@ -58,24 +59,8 @@ const GeoData: React.FC = () => {
           <Input size="sm" value={geoipInput} onValueChange={setGeoIpInput} />
         </div>
       </SettingItem>
-      <SettingItem title={t('geosite')} divider>
-        <div className="flex w-[70%]">
-          {geositeInput !== geoxUrl.geosite && (
-            <Button
-              size="sm"
-              color="primary"
-              className="mr-2"
-              onPress={() => {
-                patchControledMihomoConfig({ 'geox-url': { ...geoxUrl, geosite: geositeInput } })
-              }}
-            >
-              {t('common:actions.confirm')}
-            </Button>
-          )}
-          <Input size="sm" value={geositeInput} onValueChange={setGeositeInput} />
-        </div>
-      </SettingItem>
-      <SettingItem title={t('mmdb')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('mmdb')} divider>
         <div className="flex w-[70%]">
           {mmdbInput !== geoxUrl.mmdb && (
             <Button
@@ -92,7 +77,27 @@ const GeoData: React.FC = () => {
           <Input size="sm" value={mmdbInput} onValueChange={setMmdbInput} />
         </div>
       </SettingItem>
-      <SettingItem title={t('asn')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('geosite')} divider>
+        <div className="flex w-[70%]">
+          {geositeInput !== geoxUrl.geosite && (
+            <Button
+              size="sm"
+              color="primary"
+              className="mr-2"
+              onPress={() => {
+                patchControledMihomoConfig({ 'geox-url': { ...geoxUrl, geosite: geositeInput } })
+              }}
+            >
+              {t('common:actions.confirm')}
+            </Button>
+          )}
+          <Input size="sm" value={geositeInput} onValueChange={setGeositeInput} />
+        </div>
+      </SettingItem>
+
+      <SettingItem compatKey="legacy"
+          title={t('asn')} divider>
         <div className="flex w-[70%]">
           {asnInput !== geoxUrl.asn && (
             <Button
@@ -109,7 +114,8 @@ const GeoData: React.FC = () => {
           <Input size="sm" value={asnInput} onValueChange={setAsnInput} />
         </div>
       </SettingItem>
-      <SettingItem title={t('geoDataMode')} divider>
+      <SettingItem compatKey="legacy"
+          title={t('geoDataMode')} divider>
         <Tabs
           size="sm"
           color="primary"
@@ -123,6 +129,7 @@ const GeoData: React.FC = () => {
         </Tabs>
       </SettingItem>
       <SettingItem
+        compatKey="legacy"
         title={t('autoUpdateGeo')}
         actions={
           <Button
@@ -155,7 +162,8 @@ const GeoData: React.FC = () => {
         />
       </SettingItem>
       {geoAutoUpdate && (
-        <SettingItem title={t('updateInterval')}>
+        <SettingItem compatKey="legacy"
+            title={t('updateInterval')}>
           <Input
             size="sm"
             type="number"

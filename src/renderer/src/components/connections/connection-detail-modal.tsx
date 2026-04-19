@@ -1,22 +1,9 @@
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem
-} from '@heroui/react'
-import React from 'react'
-import SettingItem from '../base/base-setting-item'
-import { useTranslation } from '@renderer/hooks/useTranslation'
+import { Button, Description, Dropdown, Label, Modal, Separator, Surface } from '@heroui-v3/react'
+import type { ReactNode } from 'react'
 import { calcTraffic } from '@renderer/utils/calc'
 import dayjs from 'dayjs'
 import { BiCopy } from 'react-icons/bi'
-import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useTranslation } from '@renderer/hooks/useTranslation'
 
 interface Props {
   connection: ControllerConnectionDetail
@@ -30,9 +17,17 @@ interface CopyProps {
   prefix?: string[]
 }
 
-const CopyableSettingItem: React.FC<CopyProps> = (props) => {
-  const { t } = useTranslation('connection')
-  const { title, value, displayName, prefix = [] } = props
+interface StaticRow {
+  kind: 'static'
+  title: string
+  content: ReactNode
+}
+
+interface CopyRow extends CopyProps {
+  kind: 'copy'
+}
+
+function buildCopyMenuItems(value: string | string[], displayName?: string, prefix: string[] = []) {
   const getSubDomains = (domain: string): string[] =>
     domain.split('.').length <= 2
       ? [domain]
@@ -43,7 +38,7 @@ const CopyableSettingItem: React.FC<CopyProps> = (props) => {
 
   const isIPv6 = (ip: string): boolean => ip.includes(':')
 
-  const menuItems = [
+  return [
     { key: 'raw', text: displayName || (Array.isArray(value) ? value.join(', ') : value) },
     ...(Array.isArray(value)
       ? value
@@ -100,18 +95,63 @@ const CopyableSettingItem: React.FC<CopyProps> = (props) => {
           })
           .flat())
   ]
+}
 
-  return (
-    <SettingItem
-      title={title}
-      actions={
-        <Dropdown>
-          <DropdownTrigger>
-            <Button title={t('copyRule')} isIconOnly size="sm" variant="light">
-              <BiCopy className="text-lg" />
-            </Button>
-          </DropdownTrigger>
-          <DropdownMenu
+const ConnectionDetailModal = ({ connection, onClose }: Props) => {
+  const { t } = useTranslation('connection')
+
+  const renderRow = (
+    title: string,
+    content: ReactNode,
+    actions?: ReactNode,
+    hasSeparator: boolean = true
+  ) => (
+    <Surface key={title} variant="transparent" className="flex flex-col">
+      <Surface
+        variant="transparent"
+        className="grid grid-cols-[120px_auto_minmax(0,1fr)] items-stretch gap-x-2"
+      >
+        <Surface variant="transparent" className="flex min-h-10 items-center py-2">
+          <Label>{title}</Label>
+        </Surface>
+        <Surface variant="transparent" className="relative min-h-10 py-2">
+          {actions ? (
+            <Surface
+              variant="transparent"
+              className="absolute top-1/2 -left-7 z-10 flex -translate-y-1/2 items-center"
+            >
+              {actions}
+            </Surface>
+          ) : null}
+          <Description className="min-w-0 text-sm leading-6 text-foreground-700 select-text break-all">
+            {content}
+          </Description>
+        </Surface>
+      </Surface>
+      {hasSeparator ? <Separator variant="tertiary" className="bg-default-100/70" /> : null}
+    </Surface>
+  )
+
+  const renderCopyableRow = (
+    { title, value, displayName, prefix = [] }: CopyProps,
+    hasSeparator: boolean
+  ) => {
+    const menuItems = buildCopyMenuItems(value, displayName, prefix)
+    const action = (
+      <Dropdown>
+        <Dropdown.Trigger>
+          <Button
+            aria-label={t('copyRule')}
+            isIconOnly
+            size="sm"
+            variant="tertiary"
+            className="app-nodrag h-6 min-h-6 w-6 min-w-6"
+          >
+            <BiCopy className="text-base" />
+          </Button>
+        </Dropdown.Trigger>
+        <Dropdown.Popover placement="bottom end" className="min-w-55">
+          <Dropdown.Menu
             onAction={(key) =>
               navigator.clipboard.writeText(
                 key === 'raw' ? (Array.isArray(value) ? value.join(', ') : value) : (key as string)
@@ -121,225 +161,288 @@ const CopyableSettingItem: React.FC<CopyProps> = (props) => {
             {menuItems
               .filter((item) => item !== null)
               .map(({ key, text }) => (
-                <DropdownItem key={key}>{text}</DropdownItem>
+                <Dropdown.Item id={key} key={key} textValue={text}>
+                  <Label>{text}</Label>
+                </Dropdown.Item>
               ))}
-          </DropdownMenu>
-        </Dropdown>
-      }
-    >
-      <div className="flex items-center gap-2 truncate">
-        <div className="truncate">
-          {displayName || (Array.isArray(value) ? value.join(', ') : value)}
-        </div>
-      </div>
-    </SettingItem>
-  )
-}
+          </Dropdown.Menu>
+        </Dropdown.Popover>
+      </Dropdown>
+    )
 
-const ConnectionDetailModal: React.FC<Props> = (props) => {
-  const { connection, onClose } = props
-  const { t } = useTranslation('connection')
-  const { appConfig: { disableAnimation = false } = {} } = useAppConfig()
+    return renderRow(
+      title,
+      displayName || (Array.isArray(value) ? value.join(', ') : value),
+      action,
+      hasSeparator
+    )
+  }
+
+  const rows: Array<StaticRow | CopyRow> = [
+    { kind: 'static', title: t('startTime'), content: dayjs(connection.start).fromNow() },
+    {
+      kind: 'static',
+      title: t('rule'),
+      content: (
+        <>
+          {connection.rule ? connection.rule : t('noRule')}
+          {connection.rulePayload ? `(${connection.rulePayload})` : ''}
+        </>
+      )
+    },
+    { kind: 'static', title: t('proxyChain'), content: [...connection.chains].reverse().join('>>') },
+    { kind: 'static', title: t('uploadSpeed'), content: `${calcTraffic(connection.uploadSpeed || 0)}/s` },
+    {
+      kind: 'static',
+      title: t('downloadSpeed'),
+      content: `${calcTraffic(connection.downloadSpeed || 0)}/s`
+    },
+    { kind: 'static', title: t('upload'), content: calcTraffic(connection.upload) },
+    { kind: 'static', title: t('download'), content: calcTraffic(connection.download) },
+    {
+      kind: 'copy',
+      title: t('connectionType'),
+      value: [connection.metadata.type, connection.metadata.network],
+      displayName: `${connection.metadata.type}(${connection.metadata.network})`,
+      prefix: ['IN-TYPE', 'NETWORK']
+    },
+    ...(connection.metadata.host
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('host'),
+            value: connection.metadata.host,
+            prefix: ['DOMAIN', 'DOMAIN-SUFFIX']
+          }
+        ]
+      : []),
+    ...(connection.metadata.sniffHost
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('sniffHost'),
+            value: connection.metadata.sniffHost,
+            prefix: ['DOMAIN', 'DOMAIN-SUFFIX']
+          }
+        ]
+      : []),
+    ...(connection.metadata.process && connection.metadata.type != 'Inner'
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('processName'),
+            value: [
+              connection.metadata.process,
+              ...(connection.metadata.uid ? [connection.metadata.uid.toString()] : [])
+            ],
+            displayName: `${connection.metadata.process}${
+              connection.metadata.uid ? `(${connection.metadata.uid})` : ''
+            }`,
+            prefix: ['PROCESS-NAME', ...(connection.metadata.uid ? ['UID'] : [])]
+          }
+        ]
+      : []),
+    ...(connection.metadata.processPath && connection.metadata.type != 'Inner'
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('processPath'),
+            value: connection.metadata.processPath,
+            prefix: ['PROCESS-PATH']
+          }
+        ]
+      : []),
+    ...(connection.metadata.sourceIP
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('sourceIP'),
+            value: connection.metadata.sourceIP,
+            prefix: ['SRC-IP-CIDR']
+          }
+        ]
+      : []),
+    ...(connection.metadata.sourceGeoIP && connection.metadata.sourceGeoIP.length > 0
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('sourceGeoIP'),
+            value: connection.metadata.sourceGeoIP,
+            prefix: ['SRC-GEOIP']
+          }
+        ]
+      : []),
+    ...(connection.metadata.sourceIPASN
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('sourceASN'),
+            value: connection.metadata.sourceIPASN,
+            prefix: ['SRC-IP-ASN']
+          }
+        ]
+      : []),
+    ...(connection.metadata.destinationIP
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('destinationIP'),
+            value: connection.metadata.destinationIP,
+            prefix: ['IP-CIDR']
+          }
+        ]
+      : []),
+    ...(connection.metadata.destinationGeoIP && connection.metadata.destinationGeoIP.length > 0
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('destinationGeoIP'),
+            value: connection.metadata.destinationGeoIP,
+            prefix: ['GEOIP']
+          }
+        ]
+      : []),
+    ...(connection.metadata.destinationIPASN
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('destinationASN'),
+            value: connection.metadata.destinationIPASN,
+            prefix: ['IP-ASN']
+          }
+        ]
+      : []),
+    ...(connection.metadata.sourcePort
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('sourcePort'),
+            value: connection.metadata.sourcePort,
+            prefix: ['SRC-PORT']
+          }
+        ]
+      : []),
+    ...(connection.metadata.destinationPort
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('destinationPort'),
+            value: connection.metadata.destinationPort,
+            prefix: ['DST-PORT']
+          }
+        ]
+      : []),
+    ...(connection.metadata.inboundIP
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('inboundIP'),
+            value: connection.metadata.inboundIP,
+            prefix: ['SRC-IP-CIDR']
+          }
+        ]
+      : []),
+    ...(connection.metadata.inboundPort !== '0'
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('inboundPort'),
+            value: connection.metadata.inboundPort,
+            prefix: ['SRC-PORT']
+          }
+        ]
+      : []),
+    ...(connection.metadata.inboundName
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('inboundName'),
+            value: connection.metadata.inboundName,
+            prefix: ['IN-NAME']
+          }
+        ]
+      : []),
+    ...(connection.metadata.inboundUser
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('inboundUser'),
+            value: connection.metadata.inboundUser,
+            prefix: ['IN-USER']
+          }
+        ]
+      : []),
+    ...(connection.metadata.dscp !== 0
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('dscp'),
+            value: connection.metadata.dscp.toString(),
+            prefix: ['DSCP']
+          }
+        ]
+      : []),
+    ...(connection.metadata.remoteDestination
+      ? [
+          {
+            kind: 'copy' as const,
+            title: t('remoteDestination'),
+            value: connection.metadata.remoteDestination,
+            prefix: ['IP-CIDR']
+          }
+        ]
+      : []),
+    ...(connection.metadata.dnsMode
+      ? [{ kind: 'static' as const, title: t('dnsMode'), content: connection.metadata.dnsMode }]
+      : []),
+    ...(connection.metadata.specialProxy
+      ? [
+          {
+            kind: 'static' as const,
+            title: t('specialProxy'),
+            content: connection.metadata.specialProxy
+          }
+        ]
+      : []),
+    ...(connection.metadata.specialRules
+      ? [
+          {
+            kind: 'static' as const,
+            title: t('specialRules'),
+            content: connection.metadata.specialRules
+          }
+        ]
+      : [])
+  ]
 
   return (
-    <Modal
-      backdrop={disableAnimation ? 'transparent' : 'blur'}
-      disableAnimation={disableAnimation}
-      classNames={{ backdrop: 'top-[48px]' }}
-      size="xl"
-      hideCloseButton
-      isOpen={true}
-      onOpenChange={onClose}
-      scrollBehavior="inside"
-    >
-      <ModalContent className="flag-emoji break-all">
-        <ModalHeader className="flex app-drag">{t('detail')}</ModalHeader>
-        <ModalBody>
-          <SettingItem title={t('startTime')}>
-            <div className="truncate">{dayjs(connection.start).fromNow()}</div>
-          </SettingItem>
-          <SettingItem title={t('rule')}>
-            <div className="truncate">
-              {connection.rule ? connection.rule : t('noRule')}
-              {connection.rulePayload ? `(${connection.rulePayload})` : ''}
-            </div>
-          </SettingItem>
-          <SettingItem title={t('proxyChain')}>
-            <div className="truncate">{[...connection.chains].reverse().join('>>')}</div>
-          </SettingItem>
-          <SettingItem title={t('uploadSpeed')}>
-            <div className="truncate">{calcTraffic(connection.uploadSpeed || 0)}/s</div>
-          </SettingItem>
-          <SettingItem title={t('downloadSpeed')}>
-            <div className="truncate">{calcTraffic(connection.downloadSpeed || 0)}/s</div>
-          </SettingItem>
-          <SettingItem title={t('upload')}>
-            <div className="truncate">{calcTraffic(connection.upload)}</div>
-          </SettingItem>
-          <SettingItem title={t('download')}>
-            <div className="truncate">{calcTraffic(connection.download)}</div>
-          </SettingItem>
-          <CopyableSettingItem
-            title={t('connectionType')}
-            value={[connection.metadata.type, connection.metadata.network]}
-            displayName={`${connection.metadata.type}(${connection.metadata.network})`}
-            prefix={['IN-TYPE', 'NETWORK']}
-          />
-          {connection.metadata.host && (
-            <CopyableSettingItem
-              title={t('host')}
-              value={connection.metadata.host}
-              prefix={['DOMAIN', 'DOMAIN-SUFFIX']}
-            />
-          )}
-          {connection.metadata.sniffHost && (
-            <CopyableSettingItem
-              title={t('sniffHost')}
-              value={connection.metadata.sniffHost}
-              prefix={['DOMAIN', 'DOMAIN-SUFFIX']}
-            />
-          )}
-          {connection.metadata.process && connection.metadata.type != 'Inner' && (
-            <CopyableSettingItem
-              title={t('processName')}
-              value={[
-                connection.metadata.process,
-                ...(connection.metadata.uid ? [connection.metadata.uid.toString()] : [])
-              ]}
-              displayName={`${connection.metadata.process}${
-                connection.metadata.uid ? `(${connection.metadata.uid})` : ''
-              }`}
-              prefix={['PROCESS-NAME', ...(connection.metadata.uid ? ['UID'] : [])]}
-            />
-          )}
-          {connection.metadata.processPath && connection.metadata.type != 'Inner' && (
-            <CopyableSettingItem
-              title={t('processPath')}
-              value={connection.metadata.processPath}
-              prefix={['PROCESS-PATH']}
-            />
-          )}
-          {connection.metadata.sourceIP && (
-            <CopyableSettingItem
-              title={t('sourceIP')}
-              value={connection.metadata.sourceIP}
-              prefix={['SRC-IP-CIDR']}
-            />
-          )}
-          {connection.metadata.sourceGeoIP && connection.metadata.sourceGeoIP.length > 0 && (
-            <CopyableSettingItem
-              title={t('sourceGeoIP')}
-              value={connection.metadata.sourceGeoIP}
-              prefix={['SRC-GEOIP']}
-            />
-          )}
-          {connection.metadata.sourceIPASN && (
-            <CopyableSettingItem
-              title={t('sourceASN')}
-              value={connection.metadata.sourceIPASN}
-              prefix={['SRC-IP-ASN']}
-            />
-          )}
-          {connection.metadata.destinationIP && (
-            <CopyableSettingItem
-              title={t('destinationIP')}
-              value={connection.metadata.destinationIP}
-              prefix={['IP-CIDR']}
-            />
-          )}
-          {connection.metadata.destinationGeoIP &&
-            connection.metadata.destinationGeoIP.length > 0 && (
-              <CopyableSettingItem
-                title={t('destinationGeoIP')}
-                value={connection.metadata.destinationGeoIP}
-                prefix={['GEOIP']}
-              />
-            )}
-          {connection.metadata.destinationIPASN && (
-            <CopyableSettingItem
-              title={t('destinationASN')}
-              value={connection.metadata.destinationIPASN}
-              prefix={['IP-ASN']}
-            />
-          )}
-          {connection.metadata.sourcePort && (
-            <CopyableSettingItem
-              title={t('sourcePort')}
-              value={connection.metadata.sourcePort}
-              prefix={['SRC-PORT']}
-            />
-          )}
-          {connection.metadata.destinationPort && (
-            <CopyableSettingItem
-              title={t('destinationPort')}
-              value={connection.metadata.destinationPort}
-              prefix={['DST-PORT']}
-            />
-          )}
-          {connection.metadata.inboundIP && (
-            <CopyableSettingItem
-              title={t('inboundIP')}
-              value={connection.metadata.inboundIP}
-              prefix={['SRC-IP-CIDR']}
-            />
-          )}
-          {connection.metadata.inboundPort !== '0' && (
-            <CopyableSettingItem
-              title={t('inboundPort')}
-              value={connection.metadata.inboundPort}
-              prefix={['SRC-PORT']}
-            />
-          )}
-          {connection.metadata.inboundName && (
-            <CopyableSettingItem
-              title={t('inboundName')}
-              value={connection.metadata.inboundName}
-              prefix={['IN-NAME']}
-            />
-          )}
-          {connection.metadata.inboundUser && (
-            <CopyableSettingItem
-              title={t('inboundUser')}
-              value={connection.metadata.inboundUser}
-              prefix={['IN-USER']}
-            />
-          )}
-          {connection.metadata.dscp !== 0 && (
-            <CopyableSettingItem
-              title={t('dscp')}
-              value={connection.metadata.dscp.toString()}
-              prefix={['DSCP']}
-            />
-          )}
-          {connection.metadata.remoteDestination && (
-            <CopyableSettingItem
-              title={t('remoteDestination')}
-              value={connection.metadata.remoteDestination}
-              prefix={['IP-CIDR']}
-            />
-          )}
-          {connection.metadata.dnsMode && (
-            <SettingItem title={t('dnsMode')}>
-              <div className="truncate">{connection.metadata.dnsMode}</div>
-            </SettingItem>
-          )}
-          {connection.metadata.specialProxy && (
-            <SettingItem title={t('specialProxy')}>
-              <div className="truncate">{connection.metadata.specialProxy}</div>
-            </SettingItem>
-          )}
-          {connection.metadata.specialRules && (
-            <SettingItem title={t('specialRules')}>
-              <div className="truncate">{connection.metadata.specialRules}</div>
-            </SettingItem>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button size="sm" variant="light" onPress={onClose}>
-            {t('common:actions.close')}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+    <Modal>
+      <Modal.Backdrop
+        isOpen={true}
+        onOpenChange={onClose}
+        variant="blur"
+        className="top-12 h-[calc(100%-48px)]"
+      >
+        <Modal.Container scroll="inside">
+          <Modal.Dialog className="w-[min(700px,calc(100%-24px))] max-w-none flag-emoji">
+            <Modal.Header className="app-drag pb-0">
+              <Modal.Heading>{t('detail')}</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="no-scrollbar max-h-[70vh] overflow-y-auto pt-4 pb-4">
+              <Surface variant="transparent" className="flex flex-col">
+                {rows.map((row, index) => {
+                  const hasSeparator = index < rows.length - 1
+
+                  return row.kind === 'copy'
+                    ? renderCopyableRow(row, hasSeparator)
+                    : renderRow(row.title, row.content, undefined, hasSeparator)
+                })}
+              </Surface>
+            </Modal.Body>
+            <Modal.CloseTrigger className="app-nodrag" />
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   )
 }

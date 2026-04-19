@@ -157,7 +157,8 @@ const DNS: React.FC = () => {
       }
     >
       <SettingCard>
-        <SettingItem title={t('ipv6')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('ipv6')} divider>
           <Switch
             size="sm"
             isSelected={values.ipv6}
@@ -166,7 +167,8 @@ const DNS: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('enhancedMode')} divider>
+        <SettingItem compatKey="legacy"
+          title={t('enhancedMode')} divider>
           <Tabs
             size="sm"
             color="primary"
@@ -180,7 +182,8 @@ const DNS: React.FC = () => {
         </SettingItem>
         {values.enhancedMode === 'fake-ip' && (
           <>
-            <SettingItem title={t('fakeIPRange')} divider>
+            <SettingItem compatKey="legacy"
+          title={t('fakeIPRange')} divider>
               <Tooltip
                 content={fakeIPRangeError}
                 placement="right"
@@ -206,7 +209,8 @@ const DNS: React.FC = () => {
               </Tooltip>
             </SettingItem>
             {values.ipv6 && (
-              <SettingItem title={t('fakeIPRange6')} divider>
+              <SettingItem compatKey="legacy"
+          title={t('fakeIPRange6')} divider>
                 <Tooltip
                   content={fakeIPRange6Error}
                   placement="right"

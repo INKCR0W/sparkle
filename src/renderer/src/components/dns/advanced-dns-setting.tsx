@@ -72,7 +72,7 @@ const AdvancedDnsSetting: React.FC<AdvancedDnsSettingProps> = ({
 
   return (
     <SettingCard title={t('advancedSettings')}>
-      <SettingItem title={t('respectRules')} divider>
+      <SettingItem compatKey="legacy" title={t('respectRules')} divider>
         <Switch
           size="sm"
           isSelected={respectRules}
@@ -228,10 +228,10 @@ const AdvancedDnsSetting: React.FC<AdvancedDnsSettingProps> = ({
         part2Placeholder={t('dnsServerListPlaceholder')}
         objectMode="record"
       />
-      <SettingItem title={t('useSystemHosts')} divider>
+      <SettingItem compatKey="legacy" title={t('useSystemHosts')} divider>
         <Switch size="sm" isSelected={useSystemHosts} onValueChange={onUseSystemHostsChange} />
       </SettingItem>
-      <SettingItem title={t('useHosts')}>
+      <SettingItem compatKey="legacy" title={t('useHosts')}>
         <Switch size="sm" isSelected={useHosts} onValueChange={onUseHostsChange} />
       </SettingItem>
       {useHosts && (

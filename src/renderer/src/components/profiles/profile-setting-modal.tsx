@@ -1,16 +1,5 @@
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Switch,
-  Input,
-  Tab,
-  Tabs,
-  Tooltip
-} from '@heroui/react'
+import { Button, Switch, Input, Tab, Tabs, Tooltip } from '@heroui/react'
+import { Modal } from '@heroui-v3/react'
 import React, { useState, useEffect, useRef } from 'react'
 import SettingItem from '../base/base-setting-item'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
@@ -58,105 +47,106 @@ const ProfileSettingModal: React.FC<Props> = (props) => {
   }, [userAgent])
 
   return (
-    <Modal
-      backdrop="blur"
-      classNames={{ backdrop: 'top-[48px]' }}
-      size="md"
-      hideCloseButton
-      isOpen={true}
-      onOpenChange={onClose}
-      scrollBehavior="inside"
-    >
-      <ModalContent className="flag-emoji">
-        <ModalHeader className="flex pb-0">{t('settings')}</ModalHeader>
-        <ModalBody className="py-2 gap-1">
-          <SettingItem title={t('displayDate')} divider>
-            <Tabs
-              size="sm"
-              color="primary"
-              selectedKey={profileDisplayDate}
-              onSelectionChange={async (v) => {
-                await patchAppConfig({
-                  profileDisplayDate: v as 'expire' | 'update'
-                })
-              }}
-            >
-              <Tab key="update" title={t('sortBy.updateTime')} />
-              <Tab key="expire" title={t('sortBy.expireTime')} />
-            </Tabs>
-          </SettingItem>
-          <SettingItem
-            title={t('diffWorkDir')}
-            actions={
-              <Tooltip content={t('diffWorkDirTip')}>
-                <Button isIconOnly size="sm" variant="light">
-                  <IoIosHelpCircle className="text-lg" />
-                </Button>
-              </Tooltip>
-            }
-            divider
-          >
-            <Switch
-              size="sm"
-              isSelected={diffWorkDir}
-              onValueChange={(v) => {
-                patchAppConfig({ diffWorkDir: v })
-              }}
-            />
-          </SettingItem>
-          <SettingItem title={t('userAgent')} divider>
-            <Input
-              size="sm"
-              className="w-[60%]"
-              value={ua}
-              placeholder={`${t('userAgentPlaceholder')} ${defaultUserAgent}`}
-              onValueChange={(v) => {
-                setUa(v)
-                setUaDebounce(v)
-              }}
-            />
-          </SettingItem>
-          <SettingItem
-            title={t('syncToGist')}
-            actions={
-              <Button
-                title={t('copyGistUrl')}
-                isIconOnly
-                size="sm"
-                variant="light"
-                onPress={async () => {
-                  try {
-                    const url = await getGistUrl()
-                    if (url !== '') {
-                      await navigator.clipboard.writeText(`${url}/raw/sparkle.yaml`)
-                    }
-                  } catch (e) {
-                    alert(e)
-                  }
-                }}
+    <Modal>
+      <Modal.Backdrop
+        isOpen={true}
+        onOpenChange={onClose}
+        variant="blur"
+        className="top-12 h-[calc(100%-48px)]"
+      >
+        <Modal.Container scroll="inside">
+          <Modal.Dialog className="max-w-md flag-emoji">
+            <Modal.Header className="pb-0">
+              <Modal.Heading>{t('settings')}</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="py-2 gap-1">
+              <SettingItem compatKey="legacy" title={t('displayDate')} divider>
+                <Tabs
+                  size="sm"
+                  color="primary"
+                  selectedKey={profileDisplayDate}
+                  onSelectionChange={async (v) => {
+                    await patchAppConfig({
+                      profileDisplayDate: v as 'expire' | 'update'
+                    })
+                  }}
+                >
+                  <Tab key="update" title={t('sortBy.updateTime')} />
+                  <Tab key="expire" title={t('sortBy.expireTime')} />
+                </Tabs>
+              </SettingItem>
+              <SettingItem
+                compatKey="legacy"
+                title={t('diffWorkDir')}
+                actions={
+                  <Tooltip content={t('diffWorkDirTip')}>
+                    <Button isIconOnly size="sm" variant="light">
+                      <IoIosHelpCircle className="text-lg" />
+                    </Button>
+                  </Tooltip>
+                }
+                divider
               >
-                <BiCopy className="text-lg" />
-              </Button>
-            }
-          >
-            <Input
-              type="password"
-              size="sm"
-              className="w-[60%]"
-              value={githubToken}
-              placeholder={t('githubTokenPlaceholder')}
-              onValueChange={(v) => {
-                patchAppConfig({ githubToken: v })
-              }}
-            />
-          </SettingItem>
-        </ModalBody>
-        <ModalFooter>
-          <Button size="sm" variant="light" onPress={onClose}>
-            {t('common:actions.close')}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+                <Switch
+                  size="sm"
+                  isSelected={diffWorkDir}
+                  onValueChange={(v) => {
+                    patchAppConfig({ diffWorkDir: v })
+                  }}
+                />
+              </SettingItem>
+              <SettingItem compatKey="legacy" title={t('userAgent')} divider>
+                <Input
+                  size="sm"
+                  className="w-[60%]"
+                  value={ua}
+                  placeholder={`${t('userAgentPlaceholder')} ${defaultUserAgent}`}
+                  onValueChange={(v) => {
+                    setUa(v)
+                    setUaDebounce(v)
+                  }}
+                />
+              </SettingItem>
+              <SettingItem
+                compatKey="legacy"
+                title={t('syncToGist')}
+                actions={
+                  <Button
+                    title={t('copyGistUrl')}
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    onPress={async () => {
+                      try {
+                        const url = await getGistUrl()
+                        if (url !== '') {
+                          await navigator.clipboard.writeText(`${url}/raw/sparkle.yaml`)
+                        }
+                      } catch (e) {
+                        alert(e)
+                      }
+                    }}
+                  >
+                    <BiCopy className="text-lg" />
+                  </Button>
+                }
+              >
+                <Input
+                  type="password"
+                  size="sm"
+                  className="w-[60%]"
+                  value={githubToken}
+                  placeholder={t('githubTokenPlaceholder')}
+                  onValueChange={(v) => {
+                    patchAppConfig({ githubToken: v })
+                  }}
+                />
+              </SettingItem>
+            </Modal.Body>
+            <Modal.CloseTrigger className="app-nodrag" />
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   )
 }
