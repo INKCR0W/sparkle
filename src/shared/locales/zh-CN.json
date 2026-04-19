@@ -658,7 +658,10 @@
     "autoUpdateGeo": "自动更新 Geo 数据库",
     "geoUpdateSuccess": "Geo 数据库更新成功",
     "updateInterval": "更新间隔(小时)",
-    "qrCode": "二维码"
+    "qrCode": "二维码",
+    "saveNeedsElevation": "保存需要提权",
+    "saveNeedsElevationDesc": "当前文件或目录没有写入权限。你可以取消本次保存，或者执行提权后修改权限并继续保存。",
+    "elevatedSave": "提权保存"
   },
   "override": {
     "title": "覆写",

@@ -658,7 +658,10 @@
     "autoUpdateGeo": "自動更新 Geo 資料庫",
     "geoUpdateSuccess": "Geo 資料庫更新成功",
     "updateInterval": "更新間隔(小時)",
-    "qrCode": "QR Code"
+    "qrCode": "QR Code",
+    "saveNeedsElevation": "儲存需要提權",
+    "saveNeedsElevationDesc": "目前檔案或目錄沒有寫入權限。你可以取消本次儲存，或者執行提權後修改權限並繼續儲存。",
+    "elevatedSave": "提權儲存"
   },
   "override": {
     "title": "覆寫",

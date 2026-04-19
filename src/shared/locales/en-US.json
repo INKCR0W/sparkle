@@ -658,7 +658,10 @@
     "autoUpdateGeo": "Auto Update Geo Database",
     "geoUpdateSuccess": "Geo database updated successfully",
     "updateInterval": "Update Interval (Hours)",
-    "qrCode": "QR Code"
+    "qrCode": "QR Code",
+    "saveNeedsElevation": "Elevation Required to Save",
+    "saveNeedsElevationDesc": "The current file or directory is not writable. You can cancel the save, or elevate permissions to fix the permissions and continue saving.",
+    "elevatedSave": "Save with Elevation"
   },
   "override": {
     "title": "Override",
