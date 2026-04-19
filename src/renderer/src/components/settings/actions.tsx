@@ -116,6 +116,7 @@ const Actions: React.FC = () => {
           </Button>
         </SettingItem>
         <SettingItem
+          compatKey="legacy"
           title={t('actions.resetApp')}
           actions={
             <Tooltip content={t('actions.resetAppTip')}>
@@ -131,6 +132,7 @@ const Actions: React.FC = () => {
           </Button>
         </SettingItem>
         <SettingItem
+          compatKey="legacy"
           title={t('actions.clearCache')}
           actions={
             <Tooltip content={t('actions.clearCacheTip')}>
@@ -146,6 +148,7 @@ const Actions: React.FC = () => {
           </Button>
         </SettingItem>
         <SettingItem
+          compatKey="legacy"
           title={t('actions.createHeapSnapshot')}
           actions={
             <Tooltip content={t('actions.createHeapSnapshotTip')}>
@@ -161,6 +164,7 @@ const Actions: React.FC = () => {
           </Button>
         </SettingItem>
         <SettingItem
+          compatKey="legacy"
           title={t('actions.quitWithoutCore')}
           actions={
             <Tooltip content={t('actions.quitWithoutCoreTip')}>
