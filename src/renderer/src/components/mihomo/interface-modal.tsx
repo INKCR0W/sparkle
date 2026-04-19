@@ -3,7 +3,6 @@ import { Modal } from '@heroui-v3/react'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { getInterfaces } from '@renderer/utils/ipc'
-import { useAppConfig } from '@renderer/hooks/use-app-config'
 
 interface Props {
   onClose: () => void
@@ -12,7 +11,6 @@ interface Props {
 const InterfaceModal: React.FC<Props> = (props) => {
   const { onClose } = props
   const { t } = useTranslation('mihomo')
-  useAppConfig()
   const [info, setInfo] = useState<Record<string, NetworkInterfaceInfo[]>>({})
   const getInfo = async (): Promise<void> => {
     setInfo(await getInterfaces())

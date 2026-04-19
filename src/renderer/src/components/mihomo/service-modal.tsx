@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Button, Spinner, Card, CardBody, Chip, Divider } from '@heroui/react'
 import { Modal } from '@heroui-v3/react'
-import { useAppConfig } from '@renderer/hooks/use-app-config'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { serviceStatus, testServiceConnection } from '@renderer/utils/ipc'
 
@@ -22,7 +21,6 @@ const ServiceModal: React.FC<Props> = (props) => {
   const { onChange, onInit, onInstall, onUninstall, onStart, onStop, onRestart } = props
   const { t } = useTranslation('mihomo')
   const tCommon = (key: string) => t(`common:${key}`)
-  useAppConfig()
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<ServiceStatusType | null>(null)
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatusType>('checking')

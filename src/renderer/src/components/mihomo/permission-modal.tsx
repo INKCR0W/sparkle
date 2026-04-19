@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from '@renderer/hooks/useTranslation'
 import { Button, Card, CardBody, CardHeader, Chip, Divider } from '@heroui/react'
 import { Modal } from '@heroui-v3/react'
-import { useAppConfig } from '@renderer/hooks/use-app-config'
 import {
   checkCorePermission,
   checkElevateTask,
@@ -21,7 +20,6 @@ const PermissionModal: React.FC<Props> = (props) => {
   const { onChange, onRevoke, onGrant } = props
   const { t } = useTranslation('mihomo')
   const tCommon = (key: string) => t(`common:${key}`)
-  useAppConfig()
   const [loading, setLoading] = useState<{ mihomo?: boolean; 'mihomo-alpha'?: boolean }>({})
   const [hasPermission, setHasPermission] = useState<
     { mihomo: boolean; 'mihomo-alpha': boolean } | boolean | null
