@@ -33,6 +33,7 @@ const ProxySettingModal: React.FC<Props> = (props) => {
     groupDisplayLayout = 'single',
     proxyDisplayLayout = 'double',
     autoCloseConnection = true,
+    closeMode = 'all',
     delayTestUrl,
     delayTestUrlScope = 'group',
     delayTestConcurrency,
@@ -137,6 +138,23 @@ const ProxySettingModal: React.FC<Props> = (props) => {
               }}
             />
           </SettingItem>
+          {autoCloseConnection && (
+            <SettingItem title={t('closeMode')} divider>
+              <Tabs
+                size="sm"
+                color="primary"
+                selectedKey={closeMode}
+                onSelectionChange={async (v) => {
+                  await patchAppConfig({
+                    closeMode: v as 'all' | 'group'
+                  })
+                }}
+              >
+                <Tab key="all" title={t('closeModeAll')} />
+                <Tab key="group" title={t('closeModeGroup')} />
+              </Tabs>
+            </SettingItem>
+          )}
           <SettingItem title={t('delayTestUrl')} divider>
             <Input
               size="sm"

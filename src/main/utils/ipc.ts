@@ -2,7 +2,7 @@ import { app, dialog, ipcMain } from 'electron'
 import { t } from './i18n'
 import {
   mihomoChangeProxy,
-  mihomoCloseAllConnections,
+  mihomoCloseConnections,
   mihomoCloseConnection,
   mihomoGroupDelay,
   mihomoGroups,
@@ -164,8 +164,8 @@ export function registerIpcMainHandlers(): void {
   ipcMain.handle('mihomoVersion', ipcErrorWrapper(mihomoVersion))
   ipcMain.handle('mihomoConfig', ipcErrorWrapper(mihomoConfig))
   ipcMain.handle('mihomoCloseConnection', (_e, id) => ipcErrorWrapper(mihomoCloseConnection)(id))
-  ipcMain.handle('mihomoCloseAllConnections', (_e, name) =>
-    ipcErrorWrapper(mihomoCloseAllConnections)(name)
+  ipcMain.handle('mihomoCloseConnections', (_e, name) =>
+    ipcErrorWrapper(mihomoCloseConnections)(name)
   )
   ipcMain.handle('mihomoRules', ipcErrorWrapper(mihomoRules))
   ipcMain.handle('mihomoProxies', ipcErrorWrapper(mihomoProxies))
