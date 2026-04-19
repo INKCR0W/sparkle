@@ -58,7 +58,7 @@ const LogCard: React.FC<Props> = (props) => {
         transition,
         zIndex: isDragging ? 'calc(infinity)' : undefined
       }}
-      className={logCardStatus}
+      className={`${logCardStatus} log-card`}
     >
       <Card
         fullWidth
