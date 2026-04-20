@@ -220,6 +220,7 @@ const PortSetting: React.FC = () => {
           </SettingItem>
         )}
         <SettingItem
+          compatKey="legacy"
           title={t('port.allowLan')}
           actions={
             <Button

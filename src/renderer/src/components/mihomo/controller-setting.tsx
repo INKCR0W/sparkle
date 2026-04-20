@@ -108,6 +108,7 @@ const ControllerSetting: React.FC = () => {
       {externalController && externalController !== '' && (
         <>
           <SettingItem
+            compatKey="legacy"
             title={t('controller.secret')}
             actions={
               <Button

@@ -251,6 +251,7 @@ const Sysproxy: React.FC = () => {
               </Tabs>
             </SettingItem>
             <SettingItem
+              compatKey="legacy"
               title={t('activeInterfaceOnly')}
               actions={
                 <Tooltip
